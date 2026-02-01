@@ -6,6 +6,7 @@
   "version": "*",
   "manifestVersion": 2,
   "requiresCustomScript": false,
+  "supportsFullBleed": true,
   "supportedHosts": [
     "SharePointWebPart",
     "SharePointFullPage"
@@ -26,13 +27,13 @@
       "officeFabricIconFontName": "ServerEnviroment",
       "properties": {
         "siteType": "Infrastructure",
-        "heroTitle": "Infrastructure Services",
-        "heroSubtitle": "Cloud platforms, networking, and core systems",
-        "heroBackground": "#00289e",
+        "heroTitle": "",
+        "heroSubtitle": "",
+        "heroBackground": "",
         "showStatusBadge": true,
         "showArchitectureDiagrams": true,
-        "platformCards": [],
-        "quickLinks": []
+        "platformCardsJson": "",
+        "quickLinksJson": ""
       }
     }
   ]
