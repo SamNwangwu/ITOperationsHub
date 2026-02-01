@@ -1,6 +1,6 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
-  "id": "c48067e0-93d4-4f67-9271-f67b617b715f",
+  "id": "c8e7b3a1-5d2f-4e6a-9c1b-8f3d2e5a4b7c",
   "alias": "CloudPlatformWebPart",
   "componentType": "WebPart",
   "version": "*",

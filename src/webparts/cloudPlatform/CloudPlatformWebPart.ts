@@ -7,8 +7,8 @@ import {
   PropertyPaneTextField
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
-import CloudPlatform from './components/CloudPlatform';
-import { ICloudPlatformProps } from './components/ICloudPlatformProps';
+import CloudPlatform from './CloudPlatform';
+import { ICloudPlatformProps } from './ICloudPlatformProps';
 
 export interface ICloudPlatformWebPartProps {
   platform: 'aws' | 'azure';
