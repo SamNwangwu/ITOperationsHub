@@ -235,7 +235,13 @@ export default class ItOpsHomepage extends React.Component<IItOpsHomepageProps, 
             <div className={styles.quickLinksGrid}>
               {quickLinks.map((link, index) => (
                 <a key={index} href={link.url} className={styles.quickLink} target={link.url.startsWith('http') ? '_blank' : '_self'}>
-                  <span className={styles.quickLinkIcon}>{link.icon}</span>
+                  <span
+                    className={styles.quickLinkIcon}
+                    {...(link.icon.startsWith('<svg')
+                      ? { dangerouslySetInnerHTML: { __html: link.icon } }
+                      : { children: link.icon }
+                    )}
+                  />
                   <span className={styles.quickLinkTitle}>{link.title}</span>
                 </a>
               ))}
