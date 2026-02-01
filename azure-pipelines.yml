@@ -155,8 +155,8 @@ stages:
                         -CertificatePath "$(certificate.secureFilePath)" `
                         -CertificatePassword $certPassword
                       
-                      # Deploy
+                      # Deploy - SkipFeatureDeployment makes it available to all sites
                       $pkg = "$(Pipeline.Workspace)/spfx-package/$(solutionName)"
-                      Add-PnPApp -Path $pkg -Scope Tenant -Overwrite -Publish | Out-Null
+                      Add-PnPApp -Path $pkg -Scope Tenant -Overwrite -Publish -SkipFeatureDeployment | Out-Null
                       
-                      Write-Host "✅ Deployed!" -ForegroundColor Green
+                      Write-Host "✅ Deployed to all sites!" -ForegroundColor Green
