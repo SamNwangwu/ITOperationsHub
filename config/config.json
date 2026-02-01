@@ -9,6 +9,14 @@
           "manifest": "./src/webparts/itOpsHomepage/ItOpsHomepageWebPart.manifest.json"
         }
       ]
+    },
+    "cloud-platform-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/cloudPlatform/CloudPlatformWebPart.js",
+          "manifest": "./src/webparts/cloudPlatform/CloudPlatformWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
