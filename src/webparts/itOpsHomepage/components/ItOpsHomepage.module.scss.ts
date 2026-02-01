@@ -34,6 +34,8 @@ const styles = {
   diagramTitle: 'diagramTitle_cccb6c56',
   diagramDescription: 'diagramDescription_cccb6c56',
   comingSoon: 'comingSoon_cccb6c56',
+  loadingMessage: 'loadingMessage_cccb6c56',
+  emptyMessage: 'emptyMessage_cccb6c56',
   footer: 'footer_cccb6c56'
 };
 

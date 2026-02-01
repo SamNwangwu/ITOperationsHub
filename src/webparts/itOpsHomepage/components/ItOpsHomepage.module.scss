@@ -132,6 +132,11 @@ $status-down: #ef4444;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  svg {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 .platformInfo {
@@ -290,6 +295,27 @@ $status-down: #ef4444;
   border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.loadingMessage {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  font-size: 15px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px dashed #e5e7eb;
+
+  p {
+    margin: 0;
+  }
 }
 
 // ========================================
