@@ -1,18 +1,8 @@
 # =============================================================================
-# Azure DevOps Pipeline - SPFx Build & Deploy
+# Azure DevOps Pipeline - SPFx Build & Deploy (Simplified)
 # =============================================================================
 # Builds SPFx solution and deploys to SharePoint Tenant App Catalog
-#
-# Prerequisites:
-#   1. Variable Group 'spfx-deployment' with:
-#      - TENANT_ID
-#      - CLIENT_ID  
-#      - CLIENT_SECRET (or use certificate - see notes)
-#      - APP_CATALOG_URL (e.g., https://lebara.sharepoint.com/sites/appcatalog)
-#
-#   2. Entra App Registration with:
-#      - SharePoint > Sites.FullControl.All (Application permission)
-#      - Admin consent granted
+# Single stage deployment - no dev/prod split
 # =============================================================================
 
 trigger:
@@ -25,10 +15,7 @@ trigger:
       - config/*
       - package.json
 
-pr:
-  branches:
-    include:
-      - main
+pr: none  # Don't run on PRs, only on push to main
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -80,59 +67,15 @@ stages:
               publishLocation: 'pipeline'
 
   # ===========================================
-  # DEPLOY TO DEV (PR only - optional)
+  # DEPLOY STAGE
   # ===========================================
-  - stage: DeployDev
-    displayName: 'Deploy to Dev'
+  - stage: Deploy
+    displayName: 'Deploy to App Catalog'
     dependsOn: Build
-    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+    condition: succeeded()
     jobs:
-      - deployment: DeployDevJob
-        displayName: 'Deploy to Dev App Catalog'
-        environment: 'spfx-dev'
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - task: DownloadPipelineArtifact@2
-                  displayName: 'Download artifact'
-                  inputs:
-                    buildType: 'current'
-                    artifactName: 'spfx-package'
-                    targetPath: '$(Pipeline.Workspace)/package'
-
-                - task: PowerShell@2
-                  displayName: 'Deploy to SharePoint'
-                  inputs:
-                    targetType: 'inline'
-                    pwsh: true
-                    script: |
-                      # Install PnP.PowerShell
-                      Install-Module -Name PnP.PowerShell -Force -AllowClobber -Scope CurrentUser
-                      
-                      # Connect using client credentials
-                      $secureSecret = ConvertTo-SecureString "$(CLIENT_SECRET)" -AsPlainText -Force
-                      Connect-PnPOnline -Url "$(APP_CATALOG_URL)" `
-                        -ClientId "$(CLIENT_ID)" `
-                        -ClientSecret $secureSecret `
-                        -Tenant "$(TENANT_ID)"
-                      
-                      # Deploy to App Catalog
-                      $packagePath = "$(Pipeline.Workspace)/package/$(solutionName)"
-                      Add-PnPApp -Path $packagePath -Scope Tenant -Overwrite -Publish
-                      
-                      Write-Host "✅ Deployed to Dev App Catalog" -ForegroundColor Green
-
-  # ===========================================
-  # DEPLOY TO PRODUCTION
-  # ===========================================
-  - stage: DeployProd
-    displayName: 'Deploy to Production'
-    dependsOn: Build
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'), ne(variables['Build.Reason'], 'PullRequest'))
-    jobs:
-      - deployment: DeployProdJob
-        displayName: 'Deploy to Prod App Catalog'
+      - deployment: DeployJob
+        displayName: 'Deploy to SharePoint'
         environment: 'spfx-production'
         strategy:
           runOnce:
@@ -146,15 +89,17 @@ stages:
                     targetPath: '$(Pipeline.Workspace)/package'
 
                 - task: PowerShell@2
-                  displayName: 'Deploy to SharePoint'
+                  displayName: 'Deploy to SharePoint App Catalog'
                   inputs:
                     targetType: 'inline'
                     pwsh: true
                     script: |
                       # Install PnP.PowerShell
-                      Install-Module -Name PnP.PowerShell -Force -AllowClobber -Scope CurrentUser
+                      Write-Host "Installing PnP.PowerShell..." -ForegroundColor Cyan
+                      Install-Module -Name PnP.PowerShell -Force -AllowClobber -Scope CurrentUser -SkipPublisherCheck
                       
                       # Connect using client credentials
+                      Write-Host "Connecting to SharePoint..." -ForegroundColor Cyan
                       $secureSecret = ConvertTo-SecureString "$(CLIENT_SECRET)" -AsPlainText -Force
                       Connect-PnPOnline -Url "$(APP_CATALOG_URL)" `
                         -ClientId "$(CLIENT_ID)" `
@@ -162,35 +107,15 @@ stages:
                         -Tenant "$(TENANT_ID)"
                       
                       # Deploy to App Catalog
+                      Write-Host "Deploying package..." -ForegroundColor Cyan
                       $packagePath = "$(Pipeline.Workspace)/package/$(solutionName)"
+                      
+                      Write-Host "Package path: $packagePath"
+                      Write-Host "App Catalog: $(APP_CATALOG_URL)"
+                      
                       Add-PnPApp -Path $packagePath -Scope Tenant -Overwrite -Publish
                       
-                      Write-Host "✅ Deployed to Production App Catalog" -ForegroundColor Green
-
-                - task: PowerShell@2
-                  displayName: 'Update deployed sites (optional)'
-                  inputs:
-                    targetType: 'inline'
-                    pwsh: true
-                    script: |
-                      # Optional: Auto-update the app on specific sites
-                      # Uncomment and modify as needed
-                      
-                      # $sites = @(
-                      #   "https://lebara.sharepoint.com/sites/ITOpsHub",
-                      #   "https://lebara.sharepoint.com/sites/Infrastructure",
-                      #   "https://lebara.sharepoint.com/sites/ITOps-IAM",
-                      #   "https://lebara.sharepoint.com/sites/ITOps-Platform",
-                      #   "https://lebara.sharepoint.com/sites/ITOps-ServiceMgmt"
-                      # )
-                      # 
-                      # foreach ($site in $sites) {
-                      #   Connect-PnPOnline -Url $site -ClientId "$(CLIENT_ID)" -ClientSecret $secureSecret -Tenant "$(TENANT_ID)"
-                      #   $app = Get-PnPApp -Identity "it-ops-homepage-client-side-solution"
-                      #   if ($app) {
-                      #     Update-PnPApp -Identity $app.Id
-                      #     Write-Host "Updated app on $site"
-                      #   }
-                      # }
-                      
-                      Write-Host "✅ Deployment complete" -ForegroundColor Green
+                      Write-Host "✅ Deployment complete!" -ForegroundColor Green
+                      Write-Host ""
+                      Write-Host "The web part is now available in SharePoint."
+                      Write-Host "Add it to any page by editing the page and searching for 'IT Operations Homepage'"
