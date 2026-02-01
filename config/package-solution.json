@@ -16,10 +16,10 @@
     },
     "metadata": {
       "shortDescription": {
-        "default": "IT Operations Homepage Web Part"
+        "default": "IT Operations Web Parts"
       },
       "longDescription": {
-        "default": "A configurable homepage component for IT Operations Hub sites including Infrastructure, IAM, Platform Engineering, and Service Management."
+        "default": "Web parts for IT Operations Hub sites including Homepage, Cloud Platform (AWS/Azure), Infrastructure, IAM, Platform Engineering, and Service Management."
       },
       "screenshotPaths": [],
       "videoUrl": "",
@@ -30,6 +30,12 @@
         "title": "IT Operations Homepage Feature",
         "description": "Deploys the IT Operations Homepage web part",
         "id": "c2d3e4f5-a6b7-8901-cdef-234567890123",
+        "version": "1.0.0.0"
+      },
+      {
+        "title": "Cloud Platform Page Feature",
+        "description": "Deploys the Cloud Platform (AWS/Azure) documentation page web part",
+        "id": "d3e4f5a6-b7c8-9012-def3-456789012345",
         "version": "1.0.0.0"
       }
     ]
