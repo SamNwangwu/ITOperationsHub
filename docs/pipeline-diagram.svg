@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900">
+  <defs>
+    <linearGradient id="devGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e3f2fd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#bbdefb;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="buildGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fff3e0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffe0b2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="deployGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8f5e9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c8e6c9;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="spGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f3e5f5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e1bee7;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="900" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" font-family="Segoe UI, Arial" font-size="28" font-weight="600" fill="#00289e">SPFx CI/CD Pipeline - IT Operations Homepage</text>
+  <text x="600" y="65" text-anchor="middle" font-family="Segoe UI, Arial" font-size="14" fill="#666">Azure DevOps → SharePoint App Catalog</text>
+  
+  <!-- Developer Section -->
+  <rect x="50" y="90" width="200" height="80" rx="12" fill="url(#devGrad)" filter="url(#shadow)"/>
+  <text x="150" y="120" text-anchor="middle" font-family="Segoe UI, Arial" font-size="14" font-weight="600" fill="#1565c0">👨‍💻 Developer</text>
+  <text x="150" y="145" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" fill="#333">Push to main branch</text>
+  
+  <!-- Arrow down -->
+  <path d="M150 170 L150 200 L145 190 M150 200 L155 190" stroke="#666" stroke-width="2" fill="none"/>
+  
+  <!-- Trigger Box -->
+  <rect x="75" y="210" width="150" height="60" rx="8" fill="#fff" stroke="#ff9800" stroke-width="2" filter="url(#shadow)"/>
+  <text x="150" y="235" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" font-weight="600" fill="#e65100">⚡ Trigger</text>
+  <text x="150" y="255" text-anchor="middle" font-family="Segoe UI, Arial" font-size="10" fill="#666">src/*, config/*, package.json</text>
+  
+  <!-- Arrow to Build -->
+  <path d="M225 240 L290 240" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- BUILD STAGE -->
+  <rect x="300" y="90" width="550" height="200" rx="16" fill="url(#buildGrad)" filter="url(#shadow)"/>
+  <text x="575" y="115" text-anchor="middle" font-family="Segoe UI, Arial" font-size="16" font-weight="600" fill="#e65100">🔨 BUILD STAGE</text>
+  
+  <!-- Build steps -->
+  <rect x="320" y="135" width="100" height="50" rx="6" fill="#fff" stroke="#fb8c00" stroke-width="1.5"/>
+  <text x="370" y="155" text-anchor="middle" font-family="Segoe UI, Arial" font-size="10" font-weight="500" fill="#333">Shallow Clone</text>
+  <text x="370" y="170" text-anchor="middle" font-family="Segoe UI, Arial" font-size="9" fill="#666">fetchDepth: 1</text>
+  
+  <path d="M420 160 L440 160" stroke="#666" stroke-width="1.5" fill="none"/>
+  
+  <rect x="445" y="135" width="100" height="50" rx="6" fill="#fff" stroke="#fb8c00" stroke-width="1.5"/>
+  <text x="495" y="155" text-anchor="middle" font-family="Segoe UI, Arial" font-size="10" font-weight="500" fill="#333">Node.js 18.x</text>
+  <text x="495" y="170" text-anchor="middle" font-family="Segoe UI, Arial" font-size="9" fill="#666">Setup</text>
+  
+  <path d="M545 160 L565 160" stroke="#666" stroke-width="1.5" fill="none"/>
+  
+  <rect x="570" y="135" width="100" height="50" rx="6" fill="#fff" stroke="#fb8c00" stroke-width="1.5"/>
+  <text x="620" y="155" text-anchor="middle" font-family="Segoe UI, Arial" font-size="10" font-weight="500" fill="#333">npm ci</text>
+  <text x="620" y="170" text-anchor="middle" font-family="Segoe UI, Arial" font-size="9" fill="#666">📦 Cached</text>
+  
+  <path d="M670 160 L690 160" stroke="#666" stroke-width="1.5" fill="none"/>
+  
+  <rect x="695" y="135" width="100" height="50" rx="6" fill="#fff" stroke="#fb8c00" stroke-width="1.5"/>
+  <text x="745" y="155" text-anchor="middle" font-family="Segoe UI, Arial" font-size="10" font-weight="500" fill="#333">Auto Version</text>
+  <text x="745" y="170" text-anchor="middle" font-family="Segoe UI, Arial" font-size="9" fill="#666">1.0.0.{BuildId}</text>
+  
+  <!-- Second row of build -->
+  <rect x="380" y="210" width="110" height="50" rx="6" fill="#fff" stroke="#fb8c00" stroke-width="1.5"/>
+  <text x="435" y="230" text-anchor="middle" font-family="Segoe UI, Arial" font-size="10" font-weight="500" fill="#333">gulp bundle</text>
+  <text x="435" y="245" text-anchor="middle" font-family="Segoe UI, Arial" font-size="9" fill="#666">--ship</text>
+  
+  <path d="M490 235 L520 235" stroke="#666" stroke-width="1.5" fill="none"/>
+  
+  <rect x="525" y="210" width="110" height="50" rx="6" fill="#fff" stroke="#fb8c00" stroke-width="1.5"/>
+  <text x="580" y="230" text-anchor="middle" font-family="Segoe UI, Arial" font-size="10" font-weight="500" fill="#333">gulp package</text>
+  <text x="580" y="245" text-anchor="middle" font-family="Segoe UI, Arial" font-size="9" fill="#666">--ship</text>
+  
+  <path d="M635 235 L665 235" stroke="#666" stroke-width="1.5" fill="none"/>
+  
+  <rect x="670" y="210" width="110" height="50" rx="6" fill="#4caf50" stroke="#388e3c" stroke-width="1.5"/>
+  <text x="725" y="230" text-anchor="middle" font-family="Segoe UI, Arial" font-size="10" font-weight="500" fill="#fff">📦 Artifact</text>
+  <text x="725" y="245" text-anchor="middle" font-family="Segoe UI, Arial" font-size="9" fill="#fff">.sppkg</text>
+  
+  <!-- Arrow down to Deploy -->
+  <path d="M725 260 L725 310" stroke="#666" stroke-width="2" fill="none"/>
+  <polygon points="720,305 725,315 730,305" fill="#666"/>
+  
+  <!-- DEPLOY STAGE -->
+  <rect x="300" y="320" width="550" height="200" rx="16" fill="url(#deployGrad)" filter="url(#shadow)"/>
+  <text x="575" y="345" text-anchor="middle" font-family="Segoe UI, Arial" font-size="16" font-weight="600" fill="#2e7d32">🚀 DEPLOY STAGE</text>
+  
+  <!-- Deploy steps -->
+  <rect x="320" y="365" width="100" height="50" rx="6" fill="#fff" stroke="#43a047" stroke-width="1.5"/>
+  <text x="370" y="385" text-anchor="middle" font-family="Segoe UI, Arial" font-size="10" font-weight="500" fill="#333">Download</text>
+  <text x="370" y="400" text-anchor="middle" font-family="Segoe UI, Arial" font-size="9" fill="#666">Artifact</text>
+  
+  <path d="M420 390 L440 390" stroke="#666" stroke-width="1.5" fill="none"/>
+  
+  <rect x="445" y="365" width="100" height="50" rx="6" fill="#fff" stroke="#43a047" stroke-width="1.5"/>
+  <text x="495" y="385" text-anchor="middle" font-family="Segoe UI, Arial" font-size="10" font-weight="500" fill="#333">🔐 Certificate</text>
+  <text x="495" y="400" text-anchor="middle" font-family="Segoe UI, Arial" font-size="9" fill="#666">.pfx file</text>
+  
+  <path d="M545 390 L565 390" stroke="#666" stroke-width="1.5" fill="none"/>
+  
+  <rect x="570" y="365" width="100" height="50" rx="6" fill="#fff" stroke="#43a047" stroke-width="1.5"/>
+  <text x="620" y="385" text-anchor="middle" font-family="Segoe UI, Arial" font-size="10" font-weight="500" fill="#333">PnP PowerShell</text>
+  <text x="620" y="400" text-anchor="middle" font-family="Segoe UI, Arial" font-size="9" fill="#666">📦 Cached</text>
+  
+  <path d="M670 390 L690 390" stroke="#666" stroke-width="1.5" fill="none"/>
+  
+  <rect x="695" y="365" width="100" height="50" rx="6" fill="#fff" stroke="#43a047" stroke-width="1.5"/>
+  <text x="745" y="385" text-anchor="middle" font-family="Segoe UI, Arial" font-size="10" font-weight="500" fill="#333">Connect SP</text>
+  <text x="745" y="400" text-anchor="middle" font-family="Segoe UI, Arial" font-size="9" fill="#666">Cert Auth</text>
+  
+  <!-- Deploy command -->
+  <rect x="420" y="440" width="310" height="55" rx="8" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+  <text x="575" y="462" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#fff">Add-PnPApp -Scope Tenant</text>
+  <text x="575" y="480" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#fff">-SkipFeatureDeployment</text>
+  
+  <!-- Arrow to SharePoint -->
+  <path d="M575 520 L575 560" stroke="#666" stroke-width="2" fill="none"/>
+  <polygon points="570,555 575,565 580,555" fill="#666"/>
+  
+  <!-- SHAREPOINT -->
+  <rect x="300" y="570" width="550" height="130" rx="16" fill="url(#spGrad)" filter="url(#shadow)"/>
+  <text x="575" y="595" text-anchor="middle" font-family="Segoe UI, Arial" font-size="16" font-weight="600" fill="#7b1fa2">☁️ SHAREPOINT</text>
+  
+  <!-- App Catalog -->
+  <rect x="350" y="615" width="150" height="60" rx="8" fill="#fff" stroke="#9c27b0" stroke-width="1.5"/>
+  <text x="425" y="640" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" font-weight="500" fill="#333">📦 App Catalog</text>
+  <text x="425" y="658" text-anchor="middle" font-family="Segoe UI, Arial" font-size="9" fill="#666">lebara.sharepoint.com</text>
+  
+  <path d="M500 645 L540 645" stroke="#666" stroke-width="1.5" fill="none"/>
+  
+  <!-- Available to all sites -->
+  <rect x="545" y="615" width="150" height="60" rx="8" fill="#4caf50" stroke="#388e3c" stroke-width="1.5"/>
+  <text x="620" y="640" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" font-weight="500" fill="#fff">✅ All Sites</text>
+  <text x="620" y="658" text-anchor="middle" font-family="Segoe UI, Arial" font-size="9" fill="#fff">Enabled</text>
+  
+  <!-- Sites -->
+  <rect x="50" y="570" width="200" height="290" rx="12" fill="#e0f2f1" filter="url(#shadow)"/>
+  <text x="150" y="595" text-anchor="middle" font-family="Segoe UI, Arial" font-size="14" font-weight="600" fill="#00695c">🌐 IT Operations Sites</text>
+  
+  <rect x="70" y="615" width="160" height="35" rx="6" fill="#00289e"/>
+  <text x="150" y="638" text-anchor="middle" font-family="Segoe UI, Arial" font-size="11" fill="#fff">IT Operations Hub</text>
+  
+  <rect x="70" y="660" width="160" height="35" rx="6" fill="#0047ab"/>
+  <text x="150" y="683" text-anchor="middle" font-family="Segoe UI, Arial" font-size="11" fill="#fff">Infrastructure</text>
+  
+  <rect x="70" y="705" width="160" height="35" rx="6" fill="#5c2d91"/>
+  <text x="150" y="728" text-anchor="middle" font-family="Segoe UI, Arial" font-size="11" fill="#fff">Identity & Access</text>
+  
+  <rect x="70" y="750" width="160" height="35" rx="6" fill="#0078d4"/>
+  <text x="150" y="773" text-anchor="middle" font-family="Segoe UI, Arial" font-size="11" fill="#fff">Platform Engineering</text>
+  
+  <rect x="70" y="795" width="160" height="35" rx="6" fill="#107c10"/>
+  <text x="150" y="818" text-anchor="middle" font-family="Segoe UI, Arial" font-size="11" fill="#fff">Service Management</text>
+  
+  <!-- Arrow from Available to Sites -->
+  <path d="M545 645 L300 645 L300 720 L250 720" stroke="#666" stroke-width="2" fill="none" stroke-dasharray="5,3"/>
+  
+  <!-- Legend -->
+  <rect x="900" y="570" width="250" height="130" rx="12" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <text x="1025" y="595" text-anchor="middle" font-family="Segoe UI, Arial" font-size="14" font-weight="600" fill="#333">⏱️ Performance</text>
+  
+  <rect x="920" y="615" width="12" height="12" rx="2" fill="#4caf50"/>
+  <text x="940" y="625" font-family="Segoe UI, Arial" font-size="11" fill="#333">Cached steps (~1 min saved)</text>
+  
+  <rect x="920" y="640" width="12" height="12" rx="2" fill="#ff9800"/>
+  <text x="940" y="650" font-family="Segoe UI, Arial" font-size="11" fill="#333">Build steps</text>
+  
+  <rect x="920" y="665" width="12" height="12" rx="2" fill="#9c27b0"/>
+  <text x="940" y="675" font-family="Segoe UI, Arial" font-size="11" fill="#333">SharePoint deployment</text>
+  
+  <!-- Footer -->
+  <text x="600" y="880" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" fill="#999">Lebara IT Operations • Azure DevOps Pipeline • February 2026</text>
+</svg>
