@@ -37,7 +37,7 @@ const SITE_CONFIGS: { [key: string]: {
   quickLinks: IQuickLink[];
 }} = {
   'Hub': {
-    title: 'IT Operations Hub',
+    title: 'Lebara IT Operations Hub',
     subtitle: 'Central hub for IT Operations documentation and resources',
     background: '#00289e',
     platformCards: [

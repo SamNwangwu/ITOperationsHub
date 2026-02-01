@@ -30,10 +30,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
     display: none !important;
   }
 
-  // Hide site header
-  [data-automationid="SiteHeader"] {
-    display: none !important;
-  }
+  // Note: SiteHeader is NOT hidden to preserve mobile navigation
 
   // Style the page background
   .SPCanvas,
@@ -54,6 +51,8 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
   color: #1f2937;
   position: relative;
   padding: 0 24px 32px;
+  overflow: visible;
+  box-sizing: border-box;
 
   // Subtle background pattern
   &::before {
@@ -193,25 +192,27 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
 // ========================================
 .platformSection {
   margin-bottom: 24px;
+  overflow: visible;
 }
 
 .platformGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 16px;
+  overflow: visible;
 }
 
 .platformCard {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 20px 24px;
+  padding: 20px 20px 20px 24px;
   border-radius: 14px;
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: $shadow-md;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 
   // Gradient overlay for depth
   &::before {
@@ -220,6 +221,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
     inset: 0;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, transparent 50%, rgba(0, 0, 0, 0.1) 100%);
     pointer-events: none;
+    border-radius: inherit;
   }
 
   &:hover {
