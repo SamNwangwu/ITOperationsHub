@@ -29,13 +29,13 @@
       {
         "title": "IT Operations Homepage Feature",
         "description": "Deploys the IT Operations Homepage web part",
-        "id": "c2d3e4f5-a6b7-8901-cdef-234567890123",
+        "id": "db068c89-90cb-4842-b72a-99767479c45b",
         "version": "1.0.0.0"
       },
       {
         "title": "Cloud Platform Page Feature",
         "description": "Deploys the Cloud Platform (AWS/Azure) documentation page web part",
-        "id": "d3e4f5a6-b7c8-9012-def3-456789012345",
+        "id": "673a9c49-ccbb-4c34-8abd-a94b12b18847",
         "version": "1.0.0.0"
       }
     ]
