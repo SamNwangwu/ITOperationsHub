@@ -2,7 +2,7 @@
 # Azure DevOps Pipeline - SPFx Build & Deploy
 # =============================================================================
 # Builds SPFx solution and deploys to SharePoint Tenant App Catalog
-# Uses M365 CLI for deployment (supports client credentials)
+# Uses Certificate-based authentication
 # =============================================================================
 
 trigger:
@@ -88,20 +88,49 @@ stages:
                     artifactName: 'spfx-package'
                     targetPath: '$(Pipeline.Workspace)/package'
 
-                - script: npm install -g @pnp/cli-microsoft365
-                  displayName: 'Install M365 CLI'
+                - task: DownloadSecureFile@1
+                  name: certificate
+                  displayName: 'Download certificate'
+                  inputs:
+                    secureFile: 'SPFx-Pipeline.pfx'
 
-                - script: |
-                    echo "Logging in to Microsoft 365..."
-                    m365 login --authType secret --appId "$(CLIENT_ID)" --tenant "$(TENANT_ID)" --secret "$(CLIENT_SECRET)"
-                    
-                    echo "Deploying to App Catalog..."
-                    m365 spo app add --filePath "$(Pipeline.Workspace)/package/$(solutionName)" --appCatalogUrl "$(APP_CATALOG_URL)" --overwrite
-                    
-                    echo "Publishing app..."
-                    m365 spo app deploy --name "$(solutionName)" --appCatalogUrl "$(APP_CATALOG_URL)"
-                    
-                    echo "✅ Deployment complete!"
+                - task: PowerShell@2
                   displayName: 'Deploy to SharePoint App Catalog'
-                  env:
-                    CLIENT_SECRET: $(CLIENT_SECRET)
+                  inputs:
+                    targetType: 'inline'
+                    pwsh: true
+                    script: |
+                      # Install PnP.PowerShell
+                      Write-Host "Installing PnP.PowerShell..." -ForegroundColor Cyan
+                      Install-Module -Name PnP.PowerShell -Force -AllowClobber -Scope CurrentUser -SkipPublisherCheck
+                      
+                      # Connect using certificate
+                      Write-Host "Connecting to SharePoint with certificate..." -ForegroundColor Cyan
+                      
+                      $certPath = "$(certificate.secureFilePath)"
+                      $certPassword = ConvertTo-SecureString "$(CERT_PASSWORD)" -AsPlainText -Force
+                      
+                      Connect-PnPOnline -Url "$(APP_CATALOG_URL)" `
+                        -ClientId "$(CLIENT_ID)" `
+                        -Tenant "$(TENANT_ID)" `
+                        -CertificatePath $certPath `
+                        -CertificatePassword $certPassword
+                      
+                      Write-Host "Connected successfully!" -ForegroundColor Green
+                      
+                      # Deploy to App Catalog
+                      Write-Host "Deploying package to App Catalog..." -ForegroundColor Cyan
+                      $packagePath = "$(Pipeline.Workspace)/package/$(solutionName)"
+                      
+                      Write-Host "Package: $packagePath"
+                      Write-Host "App Catalog: $(APP_CATALOG_URL)"
+                      
+                      # Add and publish the app
+                      $app = Add-PnPApp -Path $packagePath -Scope Tenant -Overwrite -Publish
+                      
+                      Write-Host ""
+                      Write-Host "✅ Deployment complete!" -ForegroundColor Green
+                      Write-Host "App ID: $($app.Id)" -ForegroundColor Cyan
+                      Write-Host ""
+                      Write-Host "The web part is now available in SharePoint."
+                      Write-Host "Add it to any page by editing and searching for 'IT Operations Homepage'"
