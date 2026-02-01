@@ -62,10 +62,10 @@ stages:
           # Auto-increment version using build number
           - script: |
               echo "Setting version to 1.0.$(Build.BuildId)..."
-
+              
               # Update package-solution.json with build number
               sed -i 's/"version": "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*"/"version": "1.0.0.$(Build.BuildId)"/' config/package-solution.json
-
+              
               # Show updated version
               grep '"version"' config/package-solution.json
             displayName: 'Auto-increment version'
@@ -140,7 +140,7 @@ stages:
                     script: |
                       $ErrorActionPreference = 'Stop'
                       $modulePath = "$(pnpModulePath)"
-
+                      
                       # Setup module path
                       if (Test-Path "$modulePath/PnP.PowerShell") {
                         Write-Host "✓ PnP.PowerShell cached" -ForegroundColor Green
@@ -149,10 +149,10 @@ stages:
                         New-Item -ItemType Directory -Path $modulePath -Force | Out-Null
                         Save-Module -Name PnP.PowerShell -Path $modulePath -Force
                       }
-
+                      
                       $env:PSModulePath = "$modulePath$([System.IO.Path]::PathSeparator)$env:PSModulePath"
                       Import-Module PnP.PowerShell
-
+                      
                       # Connect
                       $certPassword = ConvertTo-SecureString "$(CERT_PASSWORD)" -AsPlainText -Force
                       Connect-PnPOnline -Url "$(APP_CATALOG_URL)" `
@@ -160,9 +160,34 @@ stages:
                         -Tenant "$(TENANT_ID)" `
                         -CertificatePath "$(certificate.secureFilePath)" `
                         -CertificatePassword $certPassword
-
-                      # Deploy - SkipFeatureDeployment makes it available to all sites
+                      
+                      Write-Host "Connected to SharePoint" -ForegroundColor Green
+                      
                       $pkg = "$(Pipeline.Workspace)/spfx-package/$(solutionName)"
-                      Add-PnPApp -Path $pkg -Scope Tenant -Overwrite -Publish -SkipFeatureDeployment | Out-Null
-
-                      Write-Host "✅ Deployed v1.0.0.$(Build.BuildId) to all sites!" -ForegroundColor Green
+                      Write-Host "Package: $pkg" -ForegroundColor Cyan
+                      
+                      # Check if app already exists
+                      $existingApp = Get-PnPApp -Scope Tenant | Where-Object { $_.Title -like "*it-ops-homepage*" }
+                      
+                      if ($existingApp) {
+                        Write-Host "App exists, removing old version first..." -ForegroundColor Yellow
+                        Remove-PnPApp -Identity $existingApp.Id -Scope Tenant
+                        Start-Sleep -Seconds 2
+                      }
+                      
+                      # Add the app fresh
+                      Write-Host "Adding app to catalog..." -ForegroundColor Cyan
+                      Add-PnPApp -Path $pkg -Scope Tenant -Overwrite
+                      
+                      Start-Sleep -Seconds 2
+                      
+                      # Get the newly added app
+                      $app = Get-PnPApp -Scope Tenant | Where-Object { $_.Title -like "*it-ops-homepage*" }
+                      
+                      if ($app) {
+                        Write-Host "Publishing app: $($app.Title) - $($app.Id)" -ForegroundColor Cyan
+                        Publish-PnPApp -Identity $app.Id -Scope Tenant -SkipFeatureDeployment
+                        Write-Host "✅ Deployed v1.0.0.$(Build.BuildId) to all sites!" -ForegroundColor Green
+                      } else {
+                        throw "Failed to find app after upload"
+                      }
