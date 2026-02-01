@@ -19,7 +19,7 @@ $shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
 $shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 $shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-$shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
+$shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
 
 // ========================================
 // GLOBAL OVERRIDES - Hide SharePoint elements
@@ -49,11 +49,11 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 .itOpsHomepage {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   width: 100%;
-  max-width: 1600px;
+  max-width: 1400px;
   margin: 0 auto;
   color: #1f2937;
   position: relative;
-  padding: 0 40px 40px;
+  padding: 0 24px 32px;
 
   // Subtle background pattern
   &::before {
@@ -77,12 +77,12 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 // HERO BANNER
 // ========================================
 .hero {
-  border-radius: 24px;
-  padding: 70px 60px;
-  margin-bottom: 32px;
+  border-radius: 16px;
+  padding: 40px 36px;
+  margin-bottom: 24px;
   position: relative;
   overflow: hidden;
-  box-shadow: $shadow-xl, $shadow-glow;
+  box-shadow: $shadow-lg, $shadow-glow;
 
   // Decorative elements
   &::before {
@@ -116,17 +116,17 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 
 .heroTitle {
   color: white;
-  font-size: 52px;
+  font-size: 36px;
   font-weight: 700;
-  margin: 0 0 16px 0;
-  letter-spacing: -1px;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.5px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .heroSubtitle {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 20px;
-  margin: 0 0 32px 0;
+  font-size: 16px;
+  margin: 0 0 24px 0;
   font-weight: 400;
   max-width: 600px;
 }
@@ -134,11 +134,11 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 .statusBadge {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  padding: 14px 28px;
+  padding: 10px 20px;
   border-radius: 50px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
@@ -152,21 +152,21 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 }
 
 .statusDot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: $status-healthy;
-  box-shadow: 0 0 12px $status-healthy;
+  box-shadow: 0 0 10px $status-healthy;
   animation: pulse 2s infinite;
 
   [data-status="degraded"] & {
     background: $status-degraded;
-    box-shadow: 0 0 12px $status-degraded;
+    box-shadow: 0 0 10px $status-degraded;
   }
 
   [data-status="down"] & {
     background: $status-down;
-    box-shadow: 0 0 12px $status-down;
+    box-shadow: 0 0 10px $status-down;
     animation: none;
   }
 
@@ -183,33 +183,33 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 
 .statusText {
   color: white;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
 }
 
 // ========================================
 // PLATFORM CARDS
 // ========================================
 .platformSection {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .platformGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
 }
 
 .platformCard {
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 28px 32px;
-  border-radius: 20px;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 14px;
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: $shadow-lg;
+  box-shadow: $shadow-md;
   position: relative;
   overflow: hidden;
 
@@ -223,11 +223,11 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
   }
 
   &:hover {
-    transform: translateY(-6px) scale(1.02);
-    box-shadow: $shadow-xl, 0 0 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: $shadow-lg, 0 0 20px rgba(0, 0, 0, 0.12);
 
     .platformArrow {
-      transform: translateX(8px);
+      transform: translateX(6px);
       opacity: 1;
     }
 
@@ -238,11 +238,11 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 }
 
 .platformIcon {
-  font-size: 40px;
+  font-size: 32px;
   background: rgba(255, 255, 255, 0.2);
-  width: 72px;
-  height: 72px;
-  border-radius: 18px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -250,10 +250,11 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
   position: relative;
   z-index: 1;
+  flex-shrink: 0;
 
   svg {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
   }
 }
 
@@ -261,25 +262,26 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
   flex: 1;
   position: relative;
   z-index: 1;
+  min-width: 0;
 }
 
 .platformTitle {
-  margin: 0 0 6px 0;
-  font-size: 24px;
+  margin: 0 0 4px 0;
+  font-size: 18px;
   font-weight: 600;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.2px;
 }
 
 .platformDescription {
   margin: 0;
   color: rgba(255, 255, 255, 0.75);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
 }
 
 .platformArrow {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 24px;
+  font-size: 20px;
   transition: all 0.3s ease;
   opacity: 0.7;
   position: relative;
@@ -291,19 +293,19 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 // ========================================
 .sectionTitle {
   color: $lebara-dark;
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 600;
-  margin: 0 0 24px 0;
-  letter-spacing: -0.3px;
+  margin: 0 0 20px 0;
+  letter-spacing: -0.2px;
   position: relative;
   display: inline-block;
 
   &::after {
     content: '';
     position: absolute;
-    bottom: -8px;
+    bottom: -6px;
     left: 0;
-    width: 40px;
+    width: 32px;
     height: 3px;
     background: linear-gradient(90deg, $lebara-primary, $lebara-magenta);
     border-radius: 2px;
@@ -315,26 +317,26 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 // ========================================
 .quickLinksSection {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border-radius: 24px;
-  padding: 40px 44px;
-  margin-bottom: 32px;
-  box-shadow: $shadow-lg;
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: $shadow-md;
   border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .quickLinksGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
 }
 
 .quickLink {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   background: white;
-  padding: 18px 22px;
-  border-radius: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
   text-decoration: none;
   color: #374151;
   border: 1px solid #e5e7eb;
@@ -345,30 +347,31 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
     border-color: $lebara-primary;
     background: linear-gradient(135deg, #ffffff 0%, rgba(0, 40, 158, 0.02) 100%);
     box-shadow: $shadow-md, 0 0 0 3px rgba(0, 40, 158, 0.08);
-    transform: translateY(-3px);
+    transform: translateY(-2px);
 
     .quickLinkIcon {
-      transform: scale(1.15);
+      transform: scale(1.1);
     }
   }
 }
 
 .quickLinkIcon {
-  font-size: 26px;
+  font-size: 22px;
   transition: transform 0.25s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 
   svg {
-    width: 26px;
-    height: 26px;
+    width: 22px;
+    height: 22px;
   }
 }
 
 .quickLinkTitle {
   font-weight: 500;
-  font-size: 15px;
+  font-size: 14px;
   color: #1f2937;
 }
 
@@ -376,23 +379,23 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 // ARCHITECTURE DIAGRAMS
 // ========================================
 .diagramsSection {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border-radius: 24px;
-  padding: 40px 44px;
-  box-shadow: $shadow-lg;
+  border-radius: 16px;
+  padding: 28px 32px;
+  box-shadow: $shadow-md;
   border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .diagramsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
 }
 
 .diagramCard {
   background: white;
-  border-radius: 18px;
+  border-radius: 14px;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
@@ -401,8 +404,8 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
   box-shadow: $shadow-sm;
 
   &:hover {
-    box-shadow: $shadow-xl;
-    transform: translateY(-6px);
+    box-shadow: $shadow-lg;
+    transform: translateY(-4px);
     border-color: transparent;
 
     .diagramImage {
@@ -417,14 +420,14 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 
 .diagramImage {
   width: 100%;
-  height: 200px;
+  height: 140px;
   object-fit: cover;
   transition: transform 0.4s ease;
 }
 
 .diagramPlaceholder {
   width: 100%;
-  height: 200px;
+  height: 140px;
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
   display: flex;
   align-items: center;
@@ -433,35 +436,35 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 }
 
 .placeholderIcon {
-  font-size: 56px;
+  font-size: 40px;
   opacity: 0.35;
 }
 
 .diagramInfo {
-  padding: 22px 24px;
+  padding: 16px 18px;
 }
 
 .diagramTitle {
-  margin: 0 0 6px 0;
-  font-size: 17px;
+  margin: 0 0 4px 0;
+  font-size: 15px;
   font-weight: 600;
   color: #1f2937;
 }
 
 .diagramDescription {
   margin: 0;
-  font-size: 13px;
+  font-size: 12px;
   color: #6b7280;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .comingSoon {
   display: inline-block;
-  margin-top: 12px;
-  font-size: 11px;
+  margin-top: 10px;
+  font-size: 10px;
   color: #6b7280;
   background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -470,16 +473,16 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 
 .loadingMessage {
   text-align: center;
-  padding: 50px;
+  padding: 40px;
   color: #6b7280;
-  font-size: 15px;
+  font-size: 14px;
 
   &::before {
     content: '';
     display: block;
-    width: 40px;
-    height: 40px;
-    margin: 0 auto 16px;
+    width: 32px;
+    height: 32px;
+    margin: 0 auto 12px;
     border: 3px solid #e5e7eb;
     border-top-color: $lebara-primary;
     border-radius: 50%;
@@ -493,11 +496,11 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 
 .emptyMessage {
   text-align: center;
-  padding: 50px;
+  padding: 40px;
   color: #6b7280;
-  font-size: 15px;
+  font-size: 14px;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-radius: 16px;
+  border-radius: 12px;
   border: 2px dashed #d1d5db;
 
   p {
@@ -510,12 +513,12 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 // ========================================
 .footer {
   text-align: center;
-  padding: 40px 30px;
+  padding: 28px 24px;
   color: #64748b;
-  font-size: 14px;
+  font-size: 13px;
   background: linear-gradient(135deg, $lebara-dark 0%, $lebara-primary 100%);
-  border-radius: 20px;
-  margin-top: 20px;
+  border-radius: 14px;
+  margin-top: 16px;
   position: relative;
   overflow: hidden;
 
@@ -559,10 +562,18 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 // ========================================
 
 // Large screens
-@media (min-width: 1800px) {
+@media (min-width: 1600px) {
   .itOpsHomepage {
-    max-width: 1800px;
-    padding: 0 60px 40px;
+    max-width: 1600px;
+    padding: 0 40px 40px;
+  }
+
+  .hero {
+    padding: 50px 48px;
+  }
+
+  .heroTitle {
+    font-size: 42px;
   }
 
   .platformGrid {
@@ -578,10 +589,25 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
   }
 }
 
-// Medium screens
+// Medium-large screens
 @media (max-width: 1200px) {
+  .quickLinksGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .diagramsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// Medium screens
+@media (max-width: 992px) {
   .itOpsHomepage {
-    padding: 0 30px 30px;
+    padding: 0 20px 28px;
+  }
+
+  .platformGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .quickLinksGrid {
@@ -596,99 +622,206 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 // Tablet
 @media (max-width: 768px) {
   .itOpsHomepage {
-    padding: 0 16px 30px;
+    padding: 0 16px 24px;
   }
 
   .hero {
-    padding: 50px 30px;
-    border-radius: 20px;
-  }
-
-  .heroTitle {
-    font-size: 36px;
-  }
-
-  .heroSubtitle {
-    font-size: 16px;
-  }
-
-  .platformGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .platformCard {
-    padding: 22px 24px;
-  }
-
-  .platformIcon {
-    width: 56px;
-    height: 56px;
-    font-size: 32px;
-
-    svg {
-      width: 32px;
-      height: 32px;
-    }
-  }
-
-  .platformTitle {
-    font-size: 20px;
-  }
-
-  .quickLinksSection,
-  .diagramsSection {
-    padding: 28px 24px;
-    border-radius: 20px;
-  }
-
-  .quickLinksGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .diagramsGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .sectionTitle {
-    font-size: 22px;
-  }
-
-  .footer {
-    padding: 30px 20px;
-    border-radius: 16px;
-  }
-}
-
-// Mobile
-@media (max-width: 480px) {
-  .itOpsHomepage {
-    padding: 0 12px 24px;
-  }
-
-  .hero {
-    padding: 40px 24px;
-    border-radius: 16px;
+    padding: 32px 24px;
+    border-radius: 14px;
   }
 
   .heroTitle {
     font-size: 28px;
   }
 
-  .quickLinksGrid {
+  .heroSubtitle {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .platformGrid {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .platformCard {
+    padding: 16px 20px;
+  }
+
+  .platformIcon {
+    width: 48px;
+    height: 48px;
+    font-size: 28px;
+    border-radius: 12px;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .platformTitle {
+    font-size: 16px;
+  }
+
+  .platformDescription {
+    font-size: 12px;
+  }
+
+  .quickLinksSection,
+  .diagramsSection {
+    padding: 24px 20px;
+    border-radius: 14px;
+  }
+
+  .quickLinksGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .quickLink {
+    padding: 12px 14px;
+  }
+
+  .quickLinkIcon {
+    font-size: 20px;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .quickLinkTitle {
+    font-size: 13px;
+  }
+
+  .diagramsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .diagramPlaceholder,
+  .diagramImage {
+    height: 120px;
+  }
+
+  .sectionTitle {
+    font-size: 18px;
+  }
+
+  .footer {
+    padding: 24px 20px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+}
+
+// Mobile
+@media (max-width: 480px) {
+  .itOpsHomepage {
+    padding: 0 12px 20px;
+  }
+
+  .hero {
+    padding: 28px 20px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+
+  .heroTitle {
+    font-size: 24px;
+  }
+
+  .heroSubtitle {
+    font-size: 13px;
+    margin-bottom: 16px;
   }
 
   .statusBadge {
-    padding: 12px 20px;
+    padding: 8px 16px;
+    gap: 8px;
   }
 
   .statusText {
-    font-size: 13px;
+    font-size: 12px;
+  }
+
+  .platformSection {
+    margin-bottom: 16px;
+  }
+
+  .platformCard {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .platformIcon {
+    width: 44px;
+    height: 44px;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
   }
 
   .quickLinksSection,
   .diagramsSection {
     padding: 20px 16px;
-    border-radius: 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+
+  .quickLinksGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .quickLink {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .diagramsGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .diagramPlaceholder,
+  .diagramImage {
+    height: 100px;
+  }
+
+  .diagramInfo {
+    padding: 12px 14px;
+  }
+
+  .diagramTitle {
+    font-size: 13px;
+  }
+
+  .diagramDescription {
+    font-size: 11px;
+  }
+
+  .placeholderIcon {
+    font-size: 32px;
+  }
+
+  .sectionTitle {
+    font-size: 16px;
+    margin-bottom: 16px;
+
+    &::after {
+      width: 24px;
+      height: 2px;
+      bottom: -4px;
+    }
+  }
+
+  .footer {
+    padding: 20px 16px;
+    margin-top: 12px;
   }
 }
