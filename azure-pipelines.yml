@@ -163,6 +163,25 @@ stages:
                       
                       # Deploy - SkipFeatureDeployment makes it available to all sites
                       $pkg = "$(Pipeline.Workspace)/spfx-package/$(solutionName)"
-                      Add-PnPApp -Path $pkg -Scope Tenant -Overwrite -Publish -SkipFeatureDeployment | Out-Null
-                      
-                      Write-Host "✅ Deployed v1.0.0.$(Build.BuildId) to all sites!" -ForegroundColor Green
+
+                      try {
+                        Write-Host "Deploying $pkg..." -ForegroundColor Cyan
+                        $app = Add-PnPApp -Path $pkg -Scope Tenant -Overwrite -Publish -SkipFeatureDeployment
+                        Write-Host "✅ Deployed v1.0.0.$(Build.BuildId) to all sites!" -ForegroundColor Green
+                      } catch {
+                        Write-Host "⚠️ Add-PnPApp failed, trying Update-PnPApp..." -ForegroundColor Yellow
+                        Write-Host "Error: $_" -ForegroundColor Yellow
+
+                        # Get app ID and try update
+                        $apps = Get-PnPApp -Scope Tenant | Where-Object { $_.Title -like "*it-ops*" -or $_.Title -like "*IT Operations*" }
+                        if ($apps) {
+                          foreach ($existingApp in $apps) {
+                            Write-Host "Found existing app: $($existingApp.Title) - $($existingApp.Id)" -ForegroundColor Cyan
+                            Update-PnPApp -Identity $existingApp.Id -Scope Tenant
+                            Publish-PnPApp -Identity $existingApp.Id -Scope Tenant -SkipFeatureDeployment
+                          }
+                          Write-Host "✅ Updated existing app!" -ForegroundColor Green
+                        } else {
+                          throw "Failed to deploy: $_"
+                        }
+                      }
