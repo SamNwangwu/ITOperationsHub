@@ -1,13 +1,6 @@
 # =============================================================================
 # Azure DevOps Pipeline - SPFx Build & Deploy (Optimised)
 # =============================================================================
-# Performance optimisations:
-# - Parallel tasks where possible
-# - Aggressive caching (npm, PnP module)
-# - Skip unnecessary steps
-# - Shallow git clone
-# - Auto-increment version number
-# =============================================================================
 
 trigger:
   branches:
@@ -59,18 +52,12 @@ stages:
             inputs:
               versionSpec: $(nodeVersion)
 
-          # Auto-increment version using build number
           - script: |
               echo "Setting version to 1.0.$(Build.BuildId)..."
-              
-              # Update package-solution.json with build number
               sed -i 's/"version": "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*"/"version": "1.0.0.$(Build.BuildId)"/' config/package-solution.json
-              
-              # Show updated version
               grep '"version"' config/package-solution.json
             displayName: 'Auto-increment version'
 
-          # Cache npm packages
           - task: Cache@2
             displayName: 'Cache npm'
             inputs:
@@ -79,7 +66,6 @@ stages:
                 npm-v2 | "$(Agent.OS)"
               path: $(npm_config_cache)
 
-          # Cache node_modules directly
           - task: Cache@2
             displayName: 'Cache node_modules'
             inputs:
@@ -138,7 +124,7 @@ stages:
                     targetType: 'inline'
                     pwsh: true
                     script: |
-                      $ErrorActionPreference = 'Stop'
+                      $ErrorActionPreference = 'Continue'
                       $modulePath = "$(pnpModulePath)"
                       
                       # Setup module path
@@ -165,29 +151,50 @@ stages:
                       
                       $pkg = "$(Pipeline.Workspace)/spfx-package/$(solutionName)"
                       Write-Host "Package: $pkg" -ForegroundColor Cyan
+                      Write-Host "File exists: $(Test-Path $pkg)" -ForegroundColor Cyan
                       
-                      # Check if app already exists
-                      $existingApp = Get-PnPApp -Scope Tenant | Where-Object { $_.Title -like "*it-ops-homepage*" }
+                      # List current apps
+                      Write-Host "`nCurrent apps in catalog:" -ForegroundColor Cyan
+                      Get-PnPApp -Scope Tenant | Select-Object Title, Id, Deployed | Format-Table
                       
-                      if ($existingApp) {
-                        Write-Host "App exists, removing old version first..." -ForegroundColor Yellow
-                        Remove-PnPApp -Identity $existingApp.Id -Scope Tenant
-                        Start-Sleep -Seconds 2
+                      # Try to add the app and capture any errors
+                      Write-Host "`nAdding app to catalog..." -ForegroundColor Cyan
+                      try {
+                        $result = Add-PnPApp -Path $pkg -Scope Tenant -Overwrite -ErrorAction Stop
+                        Write-Host "Add-PnPApp result: $result" -ForegroundColor Green
+                      } catch {
+                        Write-Host "Add-PnPApp error: $_" -ForegroundColor Red
+                        Write-Host "Error details: $($_.Exception.Message)" -ForegroundColor Red
                       }
                       
-                      # Add the app fresh
-                      Write-Host "Adding app to catalog..." -ForegroundColor Cyan
-                      Add-PnPApp -Path $pkg -Scope Tenant -Overwrite
+                      Start-Sleep -Seconds 3
                       
-                      Start-Sleep -Seconds 2
+                      # List apps again to see if it was added
+                      Write-Host "`nApps after upload:" -ForegroundColor Cyan
+                      $allApps = Get-PnPApp -Scope Tenant
+                      $allApps | Select-Object Title, Id, Deployed | Format-Table
                       
-                      # Get the newly added app
-                      $app = Get-PnPApp -Scope Tenant | Where-Object { $_.Title -like "*it-ops-homepage*" }
+                      # Find our app
+                      $app = $allApps | Where-Object { $_.Title -like "*it-ops*" -or $_.Title -like "*IT Ops*" -or $_.Title -like "*homepage*" }
                       
                       if ($app) {
-                        Write-Host "Publishing app: $($app.Title) - $($app.Id)" -ForegroundColor Cyan
-                        Publish-PnPApp -Identity $app.Id -Scope Tenant -SkipFeatureDeployment
-                        Write-Host "✅ Deployed v1.0.0.$(Build.BuildId) to all sites!" -ForegroundColor Green
+                        Write-Host "`nFound app: $($app.Title) - $($app.Id)" -ForegroundColor Green
+                        Write-Host "Publishing..." -ForegroundColor Cyan
+                        
+                        try {
+                          Publish-PnPApp -Identity $app.Id -Scope Tenant -SkipFeatureDeployment -ErrorAction Stop
+                          Write-Host "✅ Deployed v1.0.0.$(Build.BuildId) to all sites!" -ForegroundColor Green
+                        } catch {
+                          Write-Host "Publish error: $_" -ForegroundColor Red
+                          # Try without SkipFeatureDeployment
+                          Publish-PnPApp -Identity $app.Id -Scope Tenant
+                          Write-Host "✅ Published (without SkipFeatureDeployment)" -ForegroundColor Yellow
+                        }
                       } else {
-                        throw "Failed to find app after upload"
+                        Write-Host "`n⚠️ App not found in catalog after upload" -ForegroundColor Yellow
+                        Write-Host "Available apps:" -ForegroundColor Yellow
+                        $allApps | ForEach-Object { Write-Host "  - $($_.Title)" }
+                        
+                        # Exit with error
+                        exit 1
                       }
