@@ -78,7 +78,7 @@ const SITE_CONFIGS: { [key: string]: {
       { title: 'New Relic', url: 'https://one.newrelic.com', icon: '📊' },
       { title: 'Service Desk', url: 'https://lebara.service-now.com', icon: '🎫' },
       { title: 'Azure Portal', url: 'https://portal.azure.com', icon: '<svg viewBox="0 0 96 96" width="26" height="26"><path fill="#0078D4" d="M33.3 6.8h26.5l-27 77.6c-.4 1.2-1.5 2-2.8 2H6.9c-1.6 0-2.9-1.3-2.9-2.9 0-.4.1-.8.2-1.1l24.3-73.6c.4-1.2 1.5-2 2.8-2z"/><path fill="#0078D4" d="M71.2 60.1H29.9c-.7 0-1.1.8-.6 1.3l26.6 24.8c.5.5 1.2.8 1.9.8h23.7L71.2 60.1z"/><path fill="#0078D4" d="M33.3 6.8c-1.3 0-2.4.8-2.8 2L6.3 82.3c-.1.4-.2.7-.2 1.1 0 1.6 1.3 2.9 2.9 2.9h24.3c1.2-.1 2.2-.9 2.6-2l5.1-14.9 18.5 17.2c.5.4 1.2.7 1.8.7h23.6l-10.2-27h-29l17.8-53.5H33.3z"/><path fill="url(#azh)" d="M62.7 8.8c-.4-1.2-1.5-2-2.8-2H33.7c1.3 0 2.4.8 2.8 2l24.3 73.6c.1.4.2.8.2 1.1 0 1.6-1.3 2.9-2.9 2.9h26.2c1.6 0 2.9-1.3 2.9-2.9 0-.4-.1-.8-.2-1.1L62.7 8.8z"/><defs><linearGradient id="azh" x1="45.8" y1="11.3" x2="69" y2="86.4" gradientUnits="userSpaceOnUse"><stop stop-color="#114A8B"/><stop offset="1" stop-color="#0669BC"/></linearGradient></defs></svg>' },
-      { title: 'AWS Console', url: 'https://console.aws.amazon.com', icon: '<svg viewBox="0 0 40 40" width="26" height="26"><rect fill="#232F3E" width="40" height="40" rx="6"/><path fill="none" stroke="#FF9900" stroke-width="2.5" stroke-linecap="round" d="M10 22c5.5 4 12.5 4 18 0"/><path fill="none" stroke="#FF9900" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M28 21l2.5 4-4-.5"/></svg>' },
+      { title: 'AWS Console', url: 'https://console.aws.amazon.com', icon: '<svg viewBox="0 0 40 40" width="26" height="26"><rect fill="#232F3E" width="40" height="40" rx="6"/><text x="20" y="24" text-anchor="middle" fill="#FF9900" font-family="Arial,sans-serif" font-size="12" font-weight="bold">AWS</text></svg>' },
       { title: 'Runbooks', url: '/sites/ITOps-ServiceMgmt/Lists/Runbooks', icon: '📋' },
       { title: 'Escalation', url: '/sites/ITOps-ServiceMgmt/Lists/EscalationMatrix', icon: '📞' }
     ]
@@ -92,7 +92,7 @@ const SITE_CONFIGS: { [key: string]: {
         title: 'AWS',
         description: 'London & Ireland regions',
         url: 'SitePages/AWS-Overview.aspx',
-        icon: '<svg viewBox="0 0 40 40" width="40" height="40"><rect fill="#232F3E" width="40" height="40" rx="8"/><path fill="#FF9900" d="M10 22c5.5 4 12.5 4 18 0" stroke="#FF9900" stroke-width="2.5" stroke-linecap="round" fill="none"/><path fill="#FF9900" d="M28 21l2.5 4-4-.5" stroke="#FF9900" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>',
+        icon: '<svg viewBox="0 0 40 40" width="40" height="40"><rect fill="#232F3E" width="40" height="40" rx="8"/><text x="20" y="24" text-anchor="middle" fill="#FF9900" font-family="Arial,sans-serif" font-size="12" font-weight="bold">AWS</text></svg>',
         colour: '#FF9900',
         backgroundColour: '#232F3E'
       },
@@ -107,7 +107,7 @@ const SITE_CONFIGS: { [key: string]: {
     ],
     quickLinks: [
       { title: 'New Relic', url: 'https://one.newrelic.com', icon: '📊' },
-      { title: 'AWS Console', url: 'https://console.aws.amazon.com', icon: '<svg viewBox="0 0 40 40" width="26" height="26"><rect fill="#232F3E" width="40" height="40" rx="6"/><path fill="none" stroke="#FF9900" stroke-width="2.5" stroke-linecap="round" d="M10 22c5.5 4 12.5 4 18 0"/><path fill="none" stroke="#FF9900" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M28 21l2.5 4-4-.5"/></svg>' },
+      { title: 'AWS Console', url: 'https://console.aws.amazon.com', icon: '<svg viewBox="0 0 40 40" width="26" height="26"><rect fill="#232F3E" width="40" height="40" rx="6"/><text x="20" y="24" text-anchor="middle" fill="#FF9900" font-family="Arial,sans-serif" font-size="12" font-weight="bold">AWS</text></svg>' },
       { title: 'Azure Portal', url: 'https://portal.azure.com', icon: '<svg viewBox="0 0 96 96" width="26" height="26"><path fill="#0078D4" d="M33.3 6.8h26.5l-27 77.6c-.4 1.2-1.5 2-2.8 2H6.9c-1.6 0-2.9-1.3-2.9-2.9 0-.4.1-.8.2-1.1l24.3-73.6c.4-1.2 1.5-2 2.8-2z"/><path fill="#0078D4" d="M71.2 60.1H29.9c-.7 0-1.1.8-.6 1.3l26.6 24.8c.5.5 1.2.8 1.9.8h23.7L71.2 60.1z"/><path fill="#0078D4" d="M33.3 6.8c-1.3 0-2.4.8-2.8 2L6.3 82.3c-.1.4-.2.7-.2 1.1 0 1.6 1.3 2.9 2.9 2.9h24.3c1.2-.1 2.2-.9 2.6-2l5.1-14.9 18.5 17.2c.5.4 1.2.7 1.8.7h23.6l-10.2-27h-29l17.8-53.5H33.3z"/><path fill="url(#az)" d="M62.7 8.8c-.4-1.2-1.5-2-2.8-2H33.7c1.3 0 2.4.8 2.8 2l24.3 73.6c.1.4.2.8.2 1.1 0 1.6-1.3 2.9-2.9 2.9h26.2c1.6 0 2.9-1.3 2.9-2.9 0-.4-.1-.8-.2-1.1L62.7 8.8z"/><defs><linearGradient id="az" x1="45.8" y1="11.3" x2="69" y2="86.4" gradientUnits="userSpaceOnUse"><stop stop-color="#114A8B"/><stop offset="1" stop-color="#0669BC"/></linearGradient></defs></svg>' },
       { title: 'Runbooks', url: '/sites/ITOps-ServiceMgmt/Lists/Runbooks', icon: '📋' },
       { title: 'Escalation', url: '/sites/ITOps-ServiceMgmt/Lists/EscalationMatrix', icon: '📞' },

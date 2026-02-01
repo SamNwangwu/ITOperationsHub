@@ -22,15 +22,38 @@ $shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 
 $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 
 // ========================================
+// GLOBAL OVERRIDES - Hide SharePoint elements
+// ========================================
+:global {
+  // Hide social bar (Like, Views, Save for later)
+  #CommentsWrapper {
+    display: none !important;
+  }
+
+  // Hide site header
+  [data-automationid="SiteHeader"] {
+    display: none !important;
+  }
+
+  // Style the page background
+  .SPCanvas,
+  .CanvasComponent,
+  [data-automation-id="Canvas"] {
+    background: transparent !important;
+  }
+}
+
+// ========================================
 // MAIN CONTAINER
 // ========================================
 .itOpsHomepage {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  max-width: 1400px;
+  width: 100%;
+  max-width: 1600px;
   margin: 0 auto;
   color: #1f2937;
   position: relative;
-  padding: 0 20px 40px;
+  padding: 0 40px 40px;
 
   // Subtle background pattern
   &::before {
@@ -41,10 +64,10 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
     right: 0;
     bottom: 0;
     background:
-      radial-gradient(ellipse at 0% 0%, rgba(0, 40, 158, 0.03) 0%, transparent 50%),
-      radial-gradient(ellipse at 100% 0%, rgba(228, 0, 125, 0.02) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 100%, rgba(0, 164, 228, 0.02) 0%, transparent 50%),
-      linear-gradient(180deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%);
+      radial-gradient(ellipse at 0% 0%, rgba(0, 40, 158, 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 100% 0%, rgba(228, 0, 125, 0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 100%, rgba(0, 164, 228, 0.03) 0%, transparent 50%),
+      linear-gradient(180deg, #f0f4f8 0%, #f8fafc 50%, #eef2f6 100%);
     z-index: -1;
     pointer-events: none;
   }
@@ -534,6 +557,43 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 // ========================================
 // RESPONSIVE
 // ========================================
+
+// Large screens
+@media (min-width: 1800px) {
+  .itOpsHomepage {
+    max-width: 1800px;
+    padding: 0 60px 40px;
+  }
+
+  .platformGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .quickLinksGrid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .diagramsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+// Medium screens
+@media (max-width: 1200px) {
+  .itOpsHomepage {
+    padding: 0 30px 30px;
+  }
+
+  .quickLinksGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .diagramsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// Tablet
 @media (max-width: 768px) {
   .itOpsHomepage {
     padding: 0 16px 30px;
@@ -599,7 +659,21 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
   }
 }
 
+// Mobile
 @media (max-width: 480px) {
+  .itOpsHomepage {
+    padding: 0 12px 24px;
+  }
+
+  .hero {
+    padding: 40px 24px;
+    border-radius: 16px;
+  }
+
+  .heroTitle {
+    font-size: 28px;
+  }
+
   .quickLinksGrid {
     grid-template-columns: 1fr;
   }
@@ -610,5 +684,11 @@ $shadow-glow: 0 0 40px rgba(0, 40, 158, 0.15);
 
   .statusText {
     font-size: 13px;
+  }
+
+  .quickLinksSection,
+  .diagramsSection {
+    padding: 20px 16px;
+    border-radius: 16px;
   }
 }
