@@ -53,8 +53,11 @@ stages:
               versionSpec: $(nodeVersion)
 
           - script: |
-              echo "Setting version to 1.0.$(Build.BuildId)..."
-              sed -i 's/"version": "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*"/"version": "1.0.0.$(Build.BuildId)"/' config/package-solution.json
+              # Use date-based version: 1.0.YYMM.DDHH (all parts under 65535)
+              VERSION_MINOR=$(date +%y%m)
+              VERSION_PATCH=$(date +%d%H)
+              echo "Setting version to 1.0.$VERSION_MINOR.$VERSION_PATCH..."
+              sed -i "s/\"version\": \"[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\"/\"version\": \"1.0.$VERSION_MINOR.$VERSION_PATCH\"/" config/package-solution.json
               grep '"version"' config/package-solution.json
             displayName: 'Auto-increment version'
 
