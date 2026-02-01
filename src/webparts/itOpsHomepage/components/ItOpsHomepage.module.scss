@@ -73,15 +73,18 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
 }
 
 // ========================================
-// HERO BANNER
+// HERO BANNER (Full-bleed)
 // ========================================
 .hero {
-  border-radius: 16px;
-  padding: 40px 36px;
+  // Full-bleed: extend to viewport edges
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  border-radius: 0;
+  padding: 40px calc(50vw - 50% + 36px);
   margin-bottom: 24px;
   position: relative;
   overflow: hidden;
-  box-shadow: $shadow-lg, $shadow-glow;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 
   // Decorative elements
   &::before {
@@ -511,15 +514,18 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
 }
 
 // ========================================
-// FOOTER
+// FOOTER (Full-bleed)
 // ========================================
 .footer {
+  // Full-bleed: extend to viewport edges
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
   text-align: center;
-  padding: 28px 24px;
+  padding: 28px calc(50vw - 50% + 24px);
   color: #64748b;
   font-size: 13px;
   background: linear-gradient(135deg, $lebara-dark 0%, $lebara-primary 100%);
-  border-radius: 14px;
+  border-radius: 0;
   margin-top: 16px;
   position: relative;
   overflow: hidden;
@@ -571,7 +577,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
   }
 
   .hero {
-    padding: 50px 48px;
+    padding: 50px calc(50vw - 50% + 48px);
   }
 
   .heroTitle {
@@ -628,8 +634,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
   }
 
   .hero {
-    padding: 32px 24px;
-    border-radius: 14px;
+    padding: 32px calc(50vw - 50% + 24px);
   }
 
   .heroTitle {
@@ -713,8 +718,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
   }
 
   .footer {
-    padding: 24px 20px;
-    border-radius: 12px;
+    padding: 24px calc(50vw - 50% + 20px);
     font-size: 12px;
   }
 }
@@ -726,8 +730,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
   }
 
   .hero {
-    padding: 28px 20px;
-    border-radius: 12px;
+    padding: 28px calc(50vw - 50% + 16px);
     margin-bottom: 16px;
   }
 
@@ -823,7 +826,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
   }
 
   .footer {
-    padding: 20px 16px;
+    padding: 20px calc(50vw - 50% + 12px);
     margin-top: 12px;
   }
 }
