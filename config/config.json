@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "it-ops-homepage-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/itOpsHomepage/ItOpsHomepageWebPart.js",
+          "manifest": "./src/webparts/itOpsHomepage/ItOpsHomepageWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "ItOpsHomepageWebPartStrings": "lib/webparts/itOpsHomepage/loc/{locale}.js"
+  }
+}
