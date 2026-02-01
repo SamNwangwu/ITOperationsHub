@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "it-ops-homepage-client-side-solution",
+    "id": "b1c2d3e4-f5a6-7890-bcde-f12345678901",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "Lebara IT Infrastructure",
+      "websiteUrl": "https://lebara.sharepoint.com/sites/ITOpsHub",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.18.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "IT Operations Homepage Web Part"
+      },
+      "longDescription": {
+        "default": "A configurable homepage component for IT Operations Hub sites including Infrastructure, IAM, Platform Engineering, and Service Management."
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "IT Operations Homepage Feature",
+        "description": "Deploys the IT Operations Homepage web part",
+        "id": "c2d3e4f5-a6b7-8901-cdef-234567890123",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/it-ops-homepage.sppkg"
+  }
+}
