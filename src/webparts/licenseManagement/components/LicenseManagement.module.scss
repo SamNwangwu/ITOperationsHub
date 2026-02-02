@@ -31,6 +31,24 @@ $color-e5: #818cf8;
   min-height: 600px;
   width: 100%;
   box-sizing: border-box;
+  padding: 0;  // Remove web part container padding for full-bleed
+
+  // Hide SharePoint chrome elements for full-page display
+  :global {
+    #CommentsWrapper,
+    .c_1avbf_St4iq,
+    [data-automation-id="sp-socialbar"],
+    [data-sp-feature-tag="Comments"],
+    [data-sp-feature-tag="Social bar"] {
+      display: none !important;
+    }
+
+    // Hide site header for cleaner full-page display
+    .mainHeader-109,
+    [data-automationid="SiteHeader"] {
+      display: none !important;
+    }
+  }
 
   // Light mode overrides
   &.lightMode {

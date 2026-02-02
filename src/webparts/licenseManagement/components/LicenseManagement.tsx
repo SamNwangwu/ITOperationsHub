@@ -104,7 +104,6 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       const usersResponse = await this.props.graphClient
         .api('/users')
         .select('id,displayName,userPrincipalName,accountEnabled,assignedLicenses,signInActivity,department')
-        .filter('assignedLicenses/$count ne 0')
         .top(999)
         .get();
 
