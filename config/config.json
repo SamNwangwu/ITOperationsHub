@@ -17,6 +17,14 @@
           "manifest": "./src/webparts/cloudPlatform/CloudPlatformWebPart.manifest.json"
         }
       ]
+    },
+    "license-management-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/licenseManagement/LicenseManagementWebPart.js",
+          "manifest": "./src/webparts/licenseManagement/LicenseManagementWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},

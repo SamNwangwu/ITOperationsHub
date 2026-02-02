@@ -19,12 +19,26 @@
         "default": "IT Operations Web Parts"
       },
       "longDescription": {
-        "default": "Web parts for IT Operations Hub sites"
+        "default": "Web parts for IT Operations Hub sites including Homepage, Cloud Platform, and License Management"
       },
       "screenshotPaths": [],
       "videoUrl": "",
       "categories": []
-    }
+    },
+    "webApiPermissionRequests": [
+      {
+        "resource": "Microsoft Graph",
+        "scope": "User.Read.All"
+      },
+      {
+        "resource": "Microsoft Graph",
+        "scope": "Directory.Read.All"
+      },
+      {
+        "resource": "Microsoft Graph",
+        "scope": "Organization.Read.All"
+      }
+    ]
   },
   "paths": {
     "zippedPackage": "solution/it-ops-homepage.sppkg"

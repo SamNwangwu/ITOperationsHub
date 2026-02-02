@@ -1,0 +1,29 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "8f2d4a6e-c3b1-4e5f-9d8a-7b6c5e4d3f2a",
+  "alias": "LicenseManagementWebPart",
+  "componentType": "WebPart",
+  "version": "*",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "supportedHosts": [
+    "SharePointWebPart",
+    "SharePointFullPage"
+  ],
+  "preconfiguredEntries": [
+    {
+      "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
+      "group": {
+        "default": "IT Operations"
+      },
+      "title": {
+        "default": "License Management"
+      },
+      "description": {
+        "default": "Microsoft 365 license audit and optimization dashboard"
+      },
+      "officeFabricIconFontName": "Permissions",
+      "properties": {}
+    }
+  ]
+}

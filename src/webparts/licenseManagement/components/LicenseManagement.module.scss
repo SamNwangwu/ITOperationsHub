@@ -1,0 +1,871 @@
+// Variables for theming
+$dark-bg: #0a1628;
+$dark-card: linear-gradient(135deg, #1a2942 0%, #152238 100%);
+$dark-border: #2a3f5f;
+$dark-text: #e0e0e0;
+$dark-text-muted: #7a8ba3;
+$dark-input-bg: #0d1a2d;
+
+$light-bg: #f5f7fa;
+$light-card: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
+$light-border: #e2e8f0;
+$light-text: #1a202c;
+$light-text-muted: #718096;
+$light-input-bg: #ffffff;
+
+$brand-primary: #252ee1;
+$brand-primary-hover: #1e25b8;
+
+// Status colors
+$color-healthy: #4ade80;
+$color-warning: #eab308;
+$color-critical: #ef4444;
+$color-attention: #38bdf8;
+$color-e3: #f97316;
+$color-e5: #818cf8;
+
+.licenseManagement {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: $dark-bg;
+  color: $dark-text;
+  min-height: 600px;
+  width: 100%;
+  box-sizing: border-box;
+
+  // Light mode overrides
+  &.lightMode {
+    background: $light-bg;
+    color: $light-text;
+
+    .header {
+      background: linear-gradient(135deg, $brand-primary 0%, #4338ca 100%);
+    }
+
+    .licenseCard, .issueCard, .tableSection {
+      background: $light-card;
+      border-color: $light-border;
+    }
+
+    .licenseCard.savings {
+      background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+      border-color: #86efac;
+    }
+
+    .searchBox, .filterDropdown {
+      background: $light-input-bg;
+      border-color: $light-border;
+      color: $light-text;
+    }
+
+    .table {
+      th {
+        background: #f1f5f9;
+        color: $light-text-muted;
+      }
+      td {
+        border-color: $light-border;
+      }
+      tbody tr:hover {
+        background: rgba(37, 46, 225, 0.05);
+      }
+    }
+
+    .userName {
+      color: $light-text;
+    }
+
+    .userEmail, .lastSignIn, .department {
+      color: $light-text-muted;
+    }
+
+    .issueCard {
+      &:hover {
+        border-color: #cbd5e1;
+      }
+      &.active {
+        border-color: $brand-primary;
+      }
+    }
+
+    .issueLabel {
+      color: $light-text;
+    }
+
+    .issueDesc, .licenseSku, .usageText, .statLabel, .savingsDetail {
+      color: $light-text-muted;
+    }
+
+    .statsFooter {
+      background: $light-card;
+      border-color: $light-border;
+    }
+
+    .btn {
+      background: rgba(0, 0, 0, 0.05);
+      border-color: rgba(0, 0, 0, 0.1);
+      color: white;
+    }
+
+    .tableHeader, .sectionHeader {
+      border-color: $light-border;
+    }
+
+    .tableContainer {
+      &::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+      }
+    }
+
+    .loadingContainer {
+      color: $light-text-muted;
+    }
+
+    .emptyState {
+      color: $light-text-muted;
+    }
+  }
+
+  // Header
+  .header {
+    background: linear-gradient(135deg, $brand-primary 0%, #1a2042 50%, #0d1a2d 100%);
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #3d4f7f;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logoIcon {
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .logoText {
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .logoSubtitle {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .headerRight {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .lastSync {
+    font-size: 12px;
+    color: $color-healthy;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .syncDot {
+    width: 8px;
+    height: 8px;
+    background: $color-healthy;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  // Buttons
+  .btn, .btnPrimary, .btnTheme {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .btn:hover, .btnTheme:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .btnPrimary {
+    background: $brand-primary;
+    border-color: $brand-primary;
+  }
+
+  .btnPrimary:hover {
+    background: $brand-primary-hover;
+  }
+
+  .btnTheme {
+    padding: 8px 10px;
+    font-size: 16px;
+  }
+
+  // Error Banner
+  .errorBanner {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    padding: 12px 20px;
+    margin: 16px 32px;
+    border-radius: 8px;
+    color: $color-critical;
+  }
+
+  // Loading
+  .loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    color: $dark-text-muted;
+    gap: 16px;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid $dark-border;
+    border-top-color: $brand-primary;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  // License Overview
+  .licenseOverview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 24px 32px;
+  }
+
+  .licenseCard {
+    background: $dark-card;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid $dark-border;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    &.e5::before { background: $brand-primary; }
+    &.e3::before { background: $color-e3; }
+    &.savings {
+      background: linear-gradient(135deg, #1a4d2e 0%, #0d2818 100%);
+      border-color: #2a5f3f;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      &::before { display: none; }
+    }
+  }
+
+  .savingsIcon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+
+  .savingsAmount {
+    font-size: 36px;
+    font-weight: 700;
+    color: $color-healthy;
+    margin-bottom: 4px;
+  }
+
+  .savingsLabel {
+    font-size: 12px;
+    color: $color-healthy;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .savingsDetail {
+    font-size: 11px;
+    color: $dark-text-muted;
+  }
+
+  .licenseHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .licenseName {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .licenseSku {
+    font-size: 11px;
+    color: $dark-text-muted;
+    margin-top: 4px;
+  }
+
+  .licenseBadge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+
+    &.healthy {
+      background: rgba($color-healthy, 0.2);
+      color: $color-healthy;
+    }
+    &.warning {
+      background: rgba($color-warning, 0.2);
+      color: $color-warning;
+    }
+    &.critical {
+      background: rgba($color-critical, 0.2);
+      color: $color-critical;
+    }
+  }
+
+  .licenseStats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .statValue {
+    font-size: 28px;
+    font-weight: 700;
+
+    &.purchased { color: #60a5fa; }
+    &.assigned { color: $color-e3; }
+    &.available { color: $color-healthy; }
+  }
+
+  .statLabel {
+    font-size: 10px;
+    color: $dark-text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .usageBar {
+    height: 8px;
+    background: $dark-input-bg;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .usageFill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s;
+
+    &.healthy { background: linear-gradient(90deg, $color-healthy, #22c55e); }
+    &.warning { background: linear-gradient(90deg, $color-warning, #f59e0b); }
+    &.critical { background: linear-gradient(90deg, $color-critical, #dc2626); }
+  }
+
+  .usageText {
+    font-size: 11px;
+    color: $dark-text-muted;
+    text-align: right;
+  }
+
+  // Issues Section
+  .issuesSection {
+    padding: 0 32px 24px;
+  }
+
+  .sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .sectionTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .issueCount {
+    background: $color-critical;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .issuesGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .issueCard {
+    background: $dark-card;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid $dark-border;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      border-color: #3d5a80;
+    }
+
+    &.active {
+      border-color: $brand-primary;
+      box-shadow: 0 0 20px rgba($brand-primary, 0.2);
+    }
+  }
+
+  .issueIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 12px;
+
+    &.disabled { background: rgba($color-critical, 0.2); }
+    &.dual { background: rgba($color-e3, 0.2); }
+    &.inactive { background: rgba($color-warning, 0.2); }
+    &.service { background: rgba($color-attention, 0.2); }
+  }
+
+  .issueNumber {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 4px;
+
+    &.disabled { color: $color-critical; }
+    &.dual { color: $color-e3; }
+    &.inactive { color: $color-warning; }
+    &.service { color: $color-attention; }
+  }
+
+  .issueLabel {
+    font-size: 12px;
+    color: $dark-text;
+    margin-bottom: 4px;
+  }
+
+  .issueDesc {
+    font-size: 10px;
+    color: $dark-text-muted;
+  }
+
+  // Table Section
+  .tableSection {
+    background: $dark-card;
+    border-radius: 12px;
+    border: 1px solid $dark-border;
+    margin: 0 32px 24px;
+    overflow: hidden;
+  }
+
+  .bulkActions {
+    background: $brand-primary;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .bulkInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    font-size: 13px;
+  }
+
+  .bulkButtons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .bulkBtn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  .tableHeader {
+    padding: 16px 20px;
+    border-bottom: 1px solid $dark-border;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .tableTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .tableActions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .searchBox {
+    background: $dark-input-bg;
+    border: 1px solid $dark-border;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: $dark-text;
+    font-size: 12px;
+    width: 200px;
+    transition: all 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: $brand-primary;
+      box-shadow: 0 0 0 3px rgba($brand-primary, 0.2);
+    }
+  }
+
+  .filterDropdown {
+    background: $dark-input-bg;
+    border: 1px solid $dark-border;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: $dark-text;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .tableContainer {
+    max-height: 400px;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: $dark-input-bg;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #3d5a80;
+      border-radius: 4px;
+
+      &:hover {
+        background: #4d6a90;
+      }
+    }
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th {
+      background: $dark-input-bg;
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: $dark-text-muted;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1e2d44;
+      font-size: 13px;
+    }
+
+    tbody tr {
+      transition: background 0.15s;
+
+      &:hover {
+        background: rgba($brand-primary, 0.05);
+      }
+
+      &.selected {
+        background: rgba($brand-primary, 0.1);
+      }
+    }
+  }
+
+  .sortable {
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  .checkboxCol {
+    width: 40px;
+  }
+
+  .emptyState {
+    padding: 60px !important;
+    text-align: center;
+    color: $dark-text-muted;
+  }
+
+  .userInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .userAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $brand-primary, #4f56f1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .userName {
+    font-weight: 500;
+    color: $dark-text;
+  }
+
+  .userEmail {
+    font-size: 11px;
+    color: $dark-text-muted;
+  }
+
+  .licensePills {
+    display: flex;
+    gap: 6px;
+  }
+
+  .licensePill {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+
+    &.pillE3 {
+      background: rgba($color-e3, 0.2);
+      color: $color-e3;
+    }
+
+    &.pillE5 {
+      background: rgba($brand-primary, 0.2);
+      color: $color-e5;
+    }
+  }
+
+  .statusBadge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+
+    &.statusActive {
+      background: rgba($color-healthy, 0.2);
+      color: $color-healthy;
+    }
+
+    &.statusDisabled {
+      background: rgba($color-critical, 0.2);
+      color: $color-critical;
+    }
+  }
+
+  .lastSignIn, .department {
+    font-size: 12px;
+    color: $dark-text-muted;
+  }
+
+  // Stats Footer
+  .statsFooter {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    padding: 20px 32px;
+    background: $dark-card;
+    border-top: 1px solid $dark-border;
+    margin: 0 32px 24px;
+    border-radius: 12px;
+  }
+
+  .statItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .statIcon {
+      font-size: 20px;
+    }
+
+    .statValue {
+      font-size: 20px;
+      font-weight: 700;
+      color: $brand-primary;
+    }
+
+    .statLabel {
+      font-size: 11px;
+      color: $dark-text-muted;
+    }
+  }
+
+  // Checkbox styling
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: $brand-primary;
+    cursor: pointer;
+  }
+}
+
+// Responsive
+@media (max-width: 1400px) {
+  .licenseManagement {
+    .licenseOverview {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .issuesGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .licenseManagement {
+    .header {
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .licenseOverview {
+      grid-template-columns: 1fr;
+      padding: 16px;
+    }
+
+    .issuesGrid {
+      grid-template-columns: 1fr;
+    }
+
+    .issuesSection, .tableSection, .statsFooter {
+      margin: 0 16px 16px;
+    }
+
+    .tableHeader {
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .tableActions {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .searchBox {
+      width: 100%;
+    }
+
+    .statsFooter {
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+    }
+  }
+}
+
+// Hide SharePoint UI elements
+:global {
+  #CommentsWrapper,
+  [data-automation-id="sp-socialbar"],
+  [data-sp-feature-tag="Comments"] {
+    display: none !important;
+  }
+}
