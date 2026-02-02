@@ -576,7 +576,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
 @media (min-width: 1600px) {
   .itOpsHomepage {
     max-width: 1600px;
-    padding: 0 40px 40px;
+    padding: 0 40px 0;
   }
 
   .hero {
@@ -614,7 +614,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
 // Medium screens
 @media (max-width: 992px) {
   .itOpsHomepage {
-    padding: 0 20px 28px;
+    padding: 0 20px 0;
   }
 
   .platformGrid {
@@ -633,7 +633,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
 // Tablet
 @media (max-width: 768px) {
   .itOpsHomepage {
-    padding: 0 16px 24px;
+    padding: 0 16px 0;
   }
 
   .hero {
@@ -729,7 +729,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
 // Mobile
 @media (max-width: 480px) {
   .itOpsHomepage {
-    padding: 0 12px 20px;
+    padding: 0 12px 0;
   }
 
   .hero {
@@ -830,6 +830,5 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
 
   .footer {
     padding: 20px calc(50vw - 50% + 12px);
-    margin-top: 12px;
   }
 }
