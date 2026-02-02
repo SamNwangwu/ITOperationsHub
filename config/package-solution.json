@@ -3,7 +3,7 @@
   "solution": {
     "name": "it-ops-homepage-client-side-solution",
     "id": "b1c2d3e4-f5a6-7890-bcde-f12345678901",
-    "version": "1.0.0.1",
+    "version": "1.0.0.2",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
@@ -19,26 +19,12 @@
         "default": "IT Operations Web Parts"
       },
       "longDescription": {
-        "default": "Web parts for IT Operations Hub sites including Homepage, Cloud Platform (AWS/Azure), Infrastructure, IAM, Platform Engineering, and Service Management."
+        "default": "Web parts for IT Operations Hub sites"
       },
       "screenshotPaths": [],
       "videoUrl": "",
       "categories": []
-    },
-    "features": [
-      {
-        "title": "IT Operations Homepage Feature",
-        "description": "Deploys the IT Operations Homepage web part",
-        "id": "db068c89-90cb-4842-b72a-99767479c45b",
-        "version": "1.0.0.0"
-      },
-      {
-        "title": "Cloud Platform Page Feature",
-        "description": "Deploys the Cloud Platform (AWS/Azure) documentation page web part",
-        "id": "673a9c49-ccbb-4c34-8abd-a94b12b18847",
-        "version": "1.0.0.0"
-      }
-    ]
+    }
   },
   "paths": {
     "zippedPackage": "solution/it-ops-homepage.sppkg"
