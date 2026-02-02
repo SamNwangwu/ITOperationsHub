@@ -290,7 +290,9 @@ export default class ItOpsHomepage extends React.Component<IItOpsHomepageProps, 
 
         {/* Footer */}
         <footer className={styles.footer}>
-          <p>IT Operations Hub • <a href="https://lebara.sharepoint.com/sites/ITOpsHub">Home</a> • <a href="mailto:infrastructure@lebara.com">Contact</a></p>
+          <div className={styles.footerContent}>
+            <p>IT Operations Hub • <a href="https://lebara.sharepoint.com/sites/ITOpsHub">Home</a> • <a href="mailto:infrastructure@lebara.com">Contact</a></p>
+          </div>
         </footer>
       </div>
     );
