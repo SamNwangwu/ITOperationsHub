@@ -163,7 +163,7 @@ stages:
                       # Try to add the app and capture any errors
                       Write-Host "`nAdding app to catalog..." -ForegroundColor Cyan
                       try {
-                        $result = Add-PnPApp -Path $pkg -Scope Tenant -Overwrite -ErrorAction Stop
+                        $result = Add-PnPApp -Path $pkg -Scope Tenant -Overwrite -Force -ErrorAction Stop
                         Write-Host "Add-PnPApp result: $result" -ForegroundColor Green
                       } catch {
                         Write-Host "Add-PnPApp error: $_" -ForegroundColor Red
@@ -183,14 +183,14 @@ stages:
                       if ($app) {
                         Write-Host "`nFound app: $($app.Title) - $($app.Id)" -ForegroundColor Green
                         Write-Host "Publishing..." -ForegroundColor Cyan
-                        
+
                         try {
-                          Publish-PnPApp -Identity $app.Id -Scope Tenant -SkipFeatureDeployment -ErrorAction Stop
+                          Publish-PnPApp -Identity $app.Id -Scope Tenant -SkipFeatureDeployment -Force -ErrorAction Stop
                           Write-Host "✅ Deployed v1.0.0.$(Build.BuildId) to all sites!" -ForegroundColor Green
                         } catch {
                           Write-Host "Publish error: $_" -ForegroundColor Red
                           # Try without SkipFeatureDeployment
-                          Publish-PnPApp -Identity $app.Id -Scope Tenant
+                          Publish-PnPApp -Identity $app.Id -Scope Tenant -Force
                           Write-Host "✅ Published (without SkipFeatureDeployment)" -ForegroundColor Yellow
                         }
                       } else {
