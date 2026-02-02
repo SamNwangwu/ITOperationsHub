@@ -37,6 +37,10 @@
       {
         "resource": "Microsoft Graph",
         "scope": "Organization.Read.All"
+      },
+      {
+        "resource": "Microsoft Graph",
+        "scope": "AuditLog.Read.All"
       }
     ]
   },
