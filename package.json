@@ -13,13 +13,15 @@
   "dependencies": {
     "@fluentui/react": "8.110.10",
     "@microsoft/sp-core-library": "1.18.2",
+    "@microsoft/sp-http": "1.18.2",
     "@microsoft/sp-lodash-subset": "1.18.2",
     "@microsoft/sp-office-ui-fabric-core": "1.18.2",
     "@microsoft/sp-property-pane": "1.18.2",
     "@microsoft/sp-webpart-base": "1.18.2",
-    "@microsoft/sp-http": "1.18.2",
+    "powerbi-client": "^2.23.9",
     "react": "17.0.1",
     "react-dom": "17.0.1",
+    "recharts": "^3.7.0",
     "tslib": "2.3.1"
   },
   "devDependencies": {

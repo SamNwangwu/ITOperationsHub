@@ -41,6 +41,10 @@
       {
         "resource": "Microsoft Graph",
         "scope": "AuditLog.Read.All"
+      },
+      {
+        "resource": "Power BI Service",
+        "scope": "Report.Read.All"
       }
     ]
   },

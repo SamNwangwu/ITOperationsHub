@@ -887,3 +887,584 @@ $color-e5: #818cf8;
     display: none !important;
   }
 }
+
+// ===========================================
+// KPI Card Component Styles
+// ===========================================
+.kpiCard {
+  background: $dark-card;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid $dark-border;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s;
+
+  &.clickable {
+    cursor: pointer;
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: $brand-primary;
+  }
+
+  &.kpiCardPurple::before { background: $brand-primary; }
+  &.kpiCardGreen::before { background: $color-healthy; }
+  &.kpiCardOrange::before { background: $color-e3; }
+  &.kpiCardRed::before { background: $color-critical; }
+  &.kpiCardBlue::before { background: $color-attention; }
+}
+
+.kpiHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.kpiIcon {
+  font-size: 18px;
+}
+
+.kpiTitle {
+  font-size: 12px;
+  color: $dark-text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.kpiValue {
+  font-size: 36px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.kpiFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.kpiSubtitle {
+  font-size: 11px;
+  color: $dark-text-muted;
+}
+
+.kpiTrend {
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &.trendPositive { color: $color-healthy; }
+  &.trendNegative { color: $color-critical; }
+}
+
+// ===========================================
+// Insight Card Component Styles
+// ===========================================
+.insightCard {
+  background: $dark-card;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid $dark-border;
+  border-left: 4px solid $brand-primary;
+
+  &.insightCritical { border-left-color: $color-critical; }
+  &.insightWarning { border-left-color: $color-warning; }
+  &.insightSuccess { border-left-color: $color-healthy; }
+  &.insightInfo { border-left-color: $color-attention; }
+}
+
+.insightCardCompact {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: $dark-card;
+  border-radius: 8px;
+  border: 1px solid $dark-border;
+  border-left: 3px solid $brand-primary;
+
+  &.insightCritical { border-left-color: $color-critical; }
+  &.insightWarning { border-left-color: $color-warning; }
+  &.insightSuccess { border-left-color: $color-healthy; }
+  &.insightInfo { border-left-color: $color-attention; }
+}
+
+.insightHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.insightIcon {
+  font-size: 16px;
+}
+
+.insightTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  flex: 1;
+}
+
+.insightMetric {
+  font-size: 12px;
+  font-weight: 600;
+  color: $brand-primary;
+  background: rgba($brand-primary, 0.15);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.insightDescription {
+  font-size: 12px;
+  color: $dark-text-muted;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.insightAction {
+  font-size: 11px;
+  color: $color-attention;
+  margin-top: 8px;
+}
+
+.actionLabel {
+  font-weight: 600;
+}
+
+// ===========================================
+// SKU Card Component Styles
+// ===========================================
+.skuCard {
+  background: $dark-card;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid $dark-border;
+  transition: all 0.2s;
+
+  &.clickable {
+    cursor: pointer;
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      border-color: #3d5a80;
+    }
+  }
+}
+
+.skuHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.skuName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.skuPartNumber {
+  font-size: 10px;
+  color: $dark-text-muted;
+  margin-bottom: 16px;
+}
+
+.skuStatus {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+
+  &.statusHealthy {
+    background: rgba($color-healthy, 0.2);
+    color: $color-healthy;
+  }
+  &.statusWarning {
+    background: rgba($color-warning, 0.2);
+    color: $color-warning;
+  }
+  &.statusCritical {
+    background: rgba($color-critical, 0.2);
+    color: $color-critical;
+  }
+  &.statusInfo {
+    background: rgba($color-attention, 0.2);
+    color: $color-attention;
+  }
+}
+
+.skuStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.skuStat {
+  text-align: center;
+}
+
+.skuStatValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.skuStatLabel {
+  font-size: 10px;
+  color: $dark-text-muted;
+  text-transform: uppercase;
+}
+
+.textDanger { color: $color-critical !important; }
+.textSuccess { color: $color-healthy !important; }
+.textWarning { color: $color-warning !important; }
+
+.skuUtilisation {
+  margin-bottom: 16px;
+}
+
+.utilisationBar {
+  height: 8px;
+  background: $dark-input-bg;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.utilisationFill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, $color-healthy, #22c55e);
+  transition: width 0.3s;
+
+  &.overAllocated {
+    background: linear-gradient(90deg, $color-critical, #dc2626);
+  }
+}
+
+.utilisationText {
+  font-size: 11px;
+  color: $dark-text-muted;
+  text-align: right;
+}
+
+.skuCost {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid $dark-border;
+}
+
+.costItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.costLabel {
+  font-size: 10px;
+  color: $dark-text-muted;
+}
+
+.costValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: $color-healthy;
+}
+
+// ===========================================
+// Savings Hero Component Styles
+// ===========================================
+.savingsHero {
+  background: linear-gradient(135deg, #1a4d2e 0%, #0d2818 100%);
+  border: 1px solid #2a5f3f;
+  border-radius: 12px;
+  padding: 24px 32px;
+  margin: 0 32px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.savingsContent {
+  flex: 1;
+}
+
+.savingsAction {
+  .btnPrimary {
+    background: $color-healthy;
+    border-color: $color-healthy;
+    color: #000;
+    font-weight: 600;
+
+    &:hover {
+      background: #22c55e;
+    }
+  }
+}
+
+.savingsDivider {
+  color: $dark-text-muted;
+  margin: 0 8px;
+}
+
+// ===========================================
+// Data Table Component Styles
+// ===========================================
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    background: $dark-input-bg;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $dark-text-muted;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #1e2d44;
+    font-size: 13px;
+  }
+
+  tbody tr {
+    transition: background 0.15s;
+
+    &:hover {
+      background: rgba($brand-primary, 0.05);
+    }
+
+    &.selected {
+      background: rgba($brand-primary, 0.1);
+    }
+
+    &.clickable {
+      cursor: pointer;
+    }
+  }
+
+  .sortIcon {
+    margin-left: 4px;
+    opacity: 0.5;
+  }
+}
+
+.userCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.licencePill {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+
+  &.pillE3 {
+    background: rgba($color-e3, 0.2);
+    color: $color-e3;
+  }
+
+  &.pillE5 {
+    background: rgba($brand-primary, 0.2);
+    color: $color-e5;
+  }
+}
+
+.licencePills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.moreCount {
+  font-size: 10px;
+  color: $dark-text-muted;
+  padding: 4px 6px;
+}
+
+.issueBadge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+
+  &.issueDisabled {
+    background: rgba($color-critical, 0.2);
+    color: $color-critical;
+  }
+
+  &.issueDual-Licensed {
+    background: rgba($color-e3, 0.2);
+    color: $color-e3;
+  }
+
+  &.issueInactive90 {
+    background: rgba($color-warning, 0.2);
+    color: $color-warning;
+  }
+
+  &.issueServiceAccount {
+    background: rgba($color-attention, 0.2);
+    color: $color-attention;
+  }
+}
+
+// ===========================================
+// Issue Card Enhanced Styles
+// ===========================================
+.issueCard {
+  .issueContent {
+    flex: 1;
+  }
+
+  .issueSavings {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid $dark-border;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .savingsLabel {
+    font-size: 10px;
+    color: $dark-text-muted;
+  }
+
+  .savingsValue {
+    font-size: 12px;
+    font-weight: 600;
+    color: $color-healthy;
+  }
+
+  &.severityCritical { border-left: 3px solid $color-critical; }
+  &.severityWarning { border-left: 3px solid $color-warning; }
+  &.severityInfo { border-left: 3px solid $color-attention; }
+}
+
+// ===========================================
+// Dashboard Navigation Tabs
+// ===========================================
+.dashboardNav {
+  display: flex;
+  gap: 4px;
+  padding: 0 32px;
+  margin-bottom: 20px;
+  background: $dark-input-bg;
+  border-bottom: 1px solid $dark-border;
+}
+
+.navTab {
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: $dark-text-muted;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    color: $dark-text;
+  }
+
+  &.active {
+    color: #fff;
+    border-bottom-color: $brand-primary;
+  }
+}
+
+// ===========================================
+// Executive Summary Section
+// ===========================================
+.executiveSummary {
+  padding: 20px 32px;
+  background: $dark-card;
+  border: 1px solid $dark-border;
+  border-radius: 12px;
+  margin: 0 32px 24px;
+}
+
+.summaryText {
+  font-size: 14px;
+  line-height: 1.6;
+  color: $dark-text;
+}
+
+// ===========================================
+// KPI Grid Layout
+// ===========================================
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 0 32px 24px;
+}
+
+@media (max-width: 1200px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ===========================================
+// Insights Grid Layout
+// ===========================================
+.insightsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 0 32px 24px;
+}
+
+@media (max-width: 900px) {
+  .insightsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ===========================================
+// SKU Grid Layout
+// ===========================================
+.skuGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 0 32px 24px;
+}
