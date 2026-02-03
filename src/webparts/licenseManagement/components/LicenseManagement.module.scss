@@ -1,37 +1,47 @@
-// Variables for theming
-$dark-bg: #0a1628;
-$dark-card: linear-gradient(135deg, #1a2942 0%, #152238 100%);
-$dark-border: #2a3f5f;
-$dark-text: #e0e0e0;
-$dark-text-muted: #7a8ba3;
-$dark-input-bg: #0d1a2d;
+// ===========================================
+// Lebara M365 Licence Intelligence V2
+// Brand Colour System
+// ===========================================
 
-$light-bg: #f5f7fa;
-$light-card: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
-$light-border: #e2e8f0;
-$light-text: #1a202c;
-$light-text-muted: #718096;
-$light-input-bg: #ffffff;
+// Lebara Brand Colours
+$lb-blue: #00289e;
+$lb-magenta: #E4007D;
+$lb-cyan: #00A4E4;
 
-$brand-primary: #252ee1;
-$brand-primary-hover: #1e25b8;
+// Background colours
+$bg-base: #0B1120;
+$bg-card: #111827;
+$bg-card-gradient: linear-gradient(135deg, #1a2942 0%, #152238 100%);
+$bg-input: #0d1a2d;
 
-// Status colors
-$color-healthy: #4ade80;
-$color-warning: #eab308;
-$color-critical: #ef4444;
-$color-attention: #38bdf8;
-$color-e3: #f97316;
-$color-e5: #818cf8;
+// Border colours
+$border-default: #1F2937;
+$border-subtle: #374151;
+$border-highlight: #3d4f7f;
+
+// Text colours
+$text-primary: #F9FAFB;
+$text-secondary: #9CA3AF;
+$text-muted: #6B7280;
+
+// Status colours
+$color-healthy: #10B981;
+$color-warning: #F59E0B;
+$color-critical: #EF4444;
+$color-info: #3B82F6;
+
+// Licence type colours
+$color-e3: #F97316;
+$color-e5: #818CF8;
 
 .licenseManagement {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: $dark-bg;
-  color: $dark-text;
+  background: $bg-base;
+  color: $text-primary;
   min-height: 600px;
   width: 100%;
   box-sizing: border-box;
-  padding: 0;  // Remove web part container padding for full-bleed
+  padding: 0;
 
   // Hide SharePoint chrome elements for full-page display
   :global {
@@ -43,117 +53,20 @@ $color-e5: #818cf8;
       display: none !important;
     }
 
-    // Hide site header for cleaner full-page display
     .mainHeader-109,
     [data-automationid="SiteHeader"] {
       display: none !important;
     }
   }
 
-  // Light mode overrides
-  &.lightMode {
-    background: $light-bg;
-    color: $light-text;
-
-    .header {
-      background: linear-gradient(135deg, $brand-primary 0%, #4338ca 100%);
-    }
-
-    .licenseCard, .issueCard, .tableSection {
-      background: $light-card;
-      border-color: $light-border;
-    }
-
-    .licenseCard.savings {
-      background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-      border-color: #86efac;
-    }
-
-    .searchBox, .filterDropdown {
-      background: $light-input-bg;
-      border-color: $light-border;
-      color: $light-text;
-    }
-
-    .table {
-      th {
-        background: #f1f5f9;
-        color: $light-text-muted;
-      }
-      td {
-        border-color: $light-border;
-      }
-      tbody tr:hover {
-        background: rgba(37, 46, 225, 0.05);
-      }
-    }
-
-    .userName {
-      color: $light-text;
-    }
-
-    .userEmail, .lastSignIn, .department {
-      color: $light-text-muted;
-    }
-
-    .issueCard {
-      &:hover {
-        border-color: #cbd5e1;
-      }
-      &.active {
-        border-color: $brand-primary;
-      }
-    }
-
-    .issueLabel {
-      color: $light-text;
-    }
-
-    .issueDesc, .licenseSku, .usageText, .statLabel, .savingsDetail {
-      color: $light-text-muted;
-    }
-
-    .statsFooter {
-      background: $light-card;
-      border-color: $light-border;
-    }
-
-    .btn {
-      background: rgba(0, 0, 0, 0.05);
-      border-color: rgba(0, 0, 0, 0.1);
-      color: white;
-    }
-
-    .tableHeader, .sectionHeader {
-      border-color: $light-border;
-    }
-
-    .tableContainer {
-      &::-webkit-scrollbar-track {
-        background: #f1f5f9;
-      }
-      &::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-      }
-    }
-
-    .loadingContainer {
-      color: $light-text-muted;
-    }
-
-    .emptyState {
-      color: $light-text-muted;
-    }
-  }
-
-  // Header
+  // Header with Lebara magenta gradient
   .header {
-    background: linear-gradient(135deg, $brand-primary 0%, #1a2042 50%, #0d1a2d 100%);
+    background: linear-gradient(135deg, $lb-magenta 0%, $lb-blue 50%, $bg-base 100%);
     padding: 16px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #3d4f7f;
+    border-bottom: 1px solid $border-highlight;
   }
 
   .logo {
@@ -211,6 +124,10 @@ $color-e5: #818cf8;
     background: $color-healthy;
     border-radius: 50%;
     animation: pulse 2s infinite;
+
+    &.syncDotStale {
+      background: $color-warning;
+    }
   }
 
   @keyframes pulse {
@@ -238,12 +155,12 @@ $color-e5: #818cf8;
   }
 
   .btnPrimary {
-    background: $brand-primary;
-    border-color: $brand-primary;
+    background: $lb-magenta;
+    border-color: $lb-magenta;
   }
 
   .btnPrimary:hover {
-    background: $brand-primary-hover;
+    background: darken($lb-magenta, 10%);
   }
 
   .btnTheme {
@@ -253,8 +170,8 @@ $color-e5: #818cf8;
 
   // Error Banner
   .errorBanner {
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid rgba(239, 68, 68, 0.5);
+    background: rgba($color-critical, 0.15);
+    border: 1px solid rgba($color-critical, 0.5);
     padding: 12px 20px;
     margin: 16px 32px;
     border-radius: 8px;
@@ -268,15 +185,15 @@ $color-e5: #818cf8;
     align-items: center;
     justify-content: center;
     padding: 80px 40px;
-    color: $dark-text-muted;
+    color: $text-muted;
     gap: 16px;
   }
 
   .spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid $dark-border;
-    border-top-color: $brand-primary;
+    border: 3px solid $border-default;
+    border-top-color: $lb-magenta;
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
@@ -294,10 +211,10 @@ $color-e5: #818cf8;
   }
 
   .licenseCard {
-    background: $dark-card;
+    background: $bg-card-gradient;
     border-radius: 12px;
     padding: 24px;
-    border: 1px solid $dark-border;
+    border: 1px solid $border-default;
     position: relative;
     overflow: hidden;
 
@@ -310,11 +227,11 @@ $color-e5: #818cf8;
       height: 3px;
     }
 
-    &.e5::before { background: $brand-primary; }
+    &.e5::before { background: $lb-blue; }
     &.e3::before { background: $color-e3; }
     &.savings {
-      background: linear-gradient(135deg, #1a4d2e 0%, #0d2818 100%);
-      border-color: #2a5f3f;
+      background: linear-gradient(135deg, rgba($lb-magenta, 0.3) 0%, rgba($lb-magenta, 0.1) 100%);
+      border-color: rgba($lb-magenta, 0.5);
       text-align: center;
       display: flex;
       flex-direction: column;
@@ -332,13 +249,13 @@ $color-e5: #818cf8;
   .savingsAmount {
     font-size: 36px;
     font-weight: 700;
-    color: $color-healthy;
+    color: $lb-magenta;
     margin-bottom: 4px;
   }
 
   .savingsLabel {
     font-size: 12px;
-    color: $color-healthy;
+    color: $lb-magenta;
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: 8px;
@@ -346,7 +263,7 @@ $color-e5: #818cf8;
 
   .savingsDetail {
     font-size: 11px;
-    color: $dark-text-muted;
+    color: $text-muted;
   }
 
   .licenseHeader {
@@ -364,7 +281,7 @@ $color-e5: #818cf8;
 
   .licenseSku {
     font-size: 11px;
-    color: $dark-text-muted;
+    color: $text-muted;
     margin-top: 4px;
   }
 
@@ -404,21 +321,21 @@ $color-e5: #818cf8;
     font-size: 28px;
     font-weight: 700;
 
-    &.purchased { color: #60a5fa; }
+    &.purchased { color: $lb-cyan; }
     &.assigned { color: $color-e3; }
     &.available { color: $color-healthy; }
   }
 
   .statLabel {
     font-size: 10px;
-    color: $dark-text-muted;
+    color: $text-muted;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 
   .usageBar {
     height: 8px;
-    background: $dark-input-bg;
+    background: $bg-input;
     border-radius: 4px;
     overflow: hidden;
     margin-bottom: 8px;
@@ -436,7 +353,7 @@ $color-e5: #818cf8;
 
   .usageText {
     font-size: 11px;
-    color: $dark-text-muted;
+    color: $text-muted;
     text-align: right;
   }
 
@@ -477,22 +394,22 @@ $color-e5: #818cf8;
   }
 
   .issueCard {
-    background: $dark-card;
+    background: $bg-card-gradient;
     border-radius: 12px;
     padding: 20px;
-    border: 1px solid $dark-border;
+    border: 1px solid $border-default;
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-      border-color: #3d5a80;
+      border-color: $border-subtle;
     }
 
     &.active {
-      border-color: $brand-primary;
-      box-shadow: 0 0 20px rgba($brand-primary, 0.2);
+      border-color: $lb-magenta;
+      box-shadow: 0 0 20px rgba($lb-magenta, 0.2);
     }
   }
 
@@ -509,7 +426,7 @@ $color-e5: #818cf8;
     &.disabled { background: rgba($color-critical, 0.2); }
     &.dual { background: rgba($color-e3, 0.2); }
     &.inactive { background: rgba($color-warning, 0.2); }
-    &.service { background: rgba($color-attention, 0.2); }
+    &.service { background: rgba($color-info, 0.2); }
   }
 
   .issueNumber {
@@ -520,31 +437,31 @@ $color-e5: #818cf8;
     &.disabled { color: $color-critical; }
     &.dual { color: $color-e3; }
     &.inactive { color: $color-warning; }
-    &.service { color: $color-attention; }
+    &.service { color: $color-info; }
   }
 
   .issueLabel {
     font-size: 12px;
-    color: $dark-text;
+    color: $text-primary;
     margin-bottom: 4px;
   }
 
   .issueDesc {
     font-size: 10px;
-    color: $dark-text-muted;
+    color: $text-muted;
   }
 
   // Table Section
   .tableSection {
-    background: $dark-card;
+    background: $bg-card-gradient;
     border-radius: 12px;
-    border: 1px solid $dark-border;
+    border: 1px solid $border-default;
     margin: 0 32px 24px;
     overflow: hidden;
   }
 
   .bulkActions {
-    background: $brand-primary;
+    background: $lb-magenta;
     padding: 12px 20px;
     display: flex;
     justify-content: space-between;
@@ -583,7 +500,7 @@ $color-e5: #818cf8;
 
   .tableHeader {
     padding: 16px 20px;
-    border-bottom: 1px solid $dark-border;
+    border-bottom: 1px solid $border-default;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -602,28 +519,28 @@ $color-e5: #818cf8;
   }
 
   .searchBox {
-    background: $dark-input-bg;
-    border: 1px solid $dark-border;
+    background: $bg-input;
+    border: 1px solid $border-default;
     border-radius: 6px;
     padding: 8px 12px;
-    color: $dark-text;
+    color: $text-primary;
     font-size: 12px;
     width: 200px;
     transition: all 0.2s;
 
     &:focus {
       outline: none;
-      border-color: $brand-primary;
-      box-shadow: 0 0 0 3px rgba($brand-primary, 0.2);
+      border-color: $lb-magenta;
+      box-shadow: 0 0 0 3px rgba($lb-magenta, 0.2);
     }
   }
 
   .filterDropdown {
-    background: $dark-input-bg;
-    border: 1px solid $dark-border;
+    background: $bg-input;
+    border: 1px solid $border-default;
     border-radius: 6px;
     padding: 8px 12px;
-    color: $dark-text;
+    color: $text-primary;
     font-size: 12px;
     cursor: pointer;
   }
@@ -637,15 +554,15 @@ $color-e5: #818cf8;
     }
 
     &::-webkit-scrollbar-track {
-      background: $dark-input-bg;
+      background: $bg-input;
     }
 
     &::-webkit-scrollbar-thumb {
-      background: #3d5a80;
+      background: $border-subtle;
       border-radius: 4px;
 
       &:hover {
-        background: #4d6a90;
+        background: lighten($border-subtle, 10%);
       }
     }
   }
@@ -655,13 +572,13 @@ $color-e5: #818cf8;
     border-collapse: collapse;
 
     th {
-      background: $dark-input-bg;
+      background: $bg-input;
       padding: 12px 16px;
       text-align: left;
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: $dark-text-muted;
+      color: $text-muted;
       position: sticky;
       top: 0;
       z-index: 1;
@@ -669,7 +586,7 @@ $color-e5: #818cf8;
 
     td {
       padding: 12px 16px;
-      border-bottom: 1px solid #1e2d44;
+      border-bottom: 1px solid $border-default;
       font-size: 13px;
     }
 
@@ -677,11 +594,11 @@ $color-e5: #818cf8;
       transition: background 0.15s;
 
       &:hover {
-        background: rgba($brand-primary, 0.05);
+        background: rgba($lb-magenta, 0.05);
       }
 
       &.selected {
-        background: rgba($brand-primary, 0.1);
+        background: rgba($lb-magenta, 0.1);
       }
     }
   }
@@ -702,7 +619,7 @@ $color-e5: #818cf8;
   .emptyState {
     padding: 60px !important;
     text-align: center;
-    color: $dark-text-muted;
+    color: $text-muted;
   }
 
   .userInfo {
@@ -715,7 +632,7 @@ $color-e5: #818cf8;
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: linear-gradient(135deg, $brand-primary, #4f56f1);
+    background: linear-gradient(135deg, $lb-magenta, $lb-blue);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -727,12 +644,12 @@ $color-e5: #818cf8;
 
   .userName {
     font-weight: 500;
-    color: $dark-text;
+    color: $text-primary;
   }
 
   .userEmail {
     font-size: 11px;
-    color: $dark-text-muted;
+    color: $text-muted;
   }
 
   .licensePills {
@@ -752,7 +669,7 @@ $color-e5: #818cf8;
     }
 
     &.pillE5 {
-      background: rgba($brand-primary, 0.2);
+      background: rgba($lb-blue, 0.2);
       color: $color-e5;
     }
   }
@@ -777,7 +694,7 @@ $color-e5: #818cf8;
 
   .lastSignIn, .department {
     font-size: 12px;
-    color: $dark-text-muted;
+    color: $text-muted;
   }
 
   // Stats Footer
@@ -786,8 +703,8 @@ $color-e5: #818cf8;
     justify-content: center;
     gap: 48px;
     padding: 20px 32px;
-    background: $dark-card;
-    border-top: 1px solid $dark-border;
+    background: $bg-card-gradient;
+    border-top: 1px solid $border-default;
     margin: 0 32px 24px;
     border-radius: 12px;
   }
@@ -804,12 +721,12 @@ $color-e5: #818cf8;
     .statValue {
       font-size: 20px;
       font-weight: 700;
-      color: $brand-primary;
+      color: $lb-magenta;
     }
 
     .statLabel {
       font-size: 11px;
-      color: $dark-text-muted;
+      color: $text-muted;
     }
   }
 
@@ -817,7 +734,7 @@ $color-e5: #818cf8;
   input[type="checkbox"] {
     width: 16px;
     height: 16px;
-    accent-color: $brand-primary;
+    accent-color: $lb-magenta;
     cursor: pointer;
   }
 }
@@ -892,13 +809,24 @@ $color-e5: #818cf8;
 // KPI Card Component Styles
 // ===========================================
 .kpiCard {
-  background: $dark-card;
+  background: $bg-card;
   border-radius: 12px;
   padding: 20px;
-  border: 1px solid $dark-border;
+  border: 1px solid $border-default;
   position: relative;
   overflow: hidden;
   transition: all 0.2s;
+
+  // Gradient border effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, $lb-magenta, $lb-cyan);
+  }
 
   &.clickable {
     cursor: pointer;
@@ -908,21 +836,11 @@ $color-e5: #818cf8;
     }
   }
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: $brand-primary;
-  }
-
-  &.kpiCardPurple::before { background: $brand-primary; }
-  &.kpiCardGreen::before { background: $color-healthy; }
-  &.kpiCardOrange::before { background: $color-e3; }
-  &.kpiCardRed::before { background: $color-critical; }
-  &.kpiCardBlue::before { background: $color-attention; }
+  &.kpiCardPurple::before { background: linear-gradient(90deg, $lb-magenta, $lb-blue); }
+  &.kpiCardGreen::before { background: linear-gradient(90deg, $color-healthy, #22c55e); }
+  &.kpiCardOrange::before { background: linear-gradient(90deg, $color-warning, $color-e3); }
+  &.kpiCardRed::before { background: linear-gradient(90deg, $color-critical, #dc2626); }
+  &.kpiCardBlue::before { background: linear-gradient(90deg, $lb-cyan, $lb-blue); }
 }
 
 .kpiHeader {
@@ -934,11 +852,12 @@ $color-e5: #818cf8;
 
 .kpiIcon {
   font-size: 18px;
+  color: $lb-cyan;
 }
 
 .kpiTitle {
   font-size: 12px;
-  color: $dark-text-muted;
+  color: $text-muted;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -958,7 +877,7 @@ $color-e5: #818cf8;
 
 .kpiSubtitle {
   font-size: 11px;
-  color: $dark-text-muted;
+  color: $text-muted;
 }
 
 .kpiTrend {
@@ -976,16 +895,16 @@ $color-e5: #818cf8;
 // Insight Card Component Styles
 // ===========================================
 .insightCard {
-  background: $dark-card;
+  background: $bg-card;
   border-radius: 12px;
   padding: 16px;
-  border: 1px solid $dark-border;
-  border-left: 4px solid $brand-primary;
+  border: 1px solid $border-default;
+  border-left: 4px solid $lb-magenta;
 
   &.insightCritical { border-left-color: $color-critical; }
   &.insightWarning { border-left-color: $color-warning; }
   &.insightSuccess { border-left-color: $color-healthy; }
-  &.insightInfo { border-left-color: $color-attention; }
+  &.insightInfo { border-left-color: $color-info; }
 }
 
 .insightCardCompact {
@@ -993,15 +912,15 @@ $color-e5: #818cf8;
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  background: $dark-card;
+  background: $bg-card;
   border-radius: 8px;
-  border: 1px solid $dark-border;
-  border-left: 3px solid $brand-primary;
+  border: 1px solid $border-default;
+  border-left: 3px solid $lb-magenta;
 
   &.insightCritical { border-left-color: $color-critical; }
   &.insightWarning { border-left-color: $color-warning; }
   &.insightSuccess { border-left-color: $color-healthy; }
-  &.insightInfo { border-left-color: $color-attention; }
+  &.insightInfo { border-left-color: $color-info; }
 }
 
 .insightHeader {
@@ -1025,22 +944,22 @@ $color-e5: #818cf8;
 .insightMetric {
   font-size: 12px;
   font-weight: 600;
-  color: $brand-primary;
-  background: rgba($brand-primary, 0.15);
+  color: $lb-magenta;
+  background: rgba($lb-magenta, 0.15);
   padding: 2px 8px;
   border-radius: 4px;
 }
 
 .insightDescription {
   font-size: 12px;
-  color: $dark-text-muted;
+  color: $text-muted;
   line-height: 1.5;
   margin-bottom: 8px;
 }
 
 .insightAction {
   font-size: 11px;
-  color: $color-attention;
+  color: $lb-cyan;
   margin-top: 8px;
 }
 
@@ -1052,10 +971,10 @@ $color-e5: #818cf8;
 // SKU Card Component Styles
 // ===========================================
 .skuCard {
-  background: $dark-card;
+  background: $bg-card;
   border-radius: 12px;
   padding: 20px;
-  border: 1px solid $dark-border;
+  border: 1px solid $border-default;
   transition: all 0.2s;
 
   &.clickable {
@@ -1063,7 +982,7 @@ $color-e5: #818cf8;
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-      border-color: #3d5a80;
+      border-color: $border-subtle;
     }
   }
 }
@@ -1083,7 +1002,7 @@ $color-e5: #818cf8;
 
 .skuPartNumber {
   font-size: 10px;
-  color: $dark-text-muted;
+  color: $text-muted;
   margin-bottom: 16px;
 }
 
@@ -1107,8 +1026,8 @@ $color-e5: #818cf8;
     color: $color-critical;
   }
   &.statusInfo {
-    background: rgba($color-attention, 0.2);
-    color: $color-attention;
+    background: rgba($color-info, 0.2);
+    color: $color-info;
   }
 }
 
@@ -1131,7 +1050,7 @@ $color-e5: #818cf8;
 
 .skuStatLabel {
   font-size: 10px;
-  color: $dark-text-muted;
+  color: $text-muted;
   text-transform: uppercase;
 }
 
@@ -1145,7 +1064,7 @@ $color-e5: #818cf8;
 
 .utilisationBar {
   height: 8px;
-  background: $dark-input-bg;
+  background: $bg-input;
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 6px;
@@ -1164,7 +1083,7 @@ $color-e5: #818cf8;
 
 .utilisationText {
   font-size: 11px;
-  color: $dark-text-muted;
+  color: $text-muted;
   text-align: right;
 }
 
@@ -1172,7 +1091,7 @@ $color-e5: #818cf8;
   display: flex;
   justify-content: space-between;
   padding-top: 12px;
-  border-top: 1px solid $dark-border;
+  border-top: 1px solid $border-default;
 }
 
 .costItem {
@@ -1183,7 +1102,7 @@ $color-e5: #818cf8;
 
 .costLabel {
   font-size: 10px;
-  color: $dark-text-muted;
+  color: $text-muted;
 }
 
 .costValue {
@@ -1193,11 +1112,11 @@ $color-e5: #818cf8;
 }
 
 // ===========================================
-// Savings Hero Component Styles
+// Savings Hero Component Styles (Magenta gradient)
 // ===========================================
 .savingsHero {
-  background: linear-gradient(135deg, #1a4d2e 0%, #0d2818 100%);
-  border: 1px solid #2a5f3f;
+  background: linear-gradient(135deg, rgba($lb-magenta, 0.3) 0%, rgba($lb-magenta, 0.1) 100%);
+  border: 1px solid rgba($lb-magenta, 0.5);
   border-radius: 12px;
   padding: 24px 32px;
   margin: 0 32px 24px;
@@ -1212,19 +1131,19 @@ $color-e5: #818cf8;
 
 .savingsAction {
   .btnPrimary {
-    background: $color-healthy;
-    border-color: $color-healthy;
-    color: #000;
+    background: $lb-magenta;
+    border-color: $lb-magenta;
+    color: #fff;
     font-weight: 600;
 
     &:hover {
-      background: #22c55e;
+      background: darken($lb-magenta, 10%);
     }
   }
 }
 
 .savingsDivider {
-  color: $dark-text-muted;
+  color: $text-muted;
   margin: 0 8px;
 }
 
@@ -1236,13 +1155,13 @@ $color-e5: #818cf8;
   border-collapse: collapse;
 
   th {
-    background: $dark-input-bg;
+    background: $bg-input;
     padding: 12px 16px;
     text-align: left;
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: $dark-text-muted;
+    color: $text-muted;
     position: sticky;
     top: 0;
     z-index: 1;
@@ -1250,7 +1169,7 @@ $color-e5: #818cf8;
 
   td {
     padding: 12px 16px;
-    border-bottom: 1px solid #1e2d44;
+    border-bottom: 1px solid $border-default;
     font-size: 13px;
   }
 
@@ -1258,11 +1177,11 @@ $color-e5: #818cf8;
     transition: background 0.15s;
 
     &:hover {
-      background: rgba($brand-primary, 0.05);
+      background: rgba($lb-magenta, 0.05);
     }
 
     &.selected {
-      background: rgba($brand-primary, 0.1);
+      background: rgba($lb-magenta, 0.1);
     }
 
     &.clickable {
@@ -1294,7 +1213,7 @@ $color-e5: #818cf8;
   }
 
   &.pillE5 {
-    background: rgba($brand-primary, 0.2);
+    background: rgba($lb-blue, 0.2);
     color: $color-e5;
   }
 }
@@ -1307,7 +1226,7 @@ $color-e5: #818cf8;
 
 .moreCount {
   font-size: 10px;
-  color: $dark-text-muted;
+  color: $text-muted;
   padding: 4px 6px;
 }
 
@@ -1333,8 +1252,8 @@ $color-e5: #818cf8;
   }
 
   &.issueServiceAccount {
-    background: rgba($color-attention, 0.2);
-    color: $color-attention;
+    background: rgba($color-info, 0.2);
+    color: $color-info;
   }
 }
 
@@ -1349,7 +1268,7 @@ $color-e5: #818cf8;
   .issueSavings {
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 1px solid $dark-border;
+    border-top: 1px solid $border-default;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1357,7 +1276,7 @@ $color-e5: #818cf8;
 
   .savingsLabel {
     font-size: 10px;
-    color: $dark-text-muted;
+    color: $text-muted;
   }
 
   .savingsValue {
@@ -1368,7 +1287,7 @@ $color-e5: #818cf8;
 
   &.severityCritical { border-left: 3px solid $color-critical; }
   &.severityWarning { border-left: 3px solid $color-warning; }
-  &.severityInfo { border-left: 3px solid $color-attention; }
+  &.severityInfo { border-left: 3px solid $color-info; }
 }
 
 // ===========================================
@@ -1379,15 +1298,15 @@ $color-e5: #818cf8;
   gap: 4px;
   padding: 0 32px;
   margin-bottom: 20px;
-  background: $dark-input-bg;
-  border-bottom: 1px solid $dark-border;
+  background: $bg-input;
+  border-bottom: 1px solid $border-default;
 }
 
 .navTab {
   padding: 12px 20px;
   font-size: 13px;
   font-weight: 500;
-  color: $dark-text-muted;
+  color: $text-muted;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
@@ -1395,12 +1314,12 @@ $color-e5: #818cf8;
   transition: all 0.2s;
 
   &:hover {
-    color: $dark-text;
+    color: $text-primary;
   }
 
   &.active {
     color: #fff;
-    border-bottom-color: $brand-primary;
+    border-bottom-color: $lb-magenta;
   }
 }
 
@@ -1409,8 +1328,8 @@ $color-e5: #818cf8;
 // ===========================================
 .executiveSummary {
   padding: 20px 32px;
-  background: $dark-card;
-  border: 1px solid $dark-border;
+  background: $bg-card;
+  border: 1px solid $border-default;
   border-radius: 12px;
   margin: 0 32px 24px;
 }
@@ -1418,7 +1337,7 @@ $color-e5: #818cf8;
 .summaryText {
   font-size: 14px;
   line-height: 1.6;
-  color: $dark-text;
+  color: $text-primary;
 }
 
 // ===========================================
@@ -1467,4 +1386,219 @@ $color-e5: #818cf8;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
   padding: 0 32px 24px;
+}
+
+// ===========================================
+// Chart Container Styles
+// ===========================================
+.chartContainer {
+  background: $bg-card;
+  border: 1px solid $border-default;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.chartTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.chartGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 0 32px 24px;
+}
+
+@media (max-width: 1000px) {
+  .chartGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ===========================================
+// Gauge / Utilisation Meter Styles
+// ===========================================
+.gaugeContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.gaugeLabel {
+  font-size: 12px;
+  color: $text-muted;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.gaugeValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+}
+
+// ===========================================
+// Page Layout Styles
+// ===========================================
+.pageContent {
+  padding: 24px 0;
+}
+
+.pageHeader {
+  padding: 0 32px 24px;
+  border-bottom: 1px solid $border-default;
+  margin-bottom: 24px;
+}
+
+.pageTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.pageSubtitle {
+  font-size: 14px;
+  color: $text-muted;
+}
+
+// ===========================================
+// User Detail Page Styles
+// ===========================================
+.userDetailHeader {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 32px;
+  background: $bg-card;
+  border-bottom: 1px solid $border-default;
+}
+
+.userDetailAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $lb-magenta, $lb-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+}
+
+.userDetailInfo {
+  flex: 1;
+}
+
+.userDetailName {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.userDetailEmail {
+  font-size: 14px;
+  color: $text-muted;
+}
+
+.userDetailMeta {
+  display: flex;
+  gap: 24px;
+  margin-top: 8px;
+}
+
+.userDetailMetaItem {
+  font-size: 12px;
+  color: $text-secondary;
+
+  span {
+    color: $text-muted;
+    margin-right: 4px;
+  }
+}
+
+.userLicencesList {
+  padding: 24px 32px;
+}
+
+.userLicenceItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: $bg-card;
+  border: 1px solid $border-default;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid $border-default;
+  color: $text-secondary;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $lb-magenta;
+    color: #fff;
+  }
+}
+
+// ===========================================
+// Cost Analysis Page Styles
+// ===========================================
+.costSummaryCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 0 32px 24px;
+}
+
+@media (max-width: 1000px) {
+  .costSummaryCards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.costCard {
+  background: $bg-card;
+  border: 1px solid $border-default;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.costCardValue {
+  font-size: 32px;
+  font-weight: 700;
+  color: $lb-magenta;
+  margin-bottom: 8px;
+}
+
+.costCardLabel {
+  font-size: 12px;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.costCardSubtext {
+  font-size: 11px;
+  color: $text-secondary;
+  margin-top: 4px;
 }

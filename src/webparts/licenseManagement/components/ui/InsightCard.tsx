@@ -9,17 +9,46 @@ export interface IInsightCardProps {
 
 /**
  * Insight Card component for displaying AI-generated insights
+ * Uses severity-based border colours
  */
 const InsightCard: React.FC<IInsightCardProps> = ({
   insight,
   compact = false
 }) => {
-  const getTypeIcon = (): string => {
+  const renderTypeIcon = (): React.ReactElement => {
+    const iconProps = { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 };
+
     switch (insight.type) {
-      case 'critical': return '\u26A0\uFE0F'; // Warning sign
-      case 'warning': return '\u2139\uFE0F'; // Info
-      case 'success': return '\u2705'; // Check mark
-      default: return '\u{1F4CA}'; // Chart
+      case 'critical':
+        return (
+          <svg {...iconProps}>
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+        );
+      case 'warning':
+        return (
+          <svg {...iconProps}>
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        );
+      case 'success':
+        return (
+          <svg {...iconProps}>
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        );
+      default:
+        return (
+          <svg {...iconProps}>
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+        );
     }
   };
 
@@ -32,23 +61,41 @@ const InsightCard: React.FC<IInsightCardProps> = ({
     }
   };
 
-  const getTrendIcon = (): string => {
-    if (!insight.trend) return '';
+  const renderTrendIcon = (): React.ReactElement | null => {
+    if (!insight.trend) return null;
+
+    const iconProps = { width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 };
+
     switch (insight.trend) {
-      case 'up': return '\u2191';
-      case 'down': return '\u2193';
-      default: return '\u2192';
+      case 'up':
+        return (
+          <svg {...iconProps}>
+            <polyline points="18 15 12 9 6 15" />
+          </svg>
+        );
+      case 'down':
+        return (
+          <svg {...iconProps}>
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        );
+      default:
+        return (
+          <svg {...iconProps}>
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        );
     }
   };
 
   if (compact) {
     return (
       <div className={`${styles.insightCardCompact} ${getTypeClass()}`}>
-        <span className={styles.insightIcon}>{getTypeIcon()}</span>
+        <span className={styles.insightIcon}>{renderTypeIcon()}</span>
         <span className={styles.insightTitle}>{insight.title}</span>
         {insight.metric && (
           <span className={styles.insightMetric}>
-            {getTrendIcon()} {insight.metric}
+            {renderTrendIcon()} {insight.metric}
           </span>
         )}
       </div>
@@ -58,11 +105,11 @@ const InsightCard: React.FC<IInsightCardProps> = ({
   return (
     <div className={`${styles.insightCard} ${getTypeClass()}`}>
       <div className={styles.insightHeader}>
-        <span className={styles.insightIcon}>{getTypeIcon()}</span>
+        <span className={styles.insightIcon}>{renderTypeIcon()}</span>
         <span className={styles.insightTitle}>{insight.title}</span>
         {insight.metric && (
           <span className={styles.insightMetric}>
-            {getTrendIcon()} {insight.metric}
+            {renderTrendIcon()} {insight.metric}
           </span>
         )}
       </div>

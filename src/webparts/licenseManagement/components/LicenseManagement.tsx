@@ -10,10 +10,11 @@ import {
   IIssueCategory,
   IPowerBiConfig
 } from '../models/ILicenceData';
-import { KpiCard, IssueCard, InsightCard, SkuCard, SavingsHero, DataTable, IDataTableColumn } from './ui';
+import { KpiCard, IssueCard, SkuCard, DataTable, IDataTableColumn } from './ui';
+import { ExecutiveSummaryPage, CostAnalysisPage, UserDetailPage } from './pages';
+import { UtilisationGauge } from './charts';
 
-type TabType = 'summary' | 'issues' | 'skus' | 'users';
-type ThemeMode = 'dark' | 'light';
+type TabType = 'summary' | 'costs' | 'utilisation' | 'issues' | 'users';
 type IssueFilterType = 'all' | 'Disabled' | 'Dual-Licensed' | 'Inactive 90+' | 'Service Account';
 
 interface ILicenseManagementState {
@@ -23,15 +24,16 @@ interface ILicenseManagementState {
   issueCategories: IIssueCategory[];
   loading: boolean;
   error: string;
-  lastSync: string;
+  extractDate: string;
+  isDataStale: boolean;
   activeTab: TabType;
   issueFilter: IssueFilterType;
   searchText: string;
   selectedUserIds: Set<number>;
   sortField: string;
   sortDirection: 'asc' | 'desc';
-  theme: ThemeMode;
   powerBiConfig: IPowerBiConfig | null;
+  selectedUser: ILicenceUser | null;
 }
 
 /**
@@ -51,8 +53,6 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
     this.dataService = new SharePointDataService(props.context);
     this.insightEngine = new InsightEngine();
 
-    const savedTheme = localStorage.getItem('licenseManagement_theme') as ThemeMode || 'dark';
-
     this.state = {
       data: null,
       kpi: null,
@@ -60,15 +60,16 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       issueCategories: [],
       loading: true,
       error: '',
-      lastSync: '-',
+      extractDate: '-',
+      isDataStale: false,
       activeTab: 'summary',
       issueFilter: 'all',
       searchText: '',
       selectedUserIds: new Set(),
       sortField: 'Title',
       sortDirection: 'asc',
-      theme: savedTheme,
-      powerBiConfig: null
+      powerBiConfig: null,
+      selectedUser: null
     };
   }
 
@@ -85,15 +86,33 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       const insights = this.insightEngine.generateInsights(data, kpi);
       const issueCategories = this.dataService.getIssueCategories(data);
 
+      // Get ExtractDate from the first user or sku record
+      const extractDateStr = data.users.length > 0
+        ? data.users[0].ExtractDate
+        : data.skus.length > 0
+          ? data.skus[0].ExtractDate
+          : null;
+
+      // Calculate if data is stale (>24 hours old)
+      let extractDate = '-';
+      let isDataStale = false;
+      if (extractDateStr) {
+        const extractDateObj = new Date(extractDateStr);
+        const hoursSinceExtract = (Date.now() - extractDateObj.getTime()) / (1000 * 60 * 60);
+        isDataStale = hoursSinceExtract > 24;
+        extractDate = extractDateObj.toLocaleString('en-GB', {
+          day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+      }
+
       this.setState({
         data,
         kpi,
         insights,
         issueCategories,
         loading: false,
-        lastSync: new Date().toLocaleString('en-GB', {
-          day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-        })
+        extractDate,
+        isDataStale
       });
 
     } catch (error: unknown) {
@@ -105,14 +124,8 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
     }
   }
 
-  private toggleTheme = (): void => {
-    const newTheme = this.state.theme === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('licenseManagement_theme', newTheme);
-    this.setState({ theme: newTheme });
-  }
-
   private onTabChange = (tab: TabType): void => {
-    this.setState({ activeTab: tab, selectedUserIds: new Set() });
+    this.setState({ activeTab: tab, selectedUserIds: new Set(), selectedUser: null });
   }
 
   private onIssueFilterChange = (filter: IssueFilterType): void => {
@@ -129,6 +142,14 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
 
   private onSort = (field: string, direction: 'asc' | 'desc'): void => {
     this.setState({ sortField: field, sortDirection: direction });
+  }
+
+  private onUserClick = (user: ILicenceUser): void => {
+    this.setState({ selectedUser: user });
+  }
+
+  private onBackFromUserDetail = (): void => {
+    this.setState({ selectedUser: null });
   }
 
   private getFilteredUsers(): ILicenceUser[] {
@@ -195,7 +216,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
   }
 
   private renderHeader(): React.ReactElement {
-    const { lastSync, theme } = this.state;
+    const { extractDate, isDataStale } = this.state;
 
     return (
       <div className={styles.header}>
@@ -213,12 +234,9 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
         </div>
         <div className={styles.headerRight}>
           <span className={styles.lastSync}>
-            <span className={styles.syncDot}></span>
-            Last sync: {lastSync}
+            <span className={`${styles.syncDot} ${isDataStale ? styles.syncDotStale : ''}`}></span>
+            Last extract: {extractDate}
           </span>
-          <button className={styles.btnTheme} onClick={this.toggleTheme} title="Toggle theme">
-            {theme === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19'}
-          </button>
           <button className={styles.btn} onClick={this.exportToCSV}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -226,13 +244,6 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
               <line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
             Export
-          </button>
-          <button className={styles.btnPrimary} onClick={() => void this.loadData()}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="23 4 23 10 17 10"/>
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-            </svg>
-            Refresh
           </button>
         </div>
       </div>
@@ -243,8 +254,9 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
     const { activeTab } = this.state;
     const tabs: { key: TabType; label: string }[] = [
       { key: 'summary', label: 'Executive Summary' },
+      { key: 'costs', label: 'Cost Analysis' },
+      { key: 'utilisation', label: 'Utilisation & Adoption' },
       { key: 'issues', label: 'Issues & Optimisation' },
-      { key: 'skus', label: 'Licence SKUs' },
       { key: 'users', label: 'All Users' }
     ];
 
@@ -264,87 +276,112 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
   }
 
   private renderSummaryTab(): React.ReactElement {
-    const { data, kpi, insights } = this.state;
+    const { data, kpi, insights, issueCategories } = this.state;
     if (!data || !kpi) return <></>;
 
     const executiveSummary = this.insightEngine.generateExecutiveSummary(data, kpi);
 
     return (
-      <>
+      <ExecutiveSummaryPage
+        data={data}
+        kpi={kpi}
+        insights={insights}
+        issueCategories={issueCategories}
+        executiveSummary={executiveSummary}
+        onIssueClick={(issueType) => {
+          this.setState({
+            activeTab: 'issues',
+            issueFilter: issueType as IssueFilterType
+          });
+        }}
+      />
+    );
+  }
+
+  private renderCostsTab(): React.ReactElement {
+    const { data, kpi } = this.state;
+    if (!data || !kpi) return <></>;
+
+    return (
+      <CostAnalysisPage data={data} kpi={kpi} />
+    );
+  }
+
+  private renderUtilisationTab(): React.ReactElement {
+    const { data, kpi } = this.state;
+    if (!data || !kpi) return <></>;
+
+    return (
+      <div className={styles.pageContent}>
+        {/* Page Header */}
+        <div className={styles.pageHeader}>
+          <div className={styles.pageTitle}>Utilisation & Adoption</div>
+          <div className={styles.pageSubtitle}>
+            Licence utilisation across SKUs and user adoption metrics
+          </div>
+        </div>
+
         {/* KPI Cards */}
         <div className={styles.kpiGrid}>
           <KpiCard
-            title="Total Licensed Users"
-            value={kpi.totalLicensedUsers.toLocaleString()}
-            icon={'\uD83D\uDC65'}
-            color="purple"
-            subtitle={`${data.skus.length} licence types`}
+            title="Overall Utilisation"
+            value={`${kpi.overallUtilisationPct}%`}
+            color={kpi.overallUtilisationPct >= 80 ? 'green' : 'orange'}
+            subtitle="Across all SKUs"
           />
           <KpiCard
             title="Active Users"
             value={`${kpi.activeUsersPct}%`}
-            icon={'\u2705'}
-            color="green"
-            subtitle={`${kpi.activeUsersCount.toLocaleString()} users`}
-            trend={kpi.activeUsersPct >= 80 ? { direction: 'stable', value: 'Healthy' } : { direction: 'down', value: 'Below target', isPositive: false }}
+            color={kpi.activeUsersPct >= 80 ? 'green' : 'orange'}
+            subtitle={`${kpi.activeUsersCount} of ${kpi.totalLicensedUsers}`}
           />
           <KpiCard
-            title="Potential Savings"
-            value={`\u00A3${kpi.potentialAnnualSavings.toLocaleString()}`}
-            icon={'\uD83D\uDCB0'}
-            color="green"
-            subtitle="Annual opportunity"
+            title="Inactive 90+ Days"
+            value={kpi.inactiveCount.toString()}
+            color={kpi.inactiveCount > 0 ? 'orange' : 'green'}
+            subtitle="Potential optimisation"
           />
           <KpiCard
-            title="Issues to Review"
-            value={kpi.issuesCount.toString()}
-            icon={'\u26A0\uFE0F'}
-            color={kpi.issuesCount > 0 ? 'orange' : 'green'}
-            subtitle={kpi.issuesCount > 0 ? 'Action required' : 'All clear'}
+            title="Available Licences"
+            value={(kpi.totalPurchasedLicences - kpi.totalAssignedLicences).toString()}
+            color="blue"
+            subtitle="Unassigned capacity"
           />
         </div>
 
-        {/* Savings Hero */}
-        {kpi.potentialAnnualSavings > 0 && (
-          <SavingsHero
-            monthlyAmount={kpi.potentialMonthlySavings}
-            annualAmount={kpi.potentialAnnualSavings}
-            issueCount={kpi.issuesCount}
-            monthlySpend={kpi.monthlySpend}
-          />
-        )}
-
-        {/* Executive Summary */}
-        <div className={styles.executiveSummary}>
-          <div className={styles.summaryText}>{executiveSummary}</div>
-        </div>
-
-        {/* Insights Grid */}
+        {/* Utilisation Gauges */}
         <div className={styles.sectionHeader} style={{ padding: '0 32px', marginBottom: '16px' }}>
-          <div className={styles.sectionTitle}>{'\uD83D\uDCA1'} Key Insights</div>
+          <div className={styles.sectionTitle}>Utilisation by SKU</div>
         </div>
-        <div className={styles.insightsGrid}>
-          {insights.map(insight => (
-            <InsightCard key={insight.id} insight={insight} />
-          ))}
-        </div>
-
-        {/* Quick Issue Summary */}
-        <div className={styles.sectionHeader} style={{ padding: '0 32px', marginBottom: '16px' }}>
-          <div className={styles.sectionTitle}>{'\u26A0\uFE0F'} Licence Issues</div>
-        </div>
-        <div className={styles.issuesGrid} style={{ padding: '0 32px 24px' }}>
-          {this.state.issueCategories.map(issue => (
-            <IssueCard
-              key={issue.type}
-              issue={issue}
-              onClick={() => {
-                this.setState({ activeTab: 'issues', issueFilter: issue.type });
-              }}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+          gap: '16px',
+          padding: '0 32px 24px'
+        }}>
+          {data.skus.map(sku => (
+            <UtilisationGauge
+              key={sku.Id}
+              value={sku.UtilisationPct}
+              title={sku.Title}
+              subtitle={`${sku.Assigned} of ${sku.Purchased}`}
             />
           ))}
         </div>
-      </>
+
+        {/* SKU Cards */}
+        <div className={styles.sectionHeader} style={{ padding: '0 32px', marginBottom: '16px' }}>
+          <div className={styles.sectionTitle}>Licence SKUs ({data.skus.length})</div>
+        </div>
+        <div className={styles.skuGrid}>
+          {data.skus.map(sku => {
+            const pricing = data.pricing.find(p => p.Title === sku.Title);
+            return (
+              <SkuCard key={sku.Id} sku={sku} pricing={pricing} />
+            );
+          })}
+        </div>
+      </div>
     );
   }
 
@@ -412,65 +449,24 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
             sortField={this.state.sortField}
             sortDirection={this.state.sortDirection}
             emptyMessage="No users match the selected filters"
+            onRowClick={this.onUserClick}
           />
-        </div>
-      </>
-    );
-  }
-
-  private renderSkusTab(): React.ReactElement {
-    const { data, kpi } = this.state;
-    if (!data || !kpi) return <></>;
-
-    return (
-      <>
-        {/* Overall stats */}
-        <div className={styles.kpiGrid}>
-          <KpiCard
-            title="Total Purchased"
-            value={kpi.totalPurchasedLicences.toLocaleString()}
-            icon={'\uD83D\uDCCA'}
-            color="blue"
-          />
-          <KpiCard
-            title="Total Assigned"
-            value={kpi.totalAssignedLicences.toLocaleString()}
-            icon={'\u2705'}
-            color="purple"
-          />
-          <KpiCard
-            title="Overall Utilisation"
-            value={`${kpi.overallUtilisationPct}%`}
-            icon={'\uD83D\uDCC8'}
-            color={kpi.overallUtilisationPct >= 80 ? 'green' : 'orange'}
-          />
-          <KpiCard
-            title="Monthly Spend"
-            value={kpi.monthlySpend > 0 ? `\u00A3${kpi.monthlySpend.toLocaleString()}` : 'Configure Pricing'}
-            icon={'\uD83D\uDCB7'}
-            color="green"
-            subtitle={kpi.annualSpend > 0 ? `\u00A3${kpi.annualSpend.toLocaleString()}/year` : 'Add pricing data'}
-          />
-        </div>
-
-        {/* SKU Cards Grid */}
-        <div className={styles.sectionHeader} style={{ padding: '0 32px', marginBottom: '16px' }}>
-          <div className={styles.sectionTitle}>{'\uD83D\uDCC4'} Licence SKUs ({data.skus.length})</div>
-        </div>
-        <div className={styles.skuGrid}>
-          {data.skus.map(sku => {
-            const pricing = data.pricing.find(p => p.Title === sku.Title);
-            return (
-              <SkuCard key={sku.Id} sku={sku} pricing={pricing} />
-            );
-          })}
         </div>
       </>
     );
   }
 
   private renderUsersTab(): React.ReactElement {
-    const filteredUsers = this.getFilteredUsers();
+    const { data } = this.state;
+    if (!data) return <></>;
+
+    // Get all users (not filtered by issues)
+    const allUsers = this.dataService.filterUsers(
+      data.users,
+      this.state.searchText,
+      undefined,
+      undefined
+    );
 
     const columns: IDataTableColumn[] = [
       { key: 'user', header: 'User', sortable: true },
@@ -484,7 +480,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
     return (
       <div className={styles.tableSection}>
         <div className={styles.tableHeader}>
-          <div className={styles.tableTitle}>All Licensed Users ({filteredUsers.length})</div>
+          <div className={styles.tableTitle}>All Licensed Users ({allUsers.length})</div>
           <div className={styles.tableActions}>
             <input
               type="text"
@@ -496,28 +492,50 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
           </div>
         </div>
         <DataTable
-          users={filteredUsers}
+          users={allUsers}
           columns={columns}
           selectedIds={this.state.selectedUserIds}
           onSelectionChange={this.onSelectionChange}
           onSort={this.onSort}
           sortField={this.state.sortField}
           sortDirection={this.state.sortDirection}
+          onRowClick={this.onUserClick}
         />
       </div>
     );
   }
 
+  private renderUserDetail(): React.ReactElement {
+    const { data, selectedUser } = this.state;
+    if (!data || !selectedUser) return <></>;
+
+    return (
+      <UserDetailPage
+        user={selectedUser}
+        skus={data.skus}
+        pricing={data.pricing}
+        onBack={this.onBackFromUserDetail}
+      />
+    );
+  }
+
   private renderContent(): React.ReactElement {
-    const { activeTab } = this.state;
+    const { activeTab, selectedUser } = this.state;
+
+    // If a user is selected, show user detail page
+    if (selectedUser) {
+      return this.renderUserDetail();
+    }
 
     switch (activeTab) {
       case 'summary':
         return this.renderSummaryTab();
+      case 'costs':
+        return this.renderCostsTab();
+      case 'utilisation':
+        return this.renderUtilisationTab();
       case 'issues':
         return this.renderIssuesTab();
-      case 'skus':
-        return this.renderSkusTab();
       case 'users':
         return this.renderUsersTab();
       default:
@@ -526,11 +544,10 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
   }
 
   public render(): React.ReactElement<ILicenseManagementProps> {
-    const { loading, error, theme } = this.state;
-    const themeClass = theme === 'light' ? styles.lightMode : '';
+    const { loading, error, selectedUser } = this.state;
 
     return (
-      <div className={`${styles.licenseManagement} ${themeClass}`}>
+      <div className={styles.licenseManagement}>
         {this.renderHeader()}
 
         {error && <div className={styles.errorBanner}>{error}</div>}
@@ -542,7 +559,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
           </div>
         ) : (
           <>
-            {this.renderNavTabs()}
+            {!selectedUser && this.renderNavTabs()}
             {this.renderContent()}
           </>
         )}

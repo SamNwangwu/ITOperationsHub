@@ -5,7 +5,6 @@ export interface IKpiCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
-  icon?: string;
   trend?: {
     direction: 'up' | 'down' | 'stable';
     value: string;
@@ -17,23 +16,41 @@ export interface IKpiCardProps {
 
 /**
  * KPI Card component for displaying key metrics
- * Matches the Lebara dashboard design
+ * Matches the Lebara dashboard design with gradient borders
  */
 const KpiCard: React.FC<IKpiCardProps> = ({
   title,
   value,
   subtitle,
-  icon,
   trend,
   color = 'purple',
   onClick
 }) => {
-  const getTrendIcon = (): string => {
-    if (!trend) return '';
+  const renderTrendIcon = (): React.ReactElement | null => {
+    if (!trend) return null;
+
+    const iconProps = { width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 };
+
     switch (trend.direction) {
-      case 'up': return '\u2191'; // Up arrow
-      case 'down': return '\u2193'; // Down arrow
-      default: return '\u2192'; // Right arrow (stable)
+      case 'up':
+        return (
+          <svg {...iconProps}>
+            <polyline points="18 15 12 9 6 15" />
+          </svg>
+        );
+      case 'down':
+        return (
+          <svg {...iconProps}>
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        );
+      default:
+        return (
+          <svg {...iconProps}>
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        );
     }
   };
 
@@ -42,20 +59,20 @@ const KpiCard: React.FC<IKpiCardProps> = ({
     if (trend.isPositive !== undefined) {
       return trend.isPositive ? styles.trendPositive : styles.trendNegative;
     }
-    // Default: up is positive, down is negative
     return trend.direction === 'up' ? styles.trendPositive : styles.trendNegative;
   };
 
+  const colorClass = `kpiCard${color.charAt(0).toUpperCase() + color.slice(1)}`;
+
   return (
     <div
-      className={`${styles.kpiCard} ${styles[`kpiCard${color.charAt(0).toUpperCase() + color.slice(1)}`]} ${onClick ? styles.clickable : ''}`}
+      className={`${styles.kpiCard} ${styles[colorClass]} ${onClick ? styles.clickable : ''}`}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
     >
       <div className={styles.kpiHeader}>
-        {icon && <span className={styles.kpiIcon}>{icon}</span>}
         <span className={styles.kpiTitle}>{title}</span>
       </div>
       <div className={styles.kpiValue}>{value}</div>
@@ -63,7 +80,7 @@ const KpiCard: React.FC<IKpiCardProps> = ({
         {subtitle && <span className={styles.kpiSubtitle}>{subtitle}</span>}
         {trend && (
           <span className={`${styles.kpiTrend} ${getTrendClass()}`}>
-            {getTrendIcon()} {trend.value}
+            {renderTrendIcon()} {trend.value}
           </span>
         )}
       </div>
