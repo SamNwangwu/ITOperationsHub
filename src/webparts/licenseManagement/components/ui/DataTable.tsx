@@ -98,11 +98,11 @@ const DataTable: React.FC<IDataTableProps> = ({
 
       case 'licences':
         return (
-          <div className={styles.licencePills}>
-            {user.HasE5 && <span className={`${styles.licencePill} ${styles.pillE5}`}>E5</span>}
-            {user.HasE3 && <span className={`${styles.licencePill} ${styles.pillE3}`}>E3</span>}
+          <div className={styles.licensePills}>
+            {user.HasE5 && <span className={`${styles.licensePill} ${styles.pillE5}`}>E5</span>}
+            {user.HasE3 && <span className={`${styles.licensePill} ${styles.pillE3}`}>E3</span>}
             {user.LicenceCount > 2 && (
-              <span className={styles.moreCount}>+{user.LicenceCount - 2}</span>
+              <span className={styles.licensePill}>+{user.LicenceCount - 2}</span>
             )}
           </div>
         );
@@ -116,8 +116,10 @@ const DataTable: React.FC<IDataTableProps> = ({
 
       case 'issueType':
         if (user.IssueType === 'None') return '-';
+        // Sanitize class name: remove spaces, hyphens, plus signs, etc.
+        const issueClassName = `issue${user.IssueType.replace(/[\s\-\+]+/g, '')}`;
         return (
-          <span className={`${styles.issueBadge} ${styles[`issue${user.IssueType.replace(/\s+/g, '')}`]}`}>
+          <span className={`${styles.issueBadge} ${styles[issueClassName] || ''}`}>
             {user.IssueType}
           </span>
         );
@@ -136,7 +138,7 @@ const DataTable: React.FC<IDataTableProps> = ({
         return user.JobTitle || '-';
 
       default:
-        return (user as Record<string, unknown>)[column.key]?.toString() || '-';
+        return (user as unknown as Record<string, unknown>)[column.key]?.toString() || '-';
     }
   };
 

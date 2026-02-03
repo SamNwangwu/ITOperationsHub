@@ -246,7 +246,7 @@ export class InsightEngine {
       (a, b) => new Date(b.SnapshotDate).getTime() - new Date(a.SnapshotDate).getTime()
     );
 
-    const uniqueDates = [...new Set(sortedSnapshots.map(s => s.SnapshotDate))];
+    const uniqueDates = Array.from(new Set(sortedSnapshots.map(s => s.SnapshotDate)));
     if (uniqueDates.length < 2) return insights;
 
     const currentMonth = sortedSnapshots.filter(s => s.SnapshotDate === uniqueDates[0]);

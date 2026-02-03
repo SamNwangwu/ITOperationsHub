@@ -237,7 +237,7 @@ export class SharePointDataService {
    */
   public getTrendData(snapshots: ILicenceSnapshot[], months: number = 6): ITrendDataPoint[] {
     // Get unique dates and sort descending
-    const uniqueDates = [...new Set(snapshots.map(s => s.SnapshotDate))]
+    const uniqueDates = Array.from(new Set(snapshots.map(s => s.SnapshotDate)))
       .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
       .slice(0, months);
 
@@ -311,7 +311,7 @@ export class SharePointDataService {
    * Get unique departments from users
    */
   public getDepartments(users: ILicenceUser[]): string[] {
-    return [...new Set(users.map(u => u.Department).filter(d => d))].sort();
+    return Array.from(new Set(users.map(u => u.Department).filter(d => d))).sort();
   }
 
   /**
