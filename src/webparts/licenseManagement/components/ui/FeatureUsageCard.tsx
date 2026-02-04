@@ -11,6 +11,27 @@ export interface IFeatureUsageCardProps {
  * Shows individual user's feature usage and downgrade recommendation
  */
 const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngradeClick }) => {
+  // Safe accessors with defaults
+  const displayName = profile.displayName || profile.userPrincipalName || 'Unknown User';
+  const department = profile.department || 'Unknown';
+  const userPrincipalName = profile.userPrincipalName || '';
+  const appsUsed = profile.appsUsed || [];
+  const e5FeaturesUsed = profile.e5FeaturesUsed || [];
+  const e5FeaturesNotUsed = profile.e5FeaturesNotUsed || [];
+  const e5UtilisationPct = profile.e5UtilisationPct || 0;
+  const confidenceScore = profile.confidenceScore || 0;
+  const potentialAnnualSavings = profile.potentialAnnualSavings || 0;
+  const downgradeReason = profile.downgradeReason || '';
+
+  // Get initials safely
+  const getInitials = (name: string): string => {
+    if (!name) return '??';
+    const parts = name.split(' ').filter(p => p.length > 0);
+    if (parts.length === 0) return '??';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
   const getUtilisationColor = (pct: number): string => {
     if (pct >= 70) return '#10B981'; // Green - good utilisation
     if (pct >= 30) return '#F59E0B'; // Orange - moderate
@@ -35,7 +56,8 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
       background: '#111827',
       border: profile.canDowngrade ? '1px solid rgba(239, 68, 68, 0.5)' : '1px solid #1F2937',
       borderRadius: '12px',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      minHeight: '120px'
     }}>
       {/* Header */}
       <div style={{
@@ -43,13 +65,16 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
         borderBottom: '1px solid #1F2937',
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        minHeight: '72px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {/* Avatar */}
           <div style={{
             width: '40px',
             height: '40px',
+            minWidth: '40px',
+            minHeight: '40px',
             borderRadius: '50%',
             background: 'linear-gradient(135deg, #E4007D, #00289e)',
             display: 'flex',
@@ -59,14 +84,14 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
             fontWeight: 600,
             color: '#fff'
           }}>
-            {profile.displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+            {getInitials(displayName)}
           </div>
-          <div>
-            <div style={{ fontSize: '14px', fontWeight: 600, color: '#fff' }}>
-              {profile.displayName}
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#fff', wordBreak: 'break-word' }}>
+              {displayName}
             </div>
-            <div style={{ fontSize: '11px', color: '#6B7280' }}>
-              {profile.department} • {profile.userPrincipalName}
+            <div style={{ fontSize: '11px', color: '#6B7280', wordBreak: 'break-all' }}>
+              {department} • {userPrincipalName}
             </div>
           </div>
         </div>
@@ -97,9 +122,9 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
             <span style={{
               fontSize: '16px',
               fontWeight: 700,
-              color: getUtilisationColor(profile.e5UtilisationPct)
+              color: getUtilisationColor(e5UtilisationPct)
             }}>
-              {profile.e5UtilisationPct}%
+              {e5UtilisationPct}%
             </span>
           </div>
 
@@ -112,9 +137,9 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
             marginBottom: '12px'
           }}>
             <div style={{
-              width: `${profile.e5UtilisationPct}%`,
+              width: `${e5UtilisationPct}%`,
               height: '100%',
-              background: getUtilisationColor(profile.e5UtilisationPct),
+              background: getUtilisationColor(e5UtilisationPct),
               borderRadius: '4px',
               transition: 'width 0.3s ease'
             }} />
@@ -124,47 +149,59 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
               <div style={{ fontSize: '10px', color: '#10B981', marginBottom: '4px', textTransform: 'uppercase' }}>
-                Features Used ({profile.e5FeaturesUsed.length})
+                Features Used ({e5FeaturesUsed.length})
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                {profile.e5FeaturesUsed.slice(0, 3).map((feature, idx) => (
-                  <span key={idx} style={{
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    fontSize: '9px',
-                    background: 'rgba(16, 185, 129, 0.2)',
-                    color: '#10B981'
-                  }}>
-                    {feature.length > 20 ? feature.slice(0, 18) + '...' : feature}
-                  </span>
-                ))}
-                {profile.e5FeaturesUsed.length > 3 && (
-                  <span style={{ fontSize: '9px', color: '#6B7280' }}>
-                    +{profile.e5FeaturesUsed.length - 3} more
-                  </span>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', minHeight: '24px' }}>
+                {e5FeaturesUsed.length > 0 ? (
+                  <>
+                    {e5FeaturesUsed.slice(0, 3).map((feature, idx) => (
+                      <span key={idx} style={{
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        fontSize: '9px',
+                        background: 'rgba(16, 185, 129, 0.2)',
+                        color: '#10B981'
+                      }}>
+                        {feature.length > 20 ? feature.slice(0, 18) + '...' : feature}
+                      </span>
+                    ))}
+                    {e5FeaturesUsed.length > 3 && (
+                      <span style={{ fontSize: '9px', color: '#6B7280' }}>
+                        +{e5FeaturesUsed.length - 3} more
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span style={{ fontSize: '9px', color: '#6B7280' }}>None detected</span>
                 )}
               </div>
             </div>
             <div>
               <div style={{ fontSize: '10px', color: '#EF4444', marginBottom: '4px', textTransform: 'uppercase' }}>
-                Not Used ({profile.e5FeaturesNotUsed.length})
+                Not Used ({e5FeaturesNotUsed.length})
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                {profile.e5FeaturesNotUsed.slice(0, 3).map((feature, idx) => (
-                  <span key={idx} style={{
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    fontSize: '9px',
-                    background: 'rgba(239, 68, 68, 0.2)',
-                    color: '#EF4444'
-                  }}>
-                    {feature.length > 20 ? feature.slice(0, 18) + '...' : feature}
-                  </span>
-                ))}
-                {profile.e5FeaturesNotUsed.length > 3 && (
-                  <span style={{ fontSize: '9px', color: '#6B7280' }}>
-                    +{profile.e5FeaturesNotUsed.length - 3} more
-                  </span>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', minHeight: '24px' }}>
+                {e5FeaturesNotUsed.length > 0 ? (
+                  <>
+                    {e5FeaturesNotUsed.slice(0, 3).map((feature, idx) => (
+                      <span key={idx} style={{
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        fontSize: '9px',
+                        background: 'rgba(239, 68, 68, 0.2)',
+                        color: '#EF4444'
+                      }}>
+                        {feature.length > 20 ? feature.slice(0, 18) + '...' : feature}
+                      </span>
+                    ))}
+                    {e5FeaturesNotUsed.length > 3 && (
+                      <span style={{ fontSize: '9px', color: '#6B7280' }}>
+                        +{e5FeaturesNotUsed.length - 3} more
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span style={{ fontSize: '9px', color: '#6B7280' }}>All features used</span>
                 )}
               </div>
             </div>
@@ -177,9 +214,9 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
         <div style={{ fontSize: '10px', color: '#9CA3AF', marginBottom: '8px', textTransform: 'uppercase' }}>
           Core Apps Usage
         </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', minHeight: '32px' }}>
           {['Outlook', 'Teams', 'Word', 'Excel', 'PowerPoint', 'OneNote'].map(app => {
-            const isUsed = profile.appsUsed.indexOf(app) >= 0;
+            const isUsed = appsUsed.indexOf(app) >= 0;
             return (
               <div key={app} style={{
                 padding: '6px 10px',
@@ -242,20 +279,22 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '18px', fontWeight: 700, color: '#10B981' }}>
-                {formatCurrency(profile.potentialAnnualSavings)}
+                {formatCurrency(potentialAnnualSavings)}
               </div>
               <div style={{ fontSize: '10px', color: '#6B7280' }}>/year savings</div>
             </div>
           </div>
 
-          <div style={{
-            fontSize: '12px',
-            color: '#9CA3AF',
-            marginBottom: '12px',
-            lineHeight: '1.4'
-          }}>
-            {profile.downgradeReason}
-          </div>
+          {downgradeReason && (
+            <div style={{
+              fontSize: '12px',
+              color: '#9CA3AF',
+              marginBottom: '12px',
+              lineHeight: '1.4'
+            }}>
+              {downgradeReason}
+            </div>
+          )}
 
           <div style={{
             display: 'flex',
@@ -271,9 +310,9 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
               <span style={{ color: '#6B7280' }}>Confidence:</span>
               <span style={{
                 fontWeight: 600,
-                color: getConfidenceColor(profile.confidenceScore)
+                color: getConfidenceColor(confidenceScore)
               }}>
-                {profile.confidenceScore}%
+                {confidenceScore}%
               </span>
             </div>
 

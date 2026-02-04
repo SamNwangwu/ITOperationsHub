@@ -305,7 +305,15 @@ export class UsageReportService {
    * Build a single user's usage profile
    */
   private buildUserProfile(user: ILicenceUser, usageData?: IM365AppUsage): IUserUsageProfile {
-    const licences = user.Licences.split(',').map(l => l.trim()).filter(l => l);
+    // Safe access to user properties - define all at the top
+    const displayName = user.Title || user.UserPrincipalName || 'Unknown User';
+    const userPrincipalName = user.UserPrincipalName || '';
+    const daysSinceSignIn = user.DaysSinceSignIn || 0;
+    const dept = (user.Department || '').toLowerCase();
+    const title = (user.JobTitle || '').toLowerCase();
+
+    const licenceString = user.Licences || '';
+    const licences = licenceString.split(',').map(l => l.trim()).filter(l => l);
     const hasE5 = user.HasE5 || licences.some(l =>
       l.toLowerCase().indexOf('e5') >= 0 ||
       l.toLowerCase().indexOf('enterprisepremium') >= 0
@@ -348,9 +356,6 @@ export class UsageReportService {
 
     if (hasE5) {
       // Heuristic: If user is in certain departments, they likely use certain features
-      const dept = (user.Department || '').toLowerCase();
-      const title = (user.JobTitle || '').toLowerCase();
-
       // Check likely feature usage based on role/department
       E5_EXCLUSIVE_FEATURES.forEach(feature => {
         let likelyUsed = false;
@@ -373,7 +378,7 @@ export class UsageReportService {
             break;
           case 'my_analytics':
             // Most E5 users have access, usage varies
-            likelyUsed = user.DaysSinceSignIn < 30;
+            likelyUsed = daysSinceSignIn < 30;
             break;
         }
 
@@ -399,7 +404,7 @@ export class UsageReportService {
 
     if (hasE5) {
       // E5 user - can they downgrade to E3?
-      if (e5UtilisationPct < 30 && user.DaysSinceSignIn < 90) {
+      if (e5UtilisationPct < 30 && daysSinceSignIn < 90) {
         // Low E5 feature usage but still active
         canDowngrade = true;
         recommendedLicence = 'Microsoft 365 E3';
@@ -410,11 +415,11 @@ export class UsageReportService {
         const e3Cost = this.getLicenceCost('Microsoft 365 E3');
         potentialMonthlySavings = e5Cost - e3Cost;
         potentialAnnualSavings = potentialMonthlySavings * 12;
-      } else if (user.DaysSinceSignIn >= 90) {
+      } else if (daysSinceSignIn >= 90) {
         // Inactive E5 user
         canDowngrade = true;
         recommendedLicence = null; // Remove licence
-        downgradeReason = `Inactive for ${user.DaysSinceSignIn} days. Consider removing E5 licence.`;
+        downgradeReason = `Inactive for ${daysSinceSignIn} days. Consider removing E5 licence.`;
         confidenceScore = 90;
         potentialMonthlySavings = this.getLicenceCost('Microsoft 365 E5');
         potentialAnnualSavings = potentialMonthlySavings * 12;
@@ -424,7 +429,7 @@ export class UsageReportService {
       const basicAppsOnly = appsUsed.length <= 3 &&
         appsUsed.every(a => ['Outlook', 'Teams'].indexOf(a) >= 0);
 
-      if (basicAppsOnly && user.DaysSinceSignIn < 90) {
+      if (basicAppsOnly && daysSinceSignIn < 90) {
         // Using only basic apps
         canDowngrade = true;
         recommendedLicence = 'Microsoft 365 F3';
@@ -439,28 +444,28 @@ export class UsageReportService {
     }
 
     return {
-      userId: user.Id,
-      userPrincipalName: user.UserPrincipalName,
-      displayName: user.Title,
+      userId: user.Id || 0,
+      userPrincipalName: userPrincipalName,
+      displayName: displayName,
       department: user.Department || 'Unknown',
       currentLicences: licences,
       hasE5,
       hasE3,
-      lastSignIn: user.LastSignInDate,
-      daysSinceSignIn: user.DaysSinceSignIn,
-      isActive: user.DaysSinceSignIn < 30,
-      appsUsed,
-      appsNotUsed,
+      lastSignIn: user.LastSignInDate || null,
+      daysSinceSignIn: daysSinceSignIn,
+      isActive: daysSinceSignIn < 30,
+      appsUsed: appsUsed,
+      appsNotUsed: appsNotUsed,
       primaryApps: appsUsed.slice(0, 3),
-      e5FeaturesUsed,
-      e5FeaturesNotUsed,
-      e5UtilisationPct,
-      canDowngrade,
-      recommendedLicence,
-      downgradeReason,
-      confidenceScore,
-      potentialMonthlySavings,
-      potentialAnnualSavings
+      e5FeaturesUsed: e5FeaturesUsed,
+      e5FeaturesNotUsed: e5FeaturesNotUsed,
+      e5UtilisationPct: e5UtilisationPct,
+      canDowngrade: canDowngrade,
+      recommendedLicence: recommendedLicence,
+      downgradeReason: downgradeReason,
+      confidenceScore: confidenceScore,
+      potentialMonthlySavings: potentialMonthlySavings,
+      potentialAnnualSavings: potentialAnnualSavings
     };
   }
 
