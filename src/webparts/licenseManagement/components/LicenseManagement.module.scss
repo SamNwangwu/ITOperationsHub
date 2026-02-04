@@ -39,9 +39,12 @@ $color-e5: #818CF8;
   background: $bg-base;
   color: $text-primary;
   min-height: 600px;
+  height: 100%;
   width: 100%;
   box-sizing: border-box;
   padding: 0;
+  display: flex;
+  flex-direction: column;
 
   // Hide SharePoint chrome elements for full-page display
   :global {
@@ -1448,6 +1451,9 @@ $color-e5: #818CF8;
 // ===========================================
 .pageContent {
   padding: 24px 0;
+  flex: 1;
+  min-height: 0;
+  overflow: visible;
 }
 
 .pageHeader {

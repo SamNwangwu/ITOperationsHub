@@ -129,78 +129,81 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
 
           {/* Utilisation Bar */}
           <div style={{
-            height: '8px',
+            height: '10px',
             background: 'rgba(255, 255, 255, 0.1)',
-            borderRadius: '4px',
+            borderRadius: '5px',
             overflow: 'hidden',
-            marginBottom: '12px'
+            marginBottom: '16px'
           }}>
             <div style={{
-              width: `${e5UtilisationPct}%`,
+              width: `${Math.max(e5UtilisationPct, 2)}%`,
               height: '100%',
-              background: getUtilisationColor(e5UtilisationPct),
-              borderRadius: '4px',
-              transition: 'width 0.3s ease'
+              background: `linear-gradient(90deg, ${getUtilisationColor(e5UtilisationPct)}, ${getUtilisationColor(e5UtilisationPct)}dd)`,
+              borderRadius: '5px',
+              transition: 'width 0.3s ease',
+              boxShadow: `0 0 8px ${getUtilisationColor(e5UtilisationPct)}40`
             }} />
           </div>
 
           {/* Features Used/Not Used */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div>
-              <div style={{ fontSize: '10px', color: '#10B981', marginBottom: '4px', textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '11px', color: '#10B981', marginBottom: '6px', textTransform: 'uppercase', fontWeight: 600 }}>
                 Features Used ({e5FeaturesUsed.length})
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', minHeight: '24px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', minHeight: '28px' }}>
                 {e5FeaturesUsed.length > 0 ? (
                   <>
                     {e5FeaturesUsed.slice(0, 3).map((feature, idx) => (
                       <span key={idx} style={{
-                        padding: '2px 6px',
+                        padding: '4px 8px',
                         borderRadius: '4px',
-                        fontSize: '9px',
+                        fontSize: '10px',
+                        fontWeight: 500,
                         background: 'rgba(16, 185, 129, 0.2)',
                         color: '#10B981'
                       }}>
-                        {feature.length > 20 ? feature.slice(0, 18) + '...' : feature}
+                        {feature.length > 18 ? feature.slice(0, 16) + '...' : feature}
                       </span>
                     ))}
                     {e5FeaturesUsed.length > 3 && (
-                      <span style={{ fontSize: '9px', color: '#6B7280' }}>
+                      <span style={{ fontSize: '10px', color: '#6B7280', alignSelf: 'center' }}>
                         +{e5FeaturesUsed.length - 3} more
                       </span>
                     )}
                   </>
                 ) : (
-                  <span style={{ fontSize: '9px', color: '#6B7280' }}>None detected</span>
+                  <span style={{ fontSize: '11px', color: '#6B7280' }}>None detected</span>
                 )}
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '10px', color: '#EF4444', marginBottom: '4px', textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '11px', color: '#EF4444', marginBottom: '6px', textTransform: 'uppercase', fontWeight: 600 }}>
                 Not Used ({e5FeaturesNotUsed.length})
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', minHeight: '24px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', minHeight: '28px' }}>
                 {e5FeaturesNotUsed.length > 0 ? (
                   <>
                     {e5FeaturesNotUsed.slice(0, 3).map((feature, idx) => (
                       <span key={idx} style={{
-                        padding: '2px 6px',
+                        padding: '4px 8px',
                         borderRadius: '4px',
-                        fontSize: '9px',
+                        fontSize: '10px',
+                        fontWeight: 500,
                         background: 'rgba(239, 68, 68, 0.2)',
                         color: '#EF4444'
                       }}>
-                        {feature.length > 20 ? feature.slice(0, 18) + '...' : feature}
+                        {feature.length > 18 ? feature.slice(0, 16) + '...' : feature}
                       </span>
                     ))}
                     {e5FeaturesNotUsed.length > 3 && (
-                      <span style={{ fontSize: '9px', color: '#6B7280' }}>
+                      <span style={{ fontSize: '10px', color: '#6B7280', alignSelf: 'center' }}>
                         +{e5FeaturesNotUsed.length - 3} more
                       </span>
                     )}
                   </>
                 ) : (
-                  <span style={{ fontSize: '9px', color: '#6B7280' }}>All features used</span>
+                  <span style={{ fontSize: '11px', color: '#6B7280' }}>All features used</span>
                 )}
               </div>
             </div>
@@ -380,8 +383,7 @@ export const FeatureUsageStatsCard: React.FC<IFeatureUsageStatsCardProps> = ({ s
     <div style={{
       background: '#111827',
       border: '1px solid #1F2937',
-      borderRadius: '12px',
-      overflow: 'hidden'
+      borderRadius: '12px'
     }}>
       <div style={{
         padding: '16px 20px',

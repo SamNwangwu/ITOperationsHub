@@ -33,22 +33,19 @@ const UsageAnalysisPage: React.FC<IUsageAnalysisPageProps> = ({
     let result = [...profiles];
 
     // Apply filter
-    switch (filter) {
-      case 'e5':
-        result = result.filter(p => p.hasE5);
-        break;
-      case 'downgrade':
-        result = result.filter(p => p.canDowngrade);
-        break;
+    if (filter === 'e5') {
+      result = result.filter(p => p.hasE5 === true);
+    } else if (filter === 'downgrade') {
+      result = result.filter(p => p.canDowngrade === true);
     }
 
     // Apply search
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(p =>
-        p.displayName.toLowerCase().indexOf(term) >= 0 ||
-        p.userPrincipalName.toLowerCase().indexOf(term) >= 0 ||
-        p.department.toLowerCase().indexOf(term) >= 0
+        (p.displayName || '').toLowerCase().indexOf(term) >= 0 ||
+        (p.userPrincipalName || '').toLowerCase().indexOf(term) >= 0 ||
+        (p.department || '').toLowerCase().indexOf(term) >= 0
       );
     }
 
@@ -88,7 +85,7 @@ const UsageAnalysisPage: React.FC<IUsageAnalysisPageProps> = ({
   }
 
   return (
-    <div className={styles.pageContent}>
+    <div className={styles.pageContent} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Header */}
       <div style={{
         padding: '0 32px 24px',
@@ -261,10 +258,12 @@ const UsageAnalysisPage: React.FC<IUsageAnalysisPageProps> = ({
         display: 'grid',
         gridTemplateColumns: '1fr 380px',
         gap: '24px',
-        padding: '0 32px 24px'
+        padding: '0 32px 24px',
+        flex: 1,
+        minHeight: 0
       }}>
         {/* Left Column - User List */}
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           {/* Filters */}
           <div style={{
             display: 'flex',
@@ -350,7 +349,8 @@ const UsageAnalysisPage: React.FC<IUsageAnalysisPageProps> = ({
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',
-            maxHeight: '700px',
+            flex: 1,
+            minHeight: 0,
             overflowY: 'auto',
             paddingRight: '8px'
           }}>
