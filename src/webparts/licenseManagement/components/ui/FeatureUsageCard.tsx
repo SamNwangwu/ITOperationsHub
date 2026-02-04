@@ -11,15 +11,6 @@ export interface IFeatureUsageCardProps {
  * Shows individual user's feature usage and downgrade recommendation
  */
 const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngradeClick }) => {
-  // Debug: Log profile data to console
-  console.log('[FeatureUsageCard] Profile:', profile.displayName, {
-    hasE5: profile.hasE5,
-    hasE3: profile.hasE3,
-    canDowngrade: profile.canDowngrade,
-    appsUsed: profile.appsUsed,
-    e5FeaturesUsed: profile.e5FeaturesUsed
-  });
-
   // Safe accessors with defaults
   const displayName = profile.displayName || profile.userPrincipalName || 'Unknown User';
   const department = profile.department || 'Unknown';
@@ -59,9 +50,6 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
     }
     return `£${Math.round(value).toLocaleString()}`;
   };
-
-  // Debug: Check what's being rendered
-  console.log('[FeatureUsageCard] Rendering sections for:', displayName, '| hasE5:', profile.hasE5, '| canDowngrade:', profile.canDowngrade);
 
   return (
     <div style={{
@@ -220,13 +208,8 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
         </div>
       )}
 
-      {/* DEBUG: Always visible section to verify rendering */}
-      <div style={{ padding: '12px 20px', background: '#FF0000', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
-        DEBUG VISIBLE: hasE5={String(profile.hasE5)} | canDowngrade={String(profile.canDowngrade)} | apps={appsUsed.length}
-      </div>
-
       {/* Apps Usage */}
-      <div style={{ padding: '16px 20px', borderBottom: '1px solid #1F2937', background: '#1F2937' }}>
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid #1F2937' }}>
         <div style={{ fontSize: '10px', color: '#9CA3AF', marginBottom: '8px', textTransform: 'uppercase' }}>
           Core Apps Usage
         </div>
