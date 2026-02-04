@@ -11,6 +11,15 @@ export interface IFeatureUsageCardProps {
  * Shows individual user's feature usage and downgrade recommendation
  */
 const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngradeClick }) => {
+  // Debug: Log profile data to console
+  console.log('[FeatureUsageCard] Profile:', profile.displayName, {
+    hasE5: profile.hasE5,
+    hasE3: profile.hasE3,
+    canDowngrade: profile.canDowngrade,
+    appsUsed: profile.appsUsed,
+    e5FeaturesUsed: profile.e5FeaturesUsed
+  });
+
   // Safe accessors with defaults
   const displayName = profile.displayName || profile.userPrincipalName || 'Unknown User';
   const department = profile.department || 'Unknown';
@@ -208,6 +217,11 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
           </div>
         </div>
       )}
+
+      {/* DEBUG: Always visible section to verify rendering */}
+      <div style={{ padding: '8px 20px', background: '#1E3A5F', fontSize: '10px', color: '#fff' }}>
+        DEBUG: hasE5={String(profile.hasE5)} | canDowngrade={String(profile.canDowngrade)} | apps={appsUsed.length}
+      </div>
 
       {/* Apps Usage */}
       <div style={{ padding: '16px 20px', borderBottom: '1px solid #1F2937' }}>
