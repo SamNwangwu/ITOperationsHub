@@ -123,6 +123,28 @@ export class SharePointDataService {
   }
 
   /**
+   * Find pricing for a licence name as stored in user.Licences field.
+   * Tries direct title match first, then resolves SkuPartNumber via SKU list for fallback.
+   */
+  private findPricingByLicenceName(
+    pricing: ILicencePricing[],
+    skus: ILicenceSku[],
+    licenceName: string
+  ): ILicencePricing | undefined {
+    // Try direct match (works when extraction names match pricing names)
+    let priceInfo = pricing.find(p => p.Title === licenceName);
+    if (priceInfo) return priceInfo;
+
+    // Find the SKU record to get SkuPartNumber for fallback
+    const sku = skus.find(s => s.Title === licenceName || s.SkuPartNumber === licenceName);
+    if (sku) {
+      priceInfo = this.findPricing(pricing, sku.Title, sku.SkuPartNumber);
+    }
+
+    return priceInfo;
+  }
+
+  /**
    * Calculate KPI summary from dashboard data
    * Excludes viral/free SKUs from aggregate licence counts to avoid inflated numbers
    */
@@ -164,13 +186,12 @@ export class SharePointDataService {
       }
     });
 
-    // Calculate savings from issues
+    // Calculate savings from issues (uses fallback pricing join)
     users.forEach(user => {
       if (user.IssueType !== 'None') {
-        // Get the user's licences and sum up their costs
         const licenceNames = user.Licences.split(',').map(l => l.trim());
         licenceNames.forEach(licName => {
-          const priceInfo = pricing.find(p => p.Title === licName);
+          const priceInfo = this.findPricingByLicenceName(pricing, skus, licName);
           if (priceInfo) {
             potentialMonthlySavings += priceInfo.MonthlyCostPerUser;
           }
@@ -201,14 +222,14 @@ export class SharePointDataService {
    * Get issue categories with counts and savings
    */
   public getIssueCategories(data: ILicenceDashboardData): IIssueCategory[] {
-    const { users, pricing } = data;
+    const { users, pricing, skus } = data;
 
     const calculateSavings = (issueUsers: ILicenceUser[]): number => {
       let savings = 0;
       issueUsers.forEach(user => {
         const licenceNames = user.Licences.split(',').map(l => l.trim());
         licenceNames.forEach(licName => {
-          const priceInfo = pricing.find(p => p.Title === licName);
+          const priceInfo = this.findPricingByLicenceName(pricing, skus, licName);
           if (priceInfo) {
             savings += priceInfo.MonthlyCostPerUser * 12; // Annual savings
           }
@@ -229,7 +250,7 @@ export class SharePointDataService {
         potentialSavings: calculateSavings(disabledUsers),
         description: 'Disabled accounts still holding licences',
         severity: 'critical',
-        icon: '🚫'
+        icon: 'disabled'
       },
       {
         type: 'Dual-Licensed',
@@ -237,7 +258,7 @@ export class SharePointDataService {
         potentialSavings: calculateSavings(dualUsers) / 2, // Assume removing E3 when dual
         description: 'Users with both E3 and E5 (only need E5)',
         severity: 'warning',
-        icon: '⚡'
+        icon: 'dual'
       },
       {
         type: 'Inactive 90+',
@@ -245,7 +266,7 @@ export class SharePointDataService {
         potentialSavings: calculateSavings(inactiveUsers),
         description: 'No sign-in for 90+ days',
         severity: 'warning',
-        icon: '💤'
+        icon: 'inactive'
       },
       {
         type: 'Service Account',
@@ -253,7 +274,7 @@ export class SharePointDataService {
         potentialSavings: 0, // Service accounts need review, not automatic savings
         description: 'Service accounts - review licence need',
         severity: 'info',
-        icon: '🤖'
+        icon: 'service'
       }
     ];
   }

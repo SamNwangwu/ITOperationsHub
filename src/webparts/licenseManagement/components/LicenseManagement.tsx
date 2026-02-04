@@ -7,13 +7,12 @@ import {
   ILicenceDashboardData,
   IKpiSummary,
   ILicenceUser,
-  IIssueCategory,
-  IPowerBiConfig
+  IIssueCategory
 } from '../models/ILicenceData';
 import { KpiCard, IssueCard, DataTable, IDataTableColumn } from './ui';
 import { ExecutiveSummaryPage, CostAnalysisPage, UserDetailPage } from './pages';
 import { UtilisationGauge } from './charts';
-import { getTierLabel, getTierColour } from '../utils/SkuClassifier';
+import { getTierLabel, getTierColour, classifySkuWithPurchased } from '../utils/SkuClassifier';
 
 type TabType = 'summary' | 'costs' | 'utilisation' | 'issues' | 'users';
 type IssueFilterType = 'all' | 'Disabled' | 'Dual-Licensed' | 'Inactive 90+' | 'Service Account';
@@ -33,7 +32,6 @@ interface ILicenseManagementState {
   selectedUserIds: Set<number>;
   sortField: string;
   sortDirection: 'asc' | 'desc';
-  powerBiConfig: IPowerBiConfig | null;
   selectedUser: ILicenceUser | null;
   allSkusExpanded: boolean;
   departmentFilter: string;
@@ -71,7 +69,6 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       selectedUserIds: new Set(),
       sortField: 'Title',
       sortDirection: 'asc',
-      powerBiConfig: null,
       selectedUser: null,
       allSkusExpanded: false,
       departmentFilter: 'all'
@@ -323,6 +320,12 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
     const attentionSkus = this.dataService.getAttentionSkus(data.skus);
     const corePaidSkus = this.dataService.getCorePaidSkus(data.skus);
     const paidSkus = this.dataService.getPaidSkus(data.skus);
+
+    // All SKUs classified (for collapsible table - includes viral/free dimmed)
+    const allSkusClassified = data.skus.map(sku => ({
+      ...sku,
+      classification: classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased)
+    }));
 
     const hasAttentionItems =
       attentionSkus.overAllocated.length > 0 ||
@@ -600,7 +603,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
             >
               <polyline points="9 18 15 12 9 6"/>
             </svg>
-            All Licences ({paidSkus.length} paid SKUs)
+            All Licences ({allSkusClassified.length} total - {paidSkus.length} paid)
           </button>
 
           {allSkusExpanded && (
@@ -617,7 +620,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
                   </tr>
                 </thead>
                 <tbody>
-                  {paidSkus.map((sku, index) => {
+                  {allSkusClassified.map((sku, index) => {
                     const available = sku.Purchased - sku.Assigned;
                     let utilisationColor = '#10B981'; // green
                     if (sku.UtilisationPct >= 100) utilisationColor = '#EF4444'; // red
@@ -626,7 +629,8 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
 
                     return (
                       <tr key={sku.Id} style={{
-                        background: index % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)'
+                        background: index % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)',
+                        opacity: sku.classification.isExcludedFromAggregates ? 0.5 : 1
                       }}>
                         <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
                           <div style={{ fontWeight: 500 }}>{sku.Title}</div>

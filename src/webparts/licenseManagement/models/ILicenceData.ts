@@ -121,11 +121,3 @@ export interface IIssueCategory {
   severity: 'critical' | 'warning' | 'info';
   icon: string;
 }
-
-// Power BI embed configuration
-export interface IPowerBiConfig {
-  workspaceId: string;
-  reportId: string;
-  embedUrl?: string;
-  accessToken?: string;
-}
