@@ -8,9 +8,6 @@ export type { IIssueCardProps } from './IssueCard';
 export { default as InsightCard } from './InsightCard';
 export type { IInsightCardProps } from './InsightCard';
 
-export { default as SkuCard } from './SkuCard';
-export type { ISkuCardProps } from './SkuCard';
-
 export { default as SavingsHero } from './SavingsHero';
 export type { ISavingsHeroProps } from './SavingsHero';
 

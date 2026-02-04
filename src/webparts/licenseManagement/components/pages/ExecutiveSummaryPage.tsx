@@ -1,55 +1,66 @@
 import * as React from 'react';
 import styles from '../LicenseManagement.module.scss';
-import { ILicenceDashboardData, IKpiSummary, IIssueCategory } from '../../models/ILicenceData';
+import { ILicenceDashboardData, IKpiSummary } from '../../models/ILicenceData';
 import { IInsight } from '../../services/InsightEngine';
-import { KpiCard, InsightCard, IssueCard, SavingsHero } from '../ui';
+import { KpiCard, InsightCard, SavingsHero } from '../ui';
 import { SpendByTypeChart, SpendTrendChart, ISpendByTypeData, ISpendTrendData } from '../charts';
+import { classifySkuWithPurchased, getSkuFriendlyName } from '../../utils/SkuClassifier';
 
 export interface IExecutiveSummaryPageProps {
   data: ILicenceDashboardData;
   kpi: IKpiSummary;
   insights: IInsight[];
-  issueCategories: IIssueCategory[];
   executiveSummary: string;
-  onIssueClick: (issueType: string) => void;
+  extractDate?: string;
+  isDataStale?: boolean;
 }
 
 /**
  * Executive Summary Page - Overview of licence estate
+ * Sparse, punchy page for C-suite presentation
  */
 const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
   data,
   kpi,
   insights,
-  issueCategories,
   executiveSummary,
-  onIssueClick
+  extractDate,
+  isDataStale
 }) => {
-  // Prepare chart data
-  const spendByTypeData: ISpendByTypeData[] = data.skus.map((sku, index) => {
-    const pricing = data.pricing.find(p => p.Title === sku.Title);
-    const monthlySpend = pricing ? sku.Assigned * pricing.MonthlyCostPerUser : 0;
-    const colours = ['#E4007D', '#00289e', '#00A4E4', '#10B981', '#F59E0B', '#818CF8'];
-    return {
-      name: sku.Title,
-      value: monthlySpend,
-      color: colours[index % colours.length]
-    };
-  }).filter(d => d.value > 0);
+  // Helper to find pricing with fallback via SkuPartNumber
+  const findPricing = (title: string, skuPartNumber: string) => {
+    let priceInfo = data.pricing.find(p => p.Title === title);
+    if (!priceInfo) {
+      const friendlyName = getSkuFriendlyName(skuPartNumber);
+      priceInfo = data.pricing.find(p => p.Title === friendlyName);
+    }
+    return priceInfo;
+  };
 
-  // Generate trend data from snapshots (or use placeholder if no snapshots)
+  // Prepare chart data - paid SKUs only, sorted by spend
+  const spendByTypeData: ISpendByTypeData[] = data.skus
+    .filter(sku => !classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased).isExcludedFromAggregates)
+    .map((sku, index) => {
+      const pricing = findPricing(sku.Title, sku.SkuPartNumber);
+      const monthlySpend = pricing ? sku.Assigned * pricing.MonthlyCostPerUser : 0;
+      const colours = ['#E4007D', '#00289e', '#00A4E4', '#10B981', '#F59E0B', '#818CF8'];
+      return {
+        name: sku.Title,
+        value: monthlySpend,
+        color: colours[index % colours.length]
+      };
+    })
+    .filter(d => d.value > 0)
+    .sort((a, b) => b.value - a.value);
+
+  // Generate trend data from snapshots (empty array if no snapshots - shows empty state)
   const trendData: ISpendTrendData[] = data.snapshots.length > 0
     ? data.snapshots.slice(-6).map(s => ({
         date: new Date(s.SnapshotDate).toLocaleDateString('en-GB', { month: 'short', day: 'numeric' }),
-        spend: s.TotalUsers * 30, // Placeholder calculation
+        spend: s.TotalUsers * 30, // Placeholder calculation - actual spend needs per-snapshot pricing
         users: s.TotalUsers
       }))
-    : [
-        { date: 'Oct', spend: kpi.monthlySpend * 0.95, users: kpi.totalLicensedUsers - 20 },
-        { date: 'Nov', spend: kpi.monthlySpend * 0.97, users: kpi.totalLicensedUsers - 10 },
-        { date: 'Dec', spend: kpi.monthlySpend * 0.98, users: kpi.totalLicensedUsers - 5 },
-        { date: 'Jan', spend: kpi.monthlySpend, users: kpi.totalLicensedUsers }
-      ];
+    : []; // Empty array - will show placeholder message
 
   return (
     <div className={styles.pageContent}>
@@ -85,6 +96,27 @@ const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
         />
       </div>
 
+      {/* Data Timestamp Banner */}
+      {extractDate && (
+        <div style={{
+          padding: '8px 32px',
+          fontSize: '12px',
+          color: isDataStale ? '#F59E0B' : '#6B7280',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <span style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: isDataStale ? '#F59E0B' : '#10B981'
+          }} />
+          Data extracted: {extractDate}
+          {isDataStale && <span style={{ marginLeft: '8px' }}> - Data may be outdated</span>}
+        </div>
+      )}
+
       {/* Savings Hero */}
       {kpi.potentialAnnualSavings > 0 && (
         <SavingsHero
@@ -103,7 +135,23 @@ const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
       {/* Charts Grid */}
       <div className={styles.chartGrid}>
         <SpendByTypeChart data={spendByTypeData} />
-        <SpendTrendChart data={trendData} showUsers={true} />
+        {trendData.length > 0 ? (
+          <SpendTrendChart data={trendData} showUsers={true} />
+        ) : (
+          <div className={styles.chartContainer}>
+            <div className={styles.chartTitle}>Monthly Trend</div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '200px',
+              color: '#6B7280',
+              fontSize: '14px'
+            }}>
+              Trend data will appear after multiple extraction runs.
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Insights Grid */}
@@ -113,20 +161,6 @@ const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
       <div className={styles.insightsGrid}>
         {insights.slice(0, 4).map(insight => (
           <InsightCard key={insight.id} insight={insight} />
-        ))}
-      </div>
-
-      {/* Quick Issue Summary */}
-      <div className={styles.sectionHeader} style={{ padding: '0 32px', marginBottom: '16px' }}>
-        <div className={styles.sectionTitle}>Licence Issues</div>
-      </div>
-      <div className={styles.issuesGrid} style={{ padding: '0 32px 24px' }}>
-        {issueCategories.map(issue => (
-          <IssueCard
-            key={issue.type}
-            issue={issue}
-            onClick={() => onIssueClick(issue.type)}
-          />
         ))}
       </div>
     </div>

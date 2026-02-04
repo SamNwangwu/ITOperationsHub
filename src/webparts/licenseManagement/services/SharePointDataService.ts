@@ -11,6 +11,12 @@ import {
   IIssueCategory,
   ITrendDataPoint
 } from '../models/ILicenceData';
+import {
+  classifySkuWithPurchased,
+  getSkuFriendlyName,
+  SkuTier,
+  ISkuClassification
+} from '../utils/SkuClassifier';
 
 interface ISharePointListResponse<T> {
   value: T[];
@@ -103,7 +109,22 @@ export class SharePointDataService {
   }
 
   /**
+   * Helper to find pricing info with fallback via SkuPartNumber
+   */
+  private findPricing(pricing: ILicencePricing[], title: string, skuPartNumber?: string): ILicencePricing | undefined {
+    // Try direct title match first
+    let priceInfo = pricing.find(p => p.Title === title);
+    // Fallback: try matching via SkuClassifier friendly name
+    if (!priceInfo && skuPartNumber) {
+      const friendlyName = getSkuFriendlyName(skuPartNumber);
+      priceInfo = pricing.find(p => p.Title === friendlyName);
+    }
+    return priceInfo;
+  }
+
+  /**
    * Calculate KPI summary from dashboard data
+   * Excludes viral/free SKUs from aggregate licence counts to avoid inflated numbers
    */
   public calculateKpiSummary(data: ILicenceDashboardData): IKpiSummary {
     const { users, skus, pricing } = data;
@@ -120,19 +141,24 @@ export class SharePointDataService {
     const serviceAccountCount = users.filter(u => u.IssueType === 'Service Account').length;
     const issuesCount = disabledCount + dualLicensedCount + inactiveCount + serviceAccountCount;
 
-    // Licence counts
-    const totalPurchasedLicences = skus.reduce((sum, s) => sum + s.Purchased, 0);
-    const totalAssignedLicences = skus.reduce((sum, s) => sum + s.Assigned, 0);
+    // Filter to paid SKUs only for aggregate KPIs (excludes viral/free with inflated counts)
+    const paidSkus = skus.filter(s =>
+      !classifySkuWithPurchased(s.SkuPartNumber, s.Purchased).isExcludedFromAggregates
+    );
+
+    // Licence counts (paid SKUs only)
+    const totalPurchasedLicences = paidSkus.reduce((sum, s) => sum + s.Purchased, 0);
+    const totalAssignedLicences = paidSkus.reduce((sum, s) => sum + s.Assigned, 0);
     const overallUtilisationPct = totalPurchasedLicences > 0
       ? Math.round((totalAssignedLicences / totalPurchasedLicences) * 100)
       : 0;
 
-    // Cost calculations (join SKUs with pricing)
+    // Cost calculations (join SKUs with pricing, paid SKUs only)
     let monthlySpend = 0;
     let potentialMonthlySavings = 0;
 
-    skus.forEach(sku => {
-      const priceInfo = pricing.find(p => p.Title === sku.Title);
+    paidSkus.forEach(sku => {
+      const priceInfo = this.findPricing(pricing, sku.Title, sku.SkuPartNumber);
       if (priceInfo) {
         monthlySpend += sku.Assigned * priceInfo.MonthlyCostPerUser;
       }
@@ -326,6 +352,70 @@ export class SharePointDataService {
       MailboxUsedGB: usage?.MailboxUsedGB,
       MailboxAllocatedGB: usage?.MailboxAllocatedGB
     };
+  }
+
+  /**
+   * Group SKUs by their classification tier
+   */
+  public getSkusGroupedByTier(skus: ILicenceSku[]): Map<SkuTier, (ILicenceSku & { classification: ISkuClassification })[]> {
+    const grouped = new Map<SkuTier, (ILicenceSku & { classification: ISkuClassification })[]>();
+
+    skus.forEach(sku => {
+      const classification = classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased);
+      const tier = classification.tier;
+      if (!grouped.has(tier)) grouped.set(tier, []);
+      grouped.get(tier)!.push({ ...sku, classification });
+    });
+
+    return grouped;
+  }
+
+  /**
+   * Get SKUs that need attention (over-allocated, near-capacity, under-utilised)
+   * Only includes paid SKUs (excludes viral/free)
+   */
+  public getAttentionSkus(skus: ILicenceSku[]): {
+    overAllocated: (ILicenceSku & { classification: ISkuClassification })[];
+    nearCapacity: (ILicenceSku & { classification: ISkuClassification })[];
+    underUtilised: (ILicenceSku & { classification: ISkuClassification })[];
+  } {
+    // Filter to paid SKUs only
+    const paidSkus = skus
+      .map(sku => ({
+        ...sku,
+        classification: classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased)
+      }))
+      .filter(s => !s.classification.isExcludedFromAggregates);
+
+    return {
+      overAllocated: paidSkus.filter(s => s.Assigned > s.Purchased),
+      nearCapacity: paidSkus.filter(s => s.UtilisationPct >= 90 && s.Assigned <= s.Purchased),
+      underUtilised: paidSkus.filter(s => s.UtilisationPct < 50 && s.Purchased >= 5),
+    };
+  }
+
+  /**
+   * Get paid SKUs only (excludes viral/free)
+   */
+  public getPaidSkus(skus: ILicenceSku[]): (ILicenceSku & { classification: ISkuClassification })[] {
+    return skus
+      .map(sku => ({
+        ...sku,
+        classification: classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased)
+      }))
+      .filter(s => !s.classification.isExcludedFromAggregates);
+  }
+
+  /**
+   * Get core paid SKUs only (for main dashboard gauges)
+   */
+  public getCorePaidSkus(skus: ILicenceSku[]): (ILicenceSku & { classification: ISkuClassification })[] {
+    return skus
+      .map(sku => ({
+        ...sku,
+        classification: classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased)
+      }))
+      .filter(s => s.classification.tier === 'core-paid');
   }
 }
 

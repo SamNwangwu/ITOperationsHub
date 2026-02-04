@@ -1,11 +1,13 @@
 import * as React from 'react';
 import styles from '../LicenseManagement.module.scss';
-import { ILicenceUser, ILicenceSku, ILicencePricing } from '../../models/ILicenceData';
+import { ILicenceUser, ILicenceSku, ILicencePricing, IUsageReport } from '../../models/ILicenceData';
+import { classifySkuWithPurchased, getTierLabel, getTierColour, getSkuFriendlyName } from '../../utils/SkuClassifier';
 
 export interface IUserDetailPageProps {
   user: ILicenceUser;
   skus: ILicenceSku[];
   pricing: ILicencePricing[];
+  usage?: IUsageReport[];
   onBack: () => void;
 }
 
@@ -16,6 +18,7 @@ const UserDetailPage: React.FC<IUserDetailPageProps> = ({
   user,
   skus,
   pricing,
+  usage,
   onBack
 }) => {
   // Parse user's licences
@@ -23,14 +26,26 @@ const UserDetailPage: React.FC<IUserDetailPageProps> = ({
     ? user.Licences.split(',').map(l => l.trim()).filter(l => l)
     : [];
 
-  // Get details for each licence
+  // Get usage data for this user
+  const userUsage = usage?.find(u => u.Title === user.UserPrincipalName);
+
+  // Get details for each licence with tier classification
   const licenceDetails = userLicences.map(licenceName => {
     const sku = skus.find(s => s.Title === licenceName || s.SkuPartNumber === licenceName);
-    const price = pricing.find(p => p.Title === licenceName);
+    // Try direct price match, then fallback via friendly name
+    let price = pricing.find(p => p.Title === licenceName);
+    if (!price && sku) {
+      const friendlyName = getSkuFriendlyName(sku.SkuPartNumber);
+      price = pricing.find(p => p.Title === friendlyName);
+    }
+    const classification = sku
+      ? classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased)
+      : null;
     return {
       name: licenceName,
       sku,
       price,
+      classification,
       monthlyCost: price?.MonthlyCostPerUser || 0,
       annualCost: price?.AnnualCostPerUser || 0
     };
@@ -153,6 +168,101 @@ const UserDetailPage: React.FC<IUserDetailPageProps> = ({
         </div>
       </div>
 
+      {/* Storage Usage Section */}
+      {userUsage && (userUsage.OneDriveUsedGB !== undefined || userUsage.MailboxUsedGB !== undefined) && (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '20px',
+          padding: '24px 32px',
+          background: 'rgba(0, 40, 158, 0.05)',
+          borderBottom: '1px solid #1F2937'
+        }}>
+          {/* OneDrive Storage */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00A4E4" strokeWidth="2">
+                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+              </svg>
+              <span style={{ color: '#9CA3AF', fontSize: '12px' }}>OneDrive Storage</span>
+            </div>
+            {userUsage.OneDriveUsedGB !== undefined && userUsage.OneDriveAllocatedGB ? (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 600, color: '#F9FAFB' }}>
+                    {userUsage.OneDriveUsedGB.toFixed(1)} GB
+                  </span>
+                  <span style={{ fontSize: '12px', color: '#6B7280' }}>
+                    of {userUsage.OneDriveAllocatedGB} GB
+                  </span>
+                </div>
+                <div style={{
+                  height: '6px',
+                  background: '#1F2937',
+                  borderRadius: '3px',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${Math.min(100, (userUsage.OneDriveUsedGB / userUsage.OneDriveAllocatedGB) * 100)}%`,
+                    background: userUsage.OneDriveUsedGB / userUsage.OneDriveAllocatedGB > 0.9 ? '#F59E0B' : '#00A4E4',
+                    borderRadius: '3px',
+                    transition: 'width 0.3s'
+                  }} />
+                </div>
+                <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '4px' }}>
+                  {Math.round((userUsage.OneDriveUsedGB / userUsage.OneDriveAllocatedGB) * 100)}% used
+                </div>
+              </>
+            ) : (
+              <div style={{ color: '#6B7280', fontSize: '13px' }}>No data available</div>
+            )}
+          </div>
+
+          {/* Mailbox Storage */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E4007D" strokeWidth="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <span style={{ color: '#9CA3AF', fontSize: '12px' }}>Mailbox Storage</span>
+            </div>
+            {userUsage.MailboxUsedGB !== undefined && userUsage.MailboxAllocatedGB ? (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 600, color: '#F9FAFB' }}>
+                    {userUsage.MailboxUsedGB.toFixed(1)} GB
+                  </span>
+                  <span style={{ fontSize: '12px', color: '#6B7280' }}>
+                    of {userUsage.MailboxAllocatedGB} GB
+                  </span>
+                </div>
+                <div style={{
+                  height: '6px',
+                  background: '#1F2937',
+                  borderRadius: '3px',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${Math.min(100, (userUsage.MailboxUsedGB / userUsage.MailboxAllocatedGB) * 100)}%`,
+                    background: userUsage.MailboxUsedGB / userUsage.MailboxAllocatedGB > 0.9 ? '#F59E0B' : '#E4007D',
+                    borderRadius: '3px',
+                    transition: 'width 0.3s'
+                  }} />
+                </div>
+                <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '4px' }}>
+                  {Math.round((userUsage.MailboxUsedGB / userUsage.MailboxAllocatedGB) * 100)}% used
+                </div>
+              </>
+            ) : (
+              <div style={{ color: '#6B7280', fontSize: '13px' }}>No data available</div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Issue Alert */}
       {user.IssueType && user.IssueType !== 'None' && (
         <div style={{
@@ -182,13 +292,27 @@ const UserDetailPage: React.FC<IUserDetailPageProps> = ({
       {/* Licences List */}
       <div className={styles.userLicencesList}>
         <div className={styles.sectionTitle} style={{ marginBottom: '16px' }}>
-          Assigned Licences
+          Assigned Licences ({licenceDetails.length})
         </div>
         {licenceDetails.length > 0 ? (
           licenceDetails.map((licence, index) => (
             <div key={index} className={styles.userLicenceItem}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, color: '#F9FAFB' }}>{licence.name}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontWeight: 600, color: '#F9FAFB' }}>{licence.name}</span>
+                  {licence.classification && (
+                    <span style={{
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      fontSize: '10px',
+                      fontWeight: 600,
+                      background: getTierColour(licence.classification.tier),
+                      color: '#fff'
+                    }}>
+                      {getTierLabel(licence.classification.tier)}
+                    </span>
+                  )}
+                </div>
                 {licence.sku && (
                   <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>
                     SKU: {licence.sku.SkuPartNumber}
@@ -196,12 +320,22 @@ const UserDetailPage: React.FC<IUserDetailPageProps> = ({
                 )}
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontWeight: 600, color: '#E4007D' }}>
-                  {'\u00A3'}{licence.monthlyCost.toLocaleString()}/mo
-                </div>
-                <div style={{ fontSize: '11px', color: '#6B7280' }}>
-                  {'\u00A3'}{licence.annualCost.toLocaleString()}/yr
-                </div>
+                {licence.monthlyCost > 0 ? (
+                  <>
+                    <div style={{ fontWeight: 600, color: '#E4007D' }}>
+                      {'\u00A3'}{licence.monthlyCost.toFixed(2)}/mo
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#6B7280' }}>
+                      {'\u00A3'}{licence.annualCost.toFixed(2)}/yr
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ fontSize: '12px', color: '#6B7280' }}>
+                    {licence.classification?.tier === 'free' || licence.classification?.tier === 'viral'
+                      ? 'Free'
+                      : 'No pricing data'}
+                  </div>
+                )}
               </div>
             </div>
           ))

@@ -10,9 +10,10 @@ import {
   IIssueCategory,
   IPowerBiConfig
 } from '../models/ILicenceData';
-import { KpiCard, IssueCard, SkuCard, DataTable, IDataTableColumn } from './ui';
+import { KpiCard, IssueCard, DataTable, IDataTableColumn } from './ui';
 import { ExecutiveSummaryPage, CostAnalysisPage, UserDetailPage } from './pages';
 import { UtilisationGauge } from './charts';
+import { getTierLabel, getTierColour } from '../utils/SkuClassifier';
 
 type TabType = 'summary' | 'costs' | 'utilisation' | 'issues' | 'users';
 type IssueFilterType = 'all' | 'Disabled' | 'Dual-Licensed' | 'Inactive 90+' | 'Service Account';
@@ -34,6 +35,8 @@ interface ILicenseManagementState {
   sortDirection: 'asc' | 'desc';
   powerBiConfig: IPowerBiConfig | null;
   selectedUser: ILicenceUser | null;
+  allSkusExpanded: boolean;
+  departmentFilter: string;
 }
 
 /**
@@ -69,7 +72,9 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       sortField: 'Title',
       sortDirection: 'asc',
       powerBiConfig: null,
-      selectedUser: null
+      selectedUser: null,
+      allSkusExpanded: false,
+      departmentFilter: 'all'
     };
   }
 
@@ -150,6 +155,14 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
 
   private onBackFromUserDetail = (): void => {
     this.setState({ selectedUser: null });
+  }
+
+  private onToggleAllSkus = (): void => {
+    this.setState(prev => ({ allSkusExpanded: !prev.allSkusExpanded }));
+  }
+
+  private onDepartmentFilterChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+    this.setState({ departmentFilter: e.target.value });
   }
 
   private getFilteredUsers(): ILicenceUser[] {
@@ -276,7 +289,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
   }
 
   private renderSummaryTab(): React.ReactElement {
-    const { data, kpi, insights, issueCategories } = this.state;
+    const { data, kpi, insights, extractDate, isDataStale } = this.state;
     if (!data || !kpi) return <></>;
 
     const executiveSummary = this.insightEngine.generateExecutiveSummary(data, kpi);
@@ -286,14 +299,9 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
         data={data}
         kpi={kpi}
         insights={insights}
-        issueCategories={issueCategories}
         executiveSummary={executiveSummary}
-        onIssueClick={(issueType) => {
-          this.setState({
-            activeTab: 'issues',
-            issueFilter: issueType as IssueFilterType
-          });
-        }}
+        extractDate={extractDate}
+        isDataStale={isDataStale}
       />
     );
   }
@@ -308,8 +316,18 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
   }
 
   private renderUtilisationTab(): React.ReactElement {
-    const { data, kpi } = this.state;
+    const { data, kpi, allSkusExpanded } = this.state;
     if (!data || !kpi) return <></>;
+
+    // Get categorised SKUs
+    const attentionSkus = this.dataService.getAttentionSkus(data.skus);
+    const corePaidSkus = this.dataService.getCorePaidSkus(data.skus);
+    const paidSkus = this.dataService.getPaidSkus(data.skus);
+
+    const hasAttentionItems =
+      attentionSkus.overAllocated.length > 0 ||
+      attentionSkus.nearCapacity.length > 0 ||
+      attentionSkus.underUtilised.length > 0;
 
     return (
       <div className={styles.pageContent}>
@@ -327,7 +345,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
             title="Overall Utilisation"
             value={`${kpi.overallUtilisationPct}%`}
             color={kpi.overallUtilisationPct >= 80 ? 'green' : 'orange'}
-            subtitle="Across all SKUs"
+            subtitle="Across paid SKUs"
           />
           <KpiCard
             title="Active Users"
@@ -349,44 +367,310 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
           />
         </div>
 
-        {/* Utilisation Gauges */}
-        <div className={styles.sectionHeader} style={{ padding: '0 32px', marginBottom: '16px' }}>
-          <div className={styles.sectionTitle}>Utilisation by SKU</div>
-        </div>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-          gap: '16px',
-          padding: '0 32px 24px'
-        }}>
-          {data.skus.map(sku => (
-            <UtilisationGauge
-              key={sku.Id}
-              value={sku.UtilisationPct}
-              title={sku.Title}
-              subtitle={`${sku.Assigned} of ${sku.Purchased}`}
-            />
-          ))}
-        </div>
+        {/* Section 1: Attention Required Table */}
+        {hasAttentionItems && (
+          <>
+            <div className={styles.sectionHeader} style={{ padding: '0 32px', marginBottom: '16px' }}>
+              <div className={styles.sectionTitle}>Attention Required</div>
+            </div>
+            <div style={{ padding: '0 32px 24px' }}>
+              <table className={styles.dataTable} style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'left', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>SKU</th>
+                    <th style={{ textAlign: 'left', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Tier</th>
+                    <th style={{ textAlign: 'right', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Assigned</th>
+                    <th style={{ textAlign: 'right', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Purchased</th>
+                    <th style={{ textAlign: 'right', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Utilisation</th>
+                    <th style={{ textAlign: 'left', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {attentionSkus.overAllocated.map((sku, index) => (
+                    <tr key={`over-${sku.Id}`} style={{
+                      background: index % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)'
+                    }}>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', fontWeight: 500 }}>
+                        {sku.Title}
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
+                        <span style={{
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          background: getTierColour(sku.classification.tier),
+                          color: '#fff'
+                        }}>
+                          {getTierLabel(sku.classification.tier)}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
+                        {sku.Assigned.toLocaleString()}
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
+                        {sku.Purchased.toLocaleString()}
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right', color: '#EF4444', fontWeight: 600 }}>
+                        {sku.UtilisationPct}%
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          background: 'rgba(239, 68, 68, 0.15)',
+                          color: '#EF4444',
+                          fontSize: '12px',
+                          fontWeight: 500
+                        }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                          </svg>
+                          Over-allocated (+{sku.Assigned - sku.Purchased})
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {attentionSkus.nearCapacity.map((sku, index) => (
+                    <tr key={`near-${sku.Id}`} style={{
+                      background: (attentionSkus.overAllocated.length + index) % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)'
+                    }}>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', fontWeight: 500 }}>
+                        {sku.Title}
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
+                        <span style={{
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          background: getTierColour(sku.classification.tier),
+                          color: '#fff'
+                        }}>
+                          {getTierLabel(sku.classification.tier)}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
+                        {sku.Assigned.toLocaleString()}
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
+                        {sku.Purchased.toLocaleString()}
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right', color: '#F59E0B', fontWeight: 600 }}>
+                        {sku.UtilisationPct}%
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          background: 'rgba(245, 158, 11, 0.15)',
+                          color: '#F59E0B',
+                          fontSize: '12px',
+                          fontWeight: 500
+                        }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                          </svg>
+                          Near capacity ({sku.Purchased - sku.Assigned} left)
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {attentionSkus.underUtilised.map((sku, index) => (
+                    <tr key={`under-${sku.Id}`} style={{
+                      background: (attentionSkus.overAllocated.length + attentionSkus.nearCapacity.length + index) % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)'
+                    }}>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', fontWeight: 500 }}>
+                        {sku.Title}
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
+                        <span style={{
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          background: getTierColour(sku.classification.tier),
+                          color: '#fff'
+                        }}>
+                          {getTierLabel(sku.classification.tier)}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
+                        {sku.Assigned.toLocaleString()}
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
+                        {sku.Purchased.toLocaleString()}
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right', color: '#6B7280', fontWeight: 600 }}>
+                        {sku.UtilisationPct}%
+                      </td>
+                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          background: 'rgba(107, 114, 128, 0.15)',
+                          color: '#9CA3AF',
+                          fontSize: '12px',
+                          fontWeight: 500
+                        }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                          </svg>
+                          Under-utilised ({sku.Purchased - sku.Assigned} unused)
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
 
-        {/* SKU Cards */}
+        {/* Section 2: Core Paid Licence Gauges */}
         <div className={styles.sectionHeader} style={{ padding: '0 32px', marginBottom: '16px' }}>
-          <div className={styles.sectionTitle}>Licence SKUs ({data.skus.length})</div>
+          <div className={styles.sectionTitle}>Core Licence Utilisation</div>
         </div>
-        <div className={styles.skuGrid}>
-          {data.skus.map(sku => {
-            const pricing = data.pricing.find(p => p.Title === sku.Title);
-            return (
-              <SkuCard key={sku.Id} sku={sku} pricing={pricing} />
-            );
-          })}
+        {corePaidSkus.length > 0 ? (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+            gap: '16px',
+            padding: '0 32px 24px'
+          }}>
+            {corePaidSkus.map(sku => (
+              <UtilisationGauge
+                key={sku.Id}
+                value={sku.UtilisationPct}
+                title={sku.Title}
+                subtitle={`${sku.Assigned.toLocaleString()} of ${sku.Purchased.toLocaleString()}`}
+              />
+            ))}
+          </div>
+        ) : (
+          <div style={{
+            padding: '24px 32px',
+            color: '#6B7280',
+            fontSize: '14px',
+            textAlign: 'center'
+          }}>
+            No core paid SKUs found in the licence data.
+          </div>
+        )}
+
+        {/* Section 3: Collapsible All Licences Table */}
+        <div style={{ padding: '0 32px 24px' }}>
+          <button
+            onClick={this.onToggleAllSkus}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              width: '100%',
+              padding: '12px 16px',
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid #374151',
+              borderRadius: '8px',
+              color: '#fff',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              textAlign: 'left'
+            }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              style={{
+                transform: allSkusExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s'
+              }}
+            >
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            All Licences ({paidSkus.length} paid SKUs)
+          </button>
+
+          {allSkusExpanded && (
+            <div style={{ marginTop: '16px', overflowX: 'auto' }}>
+              <table className={styles.dataTable} style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'left', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>SKU</th>
+                    <th style={{ textAlign: 'left', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Tier</th>
+                    <th style={{ textAlign: 'right', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Assigned</th>
+                    <th style={{ textAlign: 'right', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Purchased</th>
+                    <th style={{ textAlign: 'right', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Available</th>
+                    <th style={{ textAlign: 'right', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Utilisation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paidSkus.map((sku, index) => {
+                    const available = sku.Purchased - sku.Assigned;
+                    let utilisationColor = '#10B981'; // green
+                    if (sku.UtilisationPct >= 100) utilisationColor = '#EF4444'; // red
+                    else if (sku.UtilisationPct >= 90) utilisationColor = '#F59E0B'; // amber
+                    else if (sku.UtilisationPct < 50) utilisationColor = '#6B7280'; // grey
+
+                    return (
+                      <tr key={sku.Id} style={{
+                        background: index % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)'
+                      }}>
+                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
+                          <div style={{ fontWeight: 500 }}>{sku.Title}</div>
+                          <div style={{ fontSize: '11px', color: '#6B7280' }}>{sku.SkuPartNumber}</div>
+                        </td>
+                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
+                          <span style={{
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            fontSize: '11px',
+                            background: getTierColour(sku.classification.tier),
+                            color: '#fff'
+                          }}>
+                            {getTierLabel(sku.classification.tier)}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
+                          {sku.Assigned.toLocaleString()}
+                        </td>
+                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
+                          {sku.Purchased.toLocaleString()}
+                        </td>
+                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right', color: available < 0 ? '#EF4444' : '#9CA3AF' }}>
+                          {available.toLocaleString()}
+                        </td>
+                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
+                          <span style={{ color: utilisationColor, fontWeight: 600 }}>
+                            {sku.UtilisationPct}%
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     );
   }
 
   private renderIssuesTab(): React.ReactElement {
-    const { issueCategories, issueFilter } = this.state;
+    const { data, issueCategories, issueFilter, kpi } = this.state;
     const filteredUsers = this.getFilteredUsers();
 
     const columns: IDataTableColumn[] = [
@@ -398,8 +682,51 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       { key: 'department', header: 'Department', sortable: true }
     ];
 
+    const totalIssues = issueCategories.reduce((sum, c) => sum + c.count, 0);
+    const totalSavings = issueCategories.reduce((sum, c) => sum + c.potentialSavings, 0);
+
     return (
-      <>
+      <div className={styles.pageContent}>
+        {/* Page Header */}
+        <div className={styles.pageHeader}>
+          <div className={styles.pageTitle}>Issues & Optimisation</div>
+          <div className={styles.pageSubtitle}>
+            Identify and remediate licence waste to unlock cost savings
+          </div>
+        </div>
+
+        {/* Summary Banner */}
+        {totalIssues > 0 && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '24px',
+            padding: '16px 24px',
+            margin: '0 32px 24px',
+            background: 'linear-gradient(135deg, rgba(228, 0, 125, 0.1), rgba(0, 40, 158, 0.1))',
+            borderRadius: '12px',
+            border: '1px solid rgba(228, 0, 125, 0.2)'
+          }}>
+            <div>
+              <div style={{ fontSize: '28px', fontWeight: 700, color: '#E4007D' }}>
+                {totalIssues}
+              </div>
+              <div style={{ fontSize: '12px', color: '#9CA3AF' }}>Total Issues</div>
+            </div>
+            <div style={{ width: '1px', height: '40px', background: '#374151' }} />
+            <div>
+              <div style={{ fontSize: '28px', fontWeight: 700, color: '#10B981' }}>
+                {'\u00A3'}{Math.round(totalSavings).toLocaleString()}
+              </div>
+              <div style={{ fontSize: '12px', color: '#9CA3AF' }}>Annual Savings Opportunity</div>
+            </div>
+            <div style={{ flex: 1 }} />
+            <div style={{ fontSize: '13px', color: '#9CA3AF', maxWidth: '300px' }}>
+              Click a category below to filter the user list and review accounts for remediation.
+            </div>
+          </div>
+        )}
+
         {/* Issue Category Cards */}
         <div className={styles.issuesGrid} style={{ padding: '0 32px 24px' }}>
           {issueCategories.map(issue => (
@@ -452,19 +779,22 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
             onRowClick={this.onUserClick}
           />
         </div>
-      </>
+      </div>
     );
   }
 
   private renderUsersTab(): React.ReactElement {
-    const { data } = this.state;
+    const { data, departmentFilter } = this.state;
     if (!data) return <></>;
 
-    // Get all users (not filtered by issues)
+    // Get unique departments for filter dropdown
+    const departments = this.dataService.getDepartments(data.users);
+
+    // Get all users filtered by search and department
     const allUsers = this.dataService.filterUsers(
       data.users,
       this.state.searchText,
-      undefined,
+      departmentFilter === 'all' ? undefined : departmentFilter,
       undefined
     );
 
@@ -478,29 +808,57 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
     ];
 
     return (
-      <div className={styles.tableSection}>
-        <div className={styles.tableHeader}>
-          <div className={styles.tableTitle}>All Licensed Users ({allUsers.length})</div>
-          <div className={styles.tableActions}>
-            <input
-              type="text"
-              className={styles.searchBox}
-              placeholder="Search users..."
-              value={this.state.searchText}
-              onChange={this.onSearchChange}
-            />
+      <div className={styles.pageContent}>
+        {/* Page Header */}
+        <div className={styles.pageHeader}>
+          <div className={styles.pageTitle}>All Users</div>
+          <div className={styles.pageSubtitle}>
+            Complete list of all licensed users across the organisation
           </div>
         </div>
-        <DataTable
-          users={allUsers}
-          columns={columns}
-          selectedIds={this.state.selectedUserIds}
-          onSelectionChange={this.onSelectionChange}
-          onSort={this.onSort}
-          sortField={this.state.sortField}
-          sortDirection={this.state.sortDirection}
-          onRowClick={this.onUserClick}
-        />
+
+        <div className={styles.tableSection}>
+          <div className={styles.tableHeader}>
+            <div className={styles.tableTitle}>
+              Licensed Users ({allUsers.length})
+              {departmentFilter !== 'all' && (
+                <span style={{ fontWeight: 400, color: '#9CA3AF' }}> in {departmentFilter}</span>
+              )}
+            </div>
+            <div className={styles.tableActions}>
+              <input
+                type="text"
+                className={styles.searchBox}
+                placeholder="Search by name, email, or dept..."
+                value={this.state.searchText}
+                onChange={this.onSearchChange}
+              />
+              <select
+                className={styles.filterDropdown}
+                value={departmentFilter}
+                onChange={this.onDepartmentFilterChange}
+              >
+                <option value="all">All Departments ({data.users.length})</option>
+                {departments.map(dept => {
+                  const count = data.users.filter(u => u.Department === dept).length;
+                  return (
+                    <option key={dept} value={dept}>{dept} ({count})</option>
+                  );
+                })}
+              </select>
+            </div>
+          </div>
+          <DataTable
+            users={allUsers}
+            columns={columns}
+            selectedIds={this.state.selectedUserIds}
+            onSelectionChange={this.onSelectionChange}
+            onSort={this.onSort}
+            sortField={this.state.sortField}
+            sortDirection={this.state.sortDirection}
+            onRowClick={this.onUserClick}
+          />
+        </div>
       </div>
     );
   }
@@ -514,6 +872,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
         user={selectedUser}
         skus={data.skus}
         pricing={data.pricing}
+        usage={data.usage}
         onBack={this.onBackFromUserDetail}
       />
     );
