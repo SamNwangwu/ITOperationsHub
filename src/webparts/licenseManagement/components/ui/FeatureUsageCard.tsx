@@ -60,13 +60,15 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
     return `£${Math.round(value).toLocaleString()}`;
   };
 
+  // Debug: Check what's being rendered
+  console.log('[FeatureUsageCard] Rendering sections for:', displayName, '| hasE5:', profile.hasE5, '| canDowngrade:', profile.canDowngrade);
+
   return (
     <div style={{
       background: '#111827',
       border: profile.canDowngrade ? '1px solid rgba(239, 68, 68, 0.5)' : '1px solid #1F2937',
       borderRadius: '12px',
-      overflow: 'hidden',
-      minHeight: '120px'
+      minHeight: '200px'
     }}>
       {/* Header */}
       <div style={{
@@ -219,12 +221,12 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
       )}
 
       {/* DEBUG: Always visible section to verify rendering */}
-      <div style={{ padding: '8px 20px', background: '#1E3A5F', fontSize: '10px', color: '#fff' }}>
-        DEBUG: hasE5={String(profile.hasE5)} | canDowngrade={String(profile.canDowngrade)} | apps={appsUsed.length}
+      <div style={{ padding: '12px 20px', background: '#FF0000', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
+        DEBUG VISIBLE: hasE5={String(profile.hasE5)} | canDowngrade={String(profile.canDowngrade)} | apps={appsUsed.length}
       </div>
 
       {/* Apps Usage */}
-      <div style={{ padding: '16px 20px', borderBottom: '1px solid #1F2937' }}>
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid #1F2937', background: '#1F2937' }}>
         <div style={{ fontSize: '10px', color: '#9CA3AF', marginBottom: '8px', textTransform: 'uppercase' }}>
           Core Apps Usage
         </div>
