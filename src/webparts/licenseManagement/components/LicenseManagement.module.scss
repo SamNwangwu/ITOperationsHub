@@ -1602,3 +1602,599 @@ $color-e5: #818CF8;
   color: $text-secondary;
   margin-top: 4px;
 }
+
+// ===========================================
+// V3 Responsive Enhancements
+// Mobile-first responsive design
+// ===========================================
+
+// Large tablets and small desktops (1200px and below)
+@media (max-width: 1200px) {
+  .licenseManagement {
+    .dashboardNav {
+      padding: 0 20px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    .navTab {
+      white-space: nowrap;
+      padding: 10px 16px;
+      font-size: 12px;
+    }
+  }
+}
+
+// Tablets (900px and below)
+@media (max-width: 900px) {
+  .licenseManagement {
+    .header {
+      padding: 12px 16px;
+    }
+
+    .logoText {
+      font-size: 16px;
+    }
+
+    .logoSubtitle {
+      font-size: 10px;
+    }
+
+    .dashboardNav {
+      padding: 0 16px;
+      gap: 0;
+    }
+
+    .navTab {
+      padding: 10px 12px;
+      font-size: 11px;
+    }
+
+    .executiveSummary {
+      margin: 0 16px 20px;
+      padding: 16px;
+    }
+
+    .summaryText {
+      font-size: 13px;
+    }
+
+    .pageHeader {
+      padding: 0 16px 20px;
+    }
+
+    .pageTitle {
+      font-size: 20px;
+    }
+
+    .sectionHeader {
+      padding: 0 16px;
+    }
+
+    .sectionTitle {
+      font-size: 14px;
+    }
+  }
+}
+
+// Mobile phones (600px and below)
+@media (max-width: 600px) {
+  .licenseManagement {
+    min-height: auto;
+
+    .header {
+      padding: 10px 12px;
+      gap: 12px;
+    }
+
+    .logo {
+      gap: 8px;
+    }
+
+    .logoIcon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .logoText {
+      font-size: 14px;
+    }
+
+    .logoSubtitle {
+      font-size: 9px;
+      letter-spacing: 1px;
+    }
+
+    .headerRight {
+      gap: 8px;
+    }
+
+    .lastSync {
+      font-size: 10px;
+      gap: 6px;
+    }
+
+    .syncDot {
+      width: 6px;
+      height: 6px;
+    }
+
+    .btn, .btnPrimary, .btnTheme {
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+
+    // Navigation becomes scrollable
+    .dashboardNav {
+      padding: 0 12px;
+      margin-bottom: 16px;
+    }
+
+    .navTab {
+      padding: 8px 10px;
+      font-size: 10px;
+    }
+
+    // KPI Grid stacks vertically
+    .kpiGrid {
+      padding: 0 12px 16px;
+      gap: 12px;
+    }
+
+    // KPI Card mobile adjustments
+    .kpiCard {
+      padding: 16px;
+    }
+
+    .kpiValue {
+      font-size: 28px;
+    }
+
+    .kpiTitle {
+      font-size: 10px;
+    }
+
+    .kpiSubtitle {
+      font-size: 10px;
+    }
+
+    // Insights grid
+    .insightsGrid {
+      padding: 0 12px 16px;
+      gap: 12px;
+    }
+
+    .insightCard {
+      padding: 12px;
+    }
+
+    .insightTitle {
+      font-size: 12px;
+    }
+
+    .insightDescription {
+      font-size: 11px;
+    }
+
+    // Issues section
+    .issuesSection {
+      padding: 0 12px 16px;
+      margin: 0;
+    }
+
+    .issuesGrid {
+      gap: 12px;
+    }
+
+    .issueCard {
+      padding: 14px;
+    }
+
+    .issueIcon {
+      width: 32px;
+      height: 32px;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .issueNumber {
+      font-size: 24px;
+    }
+
+    .issueLabel {
+      font-size: 11px;
+    }
+
+    // Table section
+    .tableSection {
+      margin: 0 12px 16px;
+      border-radius: 8px;
+    }
+
+    .tableHeader {
+      padding: 12px;
+    }
+
+    .tableTitle {
+      font-size: 12px;
+    }
+
+    .searchBox {
+      font-size: 11px;
+      padding: 6px 10px;
+    }
+
+    .table {
+      th {
+        padding: 8px 10px;
+        font-size: 9px;
+      }
+
+      td {
+        padding: 10px;
+        font-size: 11px;
+      }
+    }
+
+    .userAvatar {
+      width: 28px;
+      height: 28px;
+      font-size: 10px;
+    }
+
+    .userName {
+      font-size: 12px;
+    }
+
+    .userEmail {
+      font-size: 10px;
+    }
+
+    // Executive Summary
+    .executiveSummary {
+      margin: 0 12px 16px;
+      padding: 14px;
+      border-radius: 8px;
+    }
+
+    .summaryText {
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    // Stats footer
+    .statsFooter {
+      margin: 0 12px 16px;
+      padding: 16px;
+      border-radius: 8px;
+      gap: 12px;
+    }
+
+    .statItem {
+      .statValue {
+        font-size: 16px;
+      }
+
+      .statLabel {
+        font-size: 10px;
+      }
+    }
+
+    // SKU Grid
+    .skuGrid {
+      padding: 0 12px 16px;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .skuCard {
+      padding: 16px;
+    }
+
+    .skuName {
+      font-size: 14px;
+    }
+
+    .skuStatValue {
+      font-size: 20px;
+    }
+
+    // Chart Grid
+    .chartGrid {
+      padding: 0 12px 16px;
+      gap: 12px;
+    }
+
+    .chartContainer {
+      padding: 14px;
+      border-radius: 8px;
+    }
+
+    .chartTitle {
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    // Cost Cards
+    .costSummaryCards {
+      padding: 0 12px 16px;
+      gap: 12px;
+    }
+
+    .costCard {
+      padding: 16px;
+    }
+
+    .costCardValue {
+      font-size: 24px;
+    }
+
+    .costCardLabel {
+      font-size: 10px;
+    }
+
+    // Page header
+    .pageHeader {
+      padding: 0 12px 16px;
+      margin-bottom: 16px;
+    }
+
+    .pageTitle {
+      font-size: 18px;
+    }
+
+    .pageSubtitle {
+      font-size: 12px;
+    }
+
+    // User detail
+    .userDetailHeader {
+      padding: 16px 12px;
+      gap: 12px;
+    }
+
+    .userDetailAvatar {
+      width: 48px;
+      height: 48px;
+      font-size: 18px;
+    }
+
+    .userDetailName {
+      font-size: 16px;
+    }
+
+    .userDetailEmail {
+      font-size: 12px;
+    }
+
+    .userDetailMeta {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .userLicencesList {
+      padding: 16px 12px;
+    }
+
+    .userLicenceItem {
+      padding: 12px;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    // Licence overview (for non-dashboard pages)
+    .licenseOverview {
+      padding: 16px 12px;
+      gap: 12px;
+    }
+
+    .licenseCard {
+      padding: 16px;
+    }
+
+    .licenseName {
+      font-size: 14px;
+    }
+
+    .licenseStats {
+      gap: 8px;
+    }
+
+    .statValue {
+      font-size: 20px;
+    }
+
+    .statLabel {
+      font-size: 9px;
+    }
+
+    .savingsAmount {
+      font-size: 28px;
+    }
+
+    .savingsLabel {
+      font-size: 10px;
+    }
+
+    // Section headers
+    .sectionHeader {
+      padding: 0 12px;
+      margin-bottom: 12px;
+    }
+
+    .sectionTitle {
+      font-size: 13px;
+    }
+
+    .issueCount {
+      font-size: 10px;
+      padding: 2px 6px;
+    }
+
+    // Bulk actions bar
+    .bulkActions {
+      padding: 10px 12px;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .bulkInfo {
+      font-size: 11px;
+    }
+
+    .bulkButtons {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .bulkBtn {
+      flex: 1;
+      justify-content: center;
+      padding: 6px 12px;
+      font-size: 11px;
+    }
+
+    // Savings Hero
+    .savingsHero {
+      margin: 0 12px 16px;
+      padding: 16px;
+      flex-direction: column;
+      text-align: center;
+      gap: 16px;
+      border-radius: 8px;
+    }
+
+    .savingsContent {
+      text-align: center;
+    }
+  }
+}
+
+// Very small phones (400px and below)
+@media (max-width: 400px) {
+  .licenseManagement {
+    .header {
+      padding: 8px 10px;
+    }
+
+    .logoIcon {
+      width: 32px;
+      height: 32px;
+    }
+
+    .logoText {
+      font-size: 13px;
+    }
+
+    .navTab {
+      padding: 6px 8px;
+      font-size: 9px;
+    }
+
+    .kpiValue {
+      font-size: 24px;
+    }
+
+    .table {
+      th, td {
+        padding: 6px 8px;
+      }
+
+      th {
+        font-size: 8px;
+      }
+
+      td {
+        font-size: 10px;
+      }
+    }
+
+    .userAvatar {
+      width: 24px;
+      height: 24px;
+      font-size: 9px;
+    }
+  }
+}
+
+// Landscape mobile orientation
+@media (max-width: 900px) and (orientation: landscape) {
+  .licenseManagement {
+    .kpiGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .issuesGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .insightsGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+// Touch device optimizations
+@media (hover: none) and (pointer: coarse) {
+  .licenseManagement {
+    .issueCard, .skuCard, .kpiCard.clickable {
+      &:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
+      &:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+      }
+    }
+
+    .table tbody tr:hover {
+      background: transparent;
+    }
+
+    .btn, .btnPrimary, .btnTheme, .bulkBtn, .navTab {
+      min-height: 44px; // iOS accessibility minimum
+      min-width: 44px;
+    }
+
+    // Improve scrolling performance
+    .tableContainer, .dashboardNav {
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .licenseManagement {
+    background: white !important;
+    color: black !important;
+
+    .header, .dashboardNav, .bulkActions {
+      display: none !important;
+    }
+
+    .kpiCard, .issueCard, .skuCard, .insightCard, .chartContainer {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      border: 1px solid #ccc !important;
+      background: white !important;
+    }
+
+    .kpiValue, .issueNumber, .savingsAmount {
+      color: black !important;
+    }
+  }
+}

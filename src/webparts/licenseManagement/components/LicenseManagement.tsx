@@ -3,11 +3,17 @@ import styles from './LicenseManagement.module.scss';
 import { ILicenseManagementProps } from './ILicenseManagementProps';
 import { SharePointDataService } from '../services/SharePointDataService';
 import { InsightEngine, IInsight } from '../services/InsightEngine';
+import { AlertService } from '../services/AlertService';
+import { ComparisonService } from '../services/ComparisonService';
+import { DowngradeEngine } from '../services/DowngradeEngine';
 import {
   ILicenceDashboardData,
   IKpiSummary,
   ILicenceUser,
-  IIssueCategory
+  IIssueCategory,
+  IAlert,
+  IMonthComparisonData,
+  IDowngradeSummary
 } from '../models/ILicenceData';
 import { KpiCard, IssueCard, DataTable, IDataTableColumn } from './ui';
 import { ExecutiveSummaryPage, CostAnalysisPage, UserDetailPage } from './pages';
@@ -35,24 +41,39 @@ interface ILicenseManagementState {
   selectedUser: ILicenceUser | null;
   allSkusExpanded: boolean;
   departmentFilter: string;
+  // V3 State
+  alerts: IAlert[];
+  monthComparison: IMonthComparisonData | null;
+  downgradeSummaries: IDowngradeSummary[];
 }
 
 /**
- * Lebara M365 Licence Intelligence V2
- * Hybrid React SPFx + Power BI Dashboard
+ * Lebara M365 Licence Intelligence V3
+ * Command Center Dashboard with Actionable Intelligence
+ *
+ * V3 Features:
+ * - Alert system with proactive notifications
+ * - Month-over-month comparison
+ * - Downgrade recommendations
+ * - Accurate issue-type-aware costing
  *
  * Data flows from SharePoint lists populated by Get-LicenseIntelligence.ps1
- * Power BI visuals can be embedded for complex charts (when configured)
  */
 export default class LicenseManagement extends React.Component<ILicenseManagementProps, ILicenseManagementState> {
   private dataService: SharePointDataService;
   private insightEngine: InsightEngine;
+  private alertService: AlertService;
+  private comparisonService: ComparisonService;
+  private downgradeEngine: DowngradeEngine;
 
   constructor(props: ILicenseManagementProps) {
     super(props);
 
     this.dataService = new SharePointDataService(props.context);
     this.insightEngine = new InsightEngine();
+    this.alertService = new AlertService();
+    this.comparisonService = new ComparisonService();
+    this.downgradeEngine = new DowngradeEngine();
 
     this.state = {
       data: null,
@@ -71,7 +92,11 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       sortDirection: 'asc',
       selectedUser: null,
       allSkusExpanded: false,
-      departmentFilter: 'all'
+      departmentFilter: 'all',
+      // V3 State
+      alerts: [],
+      monthComparison: null,
+      downgradeSummaries: []
     };
   }
 
@@ -87,6 +112,19 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       const kpi = this.dataService.calculateKpiSummary(data);
       const insights = this.insightEngine.generateInsights(data, kpi);
       const issueCategories = this.dataService.getIssueCategories(data);
+
+      // V3: Initialize downgrade engine with pricing data
+      this.downgradeEngine.initialise(data.pricing, data.skus);
+
+      // V3: Generate downgrade recommendations
+      const downgradeRecommendations = this.downgradeEngine.generateDowngradeRecommendations(data.users);
+      const downgradeSummaries = this.downgradeEngine.summariseDowngrades(downgradeRecommendations);
+
+      // V3: Generate alerts
+      const alerts = this.alertService.generateAlerts(data, kpi, downgradeRecommendations);
+
+      // V3: Generate month-over-month comparison
+      const monthComparison = this.comparisonService.generateMonthComparison(data.snapshots);
 
       // Get ExtractDate from the first user or sku record
       const extractDateStr = data.users.length > 0
@@ -114,7 +152,11 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
         issueCategories,
         loading: false,
         extractDate,
-        isDataStale
+        isDataStale,
+        // V3 State
+        alerts,
+        monthComparison,
+        downgradeSummaries
       });
 
     } catch (error: unknown) {
@@ -286,7 +328,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
   }
 
   private renderSummaryTab(): React.ReactElement {
-    const { data, kpi, insights, extractDate, isDataStale } = this.state;
+    const { data, kpi, insights, extractDate, isDataStale, alerts, monthComparison, issueCategories, downgradeSummaries } = this.state;
     if (!data || !kpi) return <></>;
 
     const executiveSummary = this.insightEngine.generateExecutiveSummary(data, kpi);
@@ -299,6 +341,12 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
         executiveSummary={executiveSummary}
         extractDate={extractDate}
         isDataStale={isDataStale}
+        // V3 Props
+        alerts={alerts}
+        monthComparison={monthComparison}
+        issueCategories={issueCategories}
+        downgradeSummaries={downgradeSummaries}
+        onNavigate={(tab) => this.onTabChange(tab as TabType)}
       />
     );
   }
