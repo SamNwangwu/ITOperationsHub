@@ -6,6 +6,7 @@ import { InsightEngine, IInsight } from '../services/InsightEngine';
 import { AlertService } from '../services/AlertService';
 import { ComparisonService } from '../services/ComparisonService';
 import { DowngradeEngine } from '../services/DowngradeEngine';
+import { UsageReportService } from '../services/UsageReportService';
 import {
   ILicenceDashboardData,
   IKpiSummary,
@@ -13,14 +14,18 @@ import {
   IIssueCategory,
   IAlert,
   IMonthComparisonData,
-  IDowngradeSummary
+  IDowngradeSummary,
+  IUserUsageProfile,
+  IUsageAnalysisSummary,
+  IFeatureUsageStats
 } from '../models/ILicenceData';
 import { KpiCard, IssueCard, DataTable, IDataTableColumn } from './ui';
 import { ExecutiveSummaryPage, CostAnalysisPage, UserDetailPage } from './pages';
+import UsageAnalysisPage from './pages/UsageAnalysisPage';
 import { UtilisationGauge } from './charts';
 import { getTierLabel, getTierColour, classifySkuWithPurchased } from '../utils/SkuClassifier';
 
-type TabType = 'summary' | 'costs' | 'utilisation' | 'issues' | 'users';
+type TabType = 'summary' | 'costs' | 'utilisation' | 'issues' | 'users' | 'usage';
 type IssueFilterType = 'all' | 'Disabled' | 'Dual-Licensed' | 'Inactive 90+' | 'Service Account';
 
 interface ILicenseManagementState {
@@ -45,6 +50,11 @@ interface ILicenseManagementState {
   alerts: IAlert[];
   monthComparison: IMonthComparisonData | null;
   downgradeSummaries: IDowngradeSummary[];
+  // Usage Analysis State
+  usageProfiles: IUserUsageProfile[];
+  usageSummary: IUsageAnalysisSummary | null;
+  usageFeatureStats: IFeatureUsageStats[];
+  usageLoading: boolean;
 }
 
 /**
@@ -65,6 +75,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
   private alertService: AlertService;
   private comparisonService: ComparisonService;
   private downgradeEngine: DowngradeEngine;
+  private usageReportService: UsageReportService;
 
   constructor(props: ILicenseManagementProps) {
     super(props);
@@ -74,6 +85,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
     this.alertService = new AlertService();
     this.comparisonService = new ComparisonService();
     this.downgradeEngine = new DowngradeEngine();
+    this.usageReportService = new UsageReportService(props.context);
 
     this.state = {
       data: null,
@@ -96,12 +108,63 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       // V3 State
       alerts: [],
       monthComparison: null,
-      downgradeSummaries: []
+      downgradeSummaries: [],
+      // Usage Analysis State
+      usageProfiles: [],
+      usageSummary: null,
+      usageFeatureStats: [],
+      usageLoading: false
     };
   }
 
   public componentDidMount(): void {
     void this.loadData();
+  }
+
+  /**
+   * Load usage analysis data from Graph API
+   * Called on-demand when user navigates to Usage Analysis tab
+   */
+  private async loadUsageData(): Promise<void> {
+    const { data, usageProfiles } = this.state;
+    if (!data || usageProfiles.length > 0) return; // Already loaded or no data
+
+    this.setState({ usageLoading: true });
+
+    try {
+      // Initialize usage service with pricing data
+      this.usageReportService.initialise(data.pricing);
+
+      // Fetch M365 app usage from Graph API
+      const appUsage = await this.usageReportService.getM365AppUsage('D30');
+
+      // Generate user usage profiles
+      const profiles = await this.usageReportService.generateUserUsageProfiles(data.users, appUsage);
+
+      // Generate summary and stats
+      const summary = this.usageReportService.generateUsageAnalysisSummary(profiles);
+      const featureStats = this.usageReportService.generateFeatureUsageStats(profiles);
+
+      this.setState({
+        usageProfiles: profiles,
+        usageSummary: summary,
+        usageFeatureStats: featureStats,
+        usageLoading: false
+      });
+    } catch (error) {
+      console.error('Error loading usage data:', error);
+      // Generate profiles from licence data only (without Graph API data)
+      const profiles = await this.usageReportService.generateUserUsageProfiles(data.users, []);
+      const summary = this.usageReportService.generateUsageAnalysisSummary(profiles);
+      const featureStats = this.usageReportService.generateFeatureUsageStats(profiles);
+
+      this.setState({
+        usageProfiles: profiles,
+        usageSummary: summary,
+        usageFeatureStats: featureStats,
+        usageLoading: false
+      });
+    }
   }
 
   private async loadData(): Promise<void> {
@@ -170,6 +233,11 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
 
   private onTabChange = (tab: TabType): void => {
     this.setState({ activeTab: tab, selectedUserIds: new Set(), selectedUser: null });
+
+    // Load usage data when navigating to usage tab
+    if (tab === 'usage') {
+      void this.loadUsageData();
+    }
   }
 
   private onIssueFilterChange = (filter: IssueFilterType): void => {
@@ -308,6 +376,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       { key: 'summary', label: 'Executive Summary' },
       { key: 'costs', label: 'Cost Analysis' },
       { key: 'utilisation', label: 'Utilisation & Adoption' },
+      { key: 'usage', label: 'Usage Analysis' },
       { key: 'issues', label: 'Issues & Optimisation' },
       { key: 'users', label: 'All Users' }
     ];
@@ -915,6 +984,33 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
     );
   }
 
+  private renderUsageAnalysisTab(): React.ReactElement {
+    const { usageProfiles, usageSummary, usageFeatureStats, usageLoading } = this.state;
+
+    // Show empty state if no summary (loading or no data)
+    if (!usageSummary) {
+      return (
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner}></div>
+          <span>Loading usage analysis...</span>
+        </div>
+      );
+    }
+
+    return (
+      <UsageAnalysisPage
+        profiles={usageProfiles}
+        summary={usageSummary}
+        featureStats={usageFeatureStats}
+        isLoading={usageLoading}
+        onRefresh={() => {
+          this.setState({ usageProfiles: [], usageSummary: null, usageFeatureStats: [] });
+          void this.loadUsageData();
+        }}
+      />
+    );
+  }
+
   private renderUserDetail(): React.ReactElement {
     const { data, selectedUser } = this.state;
     if (!data || !selectedUser) return <></>;
@@ -945,6 +1041,8 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
         return this.renderCostsTab();
       case 'utilisation':
         return this.renderUtilisationTab();
+      case 'usage':
+        return this.renderUsageAnalysisTab();
       case 'issues':
         return this.renderIssuesTab();
       case 'users':

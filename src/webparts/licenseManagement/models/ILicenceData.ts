@@ -300,3 +300,149 @@ export interface IUserCostBreakdown {
   issueType: string;
   savingsReason?: string;
 }
+
+// ===========================================
+// V3: Usage Analysis Types (Graph API Reports)
+// ===========================================
+
+/**
+ * M365 App usage per user from Graph API
+ * Source: reports/getM365AppUserDetail
+ */
+export interface IM365AppUsage {
+  userPrincipalName: string;
+  displayName: string;
+  reportRefreshDate: string;
+  // Desktop apps
+  hasOutlookWindows: boolean;
+  hasWordWindows: boolean;
+  hasExcelWindows: boolean;
+  hasPowerPointWindows: boolean;
+  hasOneNoteWindows: boolean;
+  hasTeamsWindows: boolean;
+  // Web apps
+  hasOutlookWeb: boolean;
+  hasWordWeb: boolean;
+  hasExcelWeb: boolean;
+  hasPowerPointWeb: boolean;
+  hasOneNoteWeb: boolean;
+  hasTeamsWeb: boolean;
+  // Mobile apps
+  hasOutlookMobile: boolean;
+  hasWordMobile: boolean;
+  hasExcelMobile: boolean;
+  hasPowerPointMobile: boolean;
+  hasOneNoteMobile: boolean;
+  hasTeamsMobile: boolean;
+  // Last activity dates
+  outlookLastActivityDate: string | null;
+  wordLastActivityDate: string | null;
+  excelLastActivityDate: string | null;
+  powerPointLastActivityDate: string | null;
+  oneNoteLastActivityDate: string | null;
+  teamsLastActivityDate: string | null;
+}
+
+/**
+ * E5-exclusive feature usage tracking
+ */
+export interface IE5FeatureUsage {
+  userPrincipalName: string;
+  displayName: string;
+  // Security & Compliance (E5 exclusive)
+  usesDefenderForEndpoint: boolean;
+  defenderLastActivity: string | null;
+  usesDefenderForOffice365: boolean;
+  defenderO365LastActivity: string | null;
+  usesEDiscoveryPremium: boolean;
+  eDiscoveryLastActivity: string | null;
+  usesAdvancedCompliance: boolean;
+  complianceLastActivity: string | null;
+  // Analytics & BI (E5 exclusive)
+  usesPowerBIPro: boolean;
+  powerBILastActivity: string | null;
+  usesMyAnalytics: boolean;
+  myAnalyticsLastActivity: string | null;
+  // Audio Conferencing (E5 exclusive)
+  usesAudioConferencing: boolean;
+  audioConfLastActivity: string | null;
+  // Phone System (E5 exclusive)
+  usesPhoneSystem: boolean;
+  phoneSystemLastActivity: string | null;
+}
+
+/**
+ * Combined user usage profile for downgrade analysis
+ */
+export interface IUserUsageProfile {
+  userId: number;
+  userPrincipalName: string;
+  displayName: string;
+  department: string;
+  currentLicences: string[];
+  hasE5: boolean;
+  hasE3: boolean;
+  // Overall activity
+  lastSignIn: string | null;
+  daysSinceSignIn: number;
+  isActive: boolean; // Signed in within 30 days
+  // App usage summary
+  appsUsed: string[];
+  appsNotUsed: string[];
+  primaryApps: string[]; // Most frequently used
+  // E5 feature utilisation (only relevant if hasE5)
+  e5FeaturesUsed: string[];
+  e5FeaturesNotUsed: string[];
+  e5UtilisationPct: number; // % of E5 features actually used
+  // Recommendation
+  canDowngrade: boolean;
+  recommendedLicence: string | null;
+  downgradeReason: string;
+  confidenceScore: number; // 0-100
+  potentialMonthlySavings: number;
+  potentialAnnualSavings: number;
+}
+
+/**
+ * E5-exclusive features definition
+ */
+export const E5_EXCLUSIVE_FEATURES = [
+  { id: 'defender_endpoint', name: 'Microsoft Defender for Endpoint', category: 'Security' },
+  { id: 'defender_o365', name: 'Microsoft Defender for Office 365 P2', category: 'Security' },
+  { id: 'ediscovery_premium', name: 'eDiscovery Premium', category: 'Compliance' },
+  { id: 'advanced_compliance', name: 'Advanced Compliance', category: 'Compliance' },
+  { id: 'power_bi_pro', name: 'Power BI Pro', category: 'Analytics' },
+  { id: 'my_analytics', name: 'Viva Insights (MyAnalytics)', category: 'Analytics' },
+  { id: 'audio_conferencing', name: 'Audio Conferencing', category: 'Communication' },
+  { id: 'phone_system', name: 'Phone System', category: 'Communication' },
+  { id: 'information_protection', name: 'Azure Information Protection P2', category: 'Security' },
+  { id: 'cloud_app_security', name: 'Microsoft Defender for Cloud Apps', category: 'Security' }
+] as const;
+
+/**
+ * Usage analysis summary for dashboard
+ */
+export interface IUsageAnalysisSummary {
+  totalUsersAnalysed: number;
+  e5UsersCount: number;
+  e5UnderutilisedCount: number;
+  e5UnderutilisedPct: number;
+  averageE5UtilisationPct: number;
+  downgradeRecommendations: number;
+  potentialAnnualSavings: number;
+  topUnusedFeatures: { feature: string; unusedCount: number; pct: number }[];
+  departmentBreakdown: { department: string; e5Users: number; canDowngrade: number; savings: number }[];
+}
+
+/**
+ * Feature usage stats for charts
+ */
+export interface IFeatureUsageStats {
+  featureId: string;
+  featureName: string;
+  category: string;
+  usersWithAccess: number;
+  usersActuallyUsing: number;
+  utilisationPct: number;
+  lastUsedByAnyone: string | null;
+}

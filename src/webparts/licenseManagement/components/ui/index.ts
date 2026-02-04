@@ -26,3 +26,6 @@ export type { IMonthComparisonProps } from './MonthComparison';
 
 export { default as ActionCenter } from './ActionCenter';
 export type { IActionCenterProps } from './ActionCenter';
+
+export { default as FeatureUsageCard, FeatureUsageStatsCard } from './FeatureUsageCard';
+export type { IFeatureUsageCardProps, IFeatureUsageStatsCardProps } from './FeatureUsageCard';
