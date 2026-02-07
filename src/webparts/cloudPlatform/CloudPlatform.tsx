@@ -52,7 +52,8 @@ const PLATFORM_CONFIGS = {
       { id: 'avd', title: 'AVD (Virtual Desktop)', icon: '💻', folder: 'Azure/AVD' },
       { id: 'd365', title: 'D365 Migration', icon: '📦', folder: 'Azure/D365-Migration' },
       { id: 'security', title: 'Security', icon: '🔒', folder: 'Azure/Security' },
-      { id: 'certificates', title: 'Certificates', icon: '🔐', folder: 'Azure/Certificates' }
+      { id: 'certificates', title: 'Certificates', icon: '🔐', folder: 'Azure/Certificates' },
+      { id: 'networking', title: 'Networking', icon: '🌐', folder: 'Azure/Networking' }
     ],
     quickLinks: [
       { title: 'Azure Portal', url: 'https://portal.azure.com', icon: '🔷' },
@@ -60,13 +61,15 @@ const PLATFORM_CONFIGS = {
       { title: 'M365 Admin', url: 'https://admin.microsoft.com', icon: '📊' },
       { title: 'Cost Management', url: 'https://portal.azure.com/#blade/Microsoft_Azure_CostManagement', icon: '💰' },
       { title: 'Security Center', url: 'https://portal.azure.com/#blade/Microsoft_Azure_Security', icon: '🛡️' },
-      { title: 'Azure Monitor', url: 'https://portal.azure.com/#blade/Microsoft_Azure_Monitoring', icon: '📋' }
+      { title: 'Azure Monitor', url: 'https://portal.azure.com/#blade/Microsoft_Azure_Monitoring', icon: '📋' },
+      { title: 'IPAM Dashboard', url: 'https://lbripam-g6jyrscvaao6k.azurewebsites.net', icon: '🌐' }
     ],
     stats: [
       { label: 'Subscriptions', value: '8', icon: '🏢' },
       { label: 'Virtual Machines', value: '120', icon: '🖥️' },
       { label: 'AVD Session Hosts', value: '85', icon: '💻' },
-      { label: 'Storage Accounts', value: '34', icon: '📦' }
+      { label: 'Storage Accounts', value: '34', icon: '📦' },
+      { label: 'VNets', value: '80+', icon: '🌐' }
     ]
   }
 };
