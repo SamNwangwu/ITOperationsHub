@@ -154,6 +154,39 @@ export const NetworkingDashboard: React.FC<INetworkingDashboardProps> = (props) 
     return null;
   }
 
+  // No spaces configured state
+  if (!summary.spacesConfigured) {
+    return (
+      <div className={styles.networkingDashboard}>
+        <div className={styles.sectionCard}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              <span className={styles.icon}>📊</span>
+              IPAM Dashboard
+            </h2>
+          </div>
+          <div className={styles.sectionContent}>
+            <div className={styles.pendingState}>
+              <div className={styles.pendingIcon}>📋</div>
+              <div className={styles.pendingMessage}>
+                IPAM Spaces not configured. Configure Spaces and Blocks in the IPAM Dashboard to see network data here.
+              </div>
+              <a
+                href={IPAM_DASHBOARD_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.dashboardButton}
+              >
+                <span>🌐</span>
+                Open IPAM Dashboard
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.networkingDashboard}>
       {/* Summary Stats */}
@@ -175,6 +208,11 @@ export const NetworkingDashboard: React.FC<INetworkingDashboardProps> = (props) 
         <div className={styles.sectionContent}>
           <div className={styles.summaryStats}>
             <div className={styles.statCard}>
+              <div className={styles.statIcon}>📦</div>
+              <div className={styles.statValue}>{formatNumber(summary.totalSpaces)}</div>
+              <div className={styles.statLabel}>Spaces</div>
+            </div>
+            <div className={styles.statCard}>
               <div className={styles.statIcon}>🌐</div>
               <div className={styles.statValue}>{formatNumber(summary.totalVnets)}</div>
               <div className={styles.statLabel}>Virtual Networks</div>
@@ -190,11 +228,6 @@ export const NetworkingDashboard: React.FC<INetworkingDashboardProps> = (props) 
                 {summary.utilisationPct}%
               </div>
               <div className={styles.statLabel}>IP Utilisation</div>
-            </div>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}>🔌</div>
-              <div className={styles.statValue}>{formatNumber(summary.totalEndpoints)}</div>
-              <div className={styles.statLabel}>Endpoints</div>
             </div>
           </div>
         </div>
@@ -263,10 +296,10 @@ export const NetworkingDashboard: React.FC<INetworkingDashboardProps> = (props) 
             <div className={styles.vnetTable}>
               <div className={styles.vnetHeader}>
                 <div>VNet Name</div>
-                <div>Address Space</div>
+                <div>CIDR</div>
                 <div>Subnets</div>
                 <div>Utilisation</div>
-                <div>Subscription</div>
+                <div>Space / Block</div>
               </div>
               {summary.vnets.slice(0, 10).map((vnet, index) => {
                 const utilPct = vnet.size > 0 ? Math.round((vnet.used / vnet.size) * 100) : 0;
@@ -274,7 +307,7 @@ export const NetworkingDashboard: React.FC<INetworkingDashboardProps> = (props) 
                   <div key={index} className={styles.vnetRow}>
                     <div className={styles.vnetName}>{vnet.name}</div>
                     <div className={styles.vnetAddressSpace}>
-                      {vnet.address_space?.join(', ') || '-'}
+                      {vnet.cidr || '-'}
                     </div>
                     <div className={styles.vnetSubnetCount}>
                       {vnet.subnets?.length || 0}
@@ -290,8 +323,8 @@ export const NetworkingDashboard: React.FC<INetworkingDashboardProps> = (props) 
                         {utilPct}%
                       </span>
                     </div>
-                    <div className={styles.vnetSubscription} title={vnet.subscription_id}>
-                      {vnet.subscription_id?.substring(0, 8) || '-'}...
+                    <div className={styles.vnetSubscription} title={`${vnet.spaceName} / ${vnet.blockName}`}>
+                      {vnet.spaceName || '-'} / {vnet.blockName || '-'}
                     </div>
                   </div>
                 );
