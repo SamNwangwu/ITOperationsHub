@@ -1,5 +1,5 @@
 # =============================================================================
-# Azure DevOps Pipeline - SPFx Build & Deploy (Optimised)
+# Azure DevOps Pipeline - SPFx Build, Deploy & GitHub Mirror
 # =============================================================================
 
 trigger:
@@ -32,6 +32,8 @@ variables:
     value: '1'
   - name: DISABLE_TELEMETRY
     value: 'true'
+  - name: GITHUB_MIRROR_REPO
+    value: 'github.com/SamNwangwu/ITOperationsHub.git'
 
 stages:
   # ===========================================
@@ -132,7 +134,7 @@ stages:
                       
                       # Setup module path
                       if (Test-Path "$modulePath/PnP.PowerShell") {
-                        Write-Host "✓ PnP.PowerShell cached" -ForegroundColor Green
+                        Write-Host "PnP.PowerShell cached" -ForegroundColor Green
                       } else {
                         Write-Host "Installing PnP.PowerShell..." -ForegroundColor Cyan
                         New-Item -ItemType Directory -Path $modulePath -Force | Out-Null
@@ -186,18 +188,38 @@ stages:
 
                         try {
                           Publish-PnPApp -Identity $app.Id -Scope Tenant -SkipFeatureDeployment -Force -ErrorAction Stop
-                          Write-Host "✅ Deployed v1.0.0.$(Build.BuildId) to all sites!" -ForegroundColor Green
+                          Write-Host "Deployed v1.0.0.$(Build.BuildId) to all sites!" -ForegroundColor Green
                         } catch {
                           Write-Host "Publish error: $_" -ForegroundColor Red
                           # Try without SkipFeatureDeployment
                           Publish-PnPApp -Identity $app.Id -Scope Tenant -Force
-                          Write-Host "✅ Published (without SkipFeatureDeployment)" -ForegroundColor Yellow
+                          Write-Host "Published (without SkipFeatureDeployment)" -ForegroundColor Yellow
                         }
                       } else {
-                        Write-Host "`n⚠️ App not found in catalog after upload" -ForegroundColor Yellow
+                        Write-Host "App not found in catalog after upload" -ForegroundColor Yellow
                         Write-Host "Available apps:" -ForegroundColor Yellow
                         $allApps | ForEach-Object { Write-Host "  - $($_.Title)" }
                         
                         # Exit with error
                         exit 1
                       }
+
+  # ===========================================
+  # GITHUB MIRROR STAGE
+  # ===========================================
+  - stage: Mirror
+    displayName: 'Mirror to GitHub'
+    dependsOn: Deploy
+    condition: succeeded()
+    jobs:
+      - job: MirrorJob
+        displayName: 'Push to GitHub'
+        steps:
+          - checkout: self
+            fetchDepth: 0
+            persistCredentials: false
+
+          - script: |
+              git remote add github https://$(GITHUB_PAT)@$(GITHUB_MIRROR_REPO)
+              git push github --mirror
+            displayName: 'Mirror all branches & tags to GitHub'

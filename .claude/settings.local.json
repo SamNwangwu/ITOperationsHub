@@ -5,7 +5,16 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(git push:*)",
+      "Bash(gulp bundle:*)",
+      "Bash(gulp package-solution:*)",
+      "Bash(grep:*)",
+      "Bash(dir:*)",
+      "Bash(npx gulp:*)"
     ]
   }
 }
