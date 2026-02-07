@@ -45,6 +45,10 @@
       {
         "resource": "Power BI Service",
         "scope": "Report.Read.All"
+      },
+      {
+        "resource": "Lebara-IPAM-Engine",
+        "scope": "user_impersonation"
       }
     ]
   },

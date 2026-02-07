@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import styles from './CloudPlatform.module.scss';
 import { ICloudPlatformProps } from './ICloudPlatformProps';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
+import { NetworkingDashboard } from './components/NetworkingDashboard';
 
 // Platform configurations
 const PLATFORM_CONFIGS = {
@@ -86,7 +87,7 @@ interface ISectionDocs {
 }
 
 export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
-  const { platform, spHttpClient, siteUrl, customStats } = props;
+  const { platform, spHttpClient, siteUrl, customStats, aadHttpClient } = props;
   const config = PLATFORM_CONFIGS[platform] || PLATFORM_CONFIGS.aws;
   
   const [activeSection, setActiveSection] = useState<string>(config.sections[0]?.id || 'architecture');
@@ -280,6 +281,11 @@ export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
               </div>
             </div>
           </section>
+
+          {/* IPAM Dashboard - only for networking section on Azure platform */}
+          {platform === 'azure' && activeSection === 'networking' && (
+            <NetworkingDashboard aadHttpClient={aadHttpClient} />
+          )}
 
           {/* Current Section Documents */}
           <section className={styles.sectionCard}>

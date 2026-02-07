@@ -7,8 +7,12 @@ import {
   PropertyPaneTextField
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
+import { AadHttpClient } from '@microsoft/sp-http';
 import CloudPlatform from './CloudPlatform';
 import { ICloudPlatformProps } from './ICloudPlatformProps';
+
+// IPAM Engine App ID for Azure IPAM API access
+const IPAM_APP_ID = 'c74f5871-2191-4afe-8374-d29dec879c37';
 
 export interface ICloudPlatformWebPartProps {
   platform: 'aws' | 'azure';
@@ -16,6 +20,17 @@ export interface ICloudPlatformWebPartProps {
 }
 
 export default class CloudPlatformWebPart extends BaseClientSideWebPart<ICloudPlatformWebPartProps> {
+  private aadHttpClient: AadHttpClient | undefined;
+
+  protected async onInit(): Promise<void> {
+    try {
+      this.aadHttpClient = await this.context.aadHttpClientFactory.getClient(IPAM_APP_ID);
+    } catch (error) {
+      console.warn('IPAM API client not available:', error);
+      // Non-fatal - web part works without IPAM data
+    }
+    return super.onInit();
+  }
 
   public render(): void {
     const element: React.ReactElement<ICloudPlatformProps> = React.createElement(
@@ -24,7 +39,8 @@ export default class CloudPlatformWebPart extends BaseClientSideWebPart<ICloudPl
         platform: this.properties.platform || 'aws',
         spHttpClient: this.context.spHttpClient,
         siteUrl: this.context.pageContext.web.absoluteUrl,
-        customStats: this.properties.customStats
+        customStats: this.properties.customStats,
+        aadHttpClient: this.aadHttpClient
       }
     );
 

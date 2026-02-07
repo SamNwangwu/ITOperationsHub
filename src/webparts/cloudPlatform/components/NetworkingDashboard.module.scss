@@ -1,0 +1,361 @@
+@import '~@fluentui/react/dist/sass/References.scss';
+
+.networkingDashboard {
+  margin-bottom: 24px;
+
+  // Section Card - consistent with CloudPlatform.module.scss
+  .sectionCard {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .sectionHeader {
+    padding: 16px 24px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .sectionTitle {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .icon {
+    font-size: 18px;
+  }
+
+  .sectionAction {
+    font-size: 13px;
+    color: #0078D4;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .sectionContent {
+    padding: 20px 24px;
+  }
+
+  // Summary Stats Grid
+  .summaryStats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+
+  .statCard {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid #eee;
+  }
+
+  .statIcon {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+
+  .statValue {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0078D4;
+  }
+
+  .statLabel {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+  }
+
+  // Utilisation Colors
+  .utilisationGood {
+    color: #107C10;
+  }
+
+  .utilisationWarning {
+    color: #FF8C00;
+  }
+
+  .utilisationCritical {
+    color: #D13438;
+  }
+
+  // Subnet Table
+  .subnetTable {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .tableHeader {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr 120px;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .subnetRow {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr 120px;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+    font-size: 14px;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: #f8f9fa;
+    }
+  }
+
+  .subnetName {
+    font-weight: 500;
+    color: #333;
+
+    .vnetName {
+      font-size: 12px;
+      color: #888;
+      font-weight: 400;
+    }
+  }
+
+  .subnetCidr {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13px;
+    color: #666;
+  }
+
+  .subnetUsage {
+    font-size: 13px;
+    color: #666;
+  }
+
+  // Utilisation Bar
+  .utilisationBarContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .utilisationBar {
+    flex: 1;
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .utilisationFill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+
+    &.green {
+      background: #107C10;
+    }
+
+    &.amber {
+      background: #FF8C00;
+    }
+
+    &.red {
+      background: #D13438;
+    }
+  }
+
+  .utilisationPct {
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 36px;
+    text-align: right;
+  }
+
+  // VNet Overview Table
+  .vnetTable {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .vnetHeader {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 80px 100px 1fr;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 8px 8px 0 0;
+    position: sticky;
+    top: 0;
+  }
+
+  .vnetRow {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 80px 100px 1fr;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+    font-size: 14px;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: #f8f9fa;
+    }
+  }
+
+  .vnetName {
+    font-weight: 500;
+    color: #333;
+  }
+
+  .vnetAddressSpace {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13px;
+    color: #666;
+  }
+
+  .vnetSubnetCount {
+    text-align: center;
+    font-weight: 500;
+  }
+
+  .vnetSubscription {
+    font-size: 12px;
+    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Dashboard Button
+  .dashboardButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: #0078D4;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-top: 16px;
+
+    &:hover {
+      background: #106EBE;
+      transform: translateY(-1px);
+    }
+  }
+
+  // Loading State
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+  }
+
+  .loadingSpinner {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 3px solid #eee;
+    border-top-color: #0078D4;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 12px;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  // Error State
+  .errorState {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+  }
+
+  .errorIcon {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  .errorMessage {
+    margin-bottom: 16px;
+  }
+
+  .retryButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #f0f0f0;
+    color: #333;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-right: 8px;
+
+    &:hover {
+      background: #e8e8e8;
+    }
+  }
+
+  // Pending State (API not configured)
+  .pendingState {
+    text-align: center;
+    padding: 32px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px dashed #ddd;
+  }
+
+  .pendingIcon {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  .pendingMessage {
+    color: #666;
+    margin-bottom: 16px;
+  }
+}
