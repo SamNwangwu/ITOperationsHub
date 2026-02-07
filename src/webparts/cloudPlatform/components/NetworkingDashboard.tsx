@@ -8,7 +8,7 @@ export interface INetworkingDashboardProps {
   aadHttpClient?: AadHttpClient;
 }
 
-const IPAM_DASHBOARD_URL = 'https://lbripam-g6jyrscvaao6k.azurewebsites.net';
+const IPAM_DASHBOARD_URL = 'https://lbripam-g6jyrscvaao6k.azurewebsites.net/discover/vnet';
 
 export const NetworkingDashboard: React.FC<INetworkingDashboardProps> = (props) => {
   const { aadHttpClient } = props;
