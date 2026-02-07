@@ -1,34 +1,36 @@
 import { AadHttpClient } from '@microsoft/sp-http';
 
-// IPAM API response interfaces
-export interface IIpamSpace {
+// IPAM API response interfaces - nested structure from /api/spaces?expand=true
+export interface IIpamSpaceResponse {
   name: string;
   desc: string;
   size: number;
   used: number;
+  blocks?: IIpamBlockResponse[];
 }
 
-export interface IIpamBlock {
+export interface IIpamBlockResponse {
   name: string;
   cidr: string;
   size: number;
   used: number;
+  vnets?: IIpamVNetResponse[];
 }
 
-export interface IIpamNetwork {
+export interface IIpamVNetResponse {
   name: string;
   id: string;
-  cidr: string;
-  subscription_id: string;
+  prefixes: string[];
   resource_group: string;
+  subscription_id: string;
   size: number;
   used: number;
-  subnets?: IIpamSubnet[];
+  subnets?: IIpamSubnetResponse[];
 }
 
-export interface IIpamSubnet {
+export interface IIpamSubnetResponse {
   name: string;
-  cidr: string;
+  prefix: string;
   size: number;
   used: number;
 }
@@ -49,7 +51,7 @@ export interface IVNet {
   id: string;
   subscription_id: string;
   resource_group: string;
-  cidr: string;
+  prefixes: string[];
   subnets: ISubnet[];
   size: number;
   used: number;
@@ -68,7 +70,6 @@ export interface IIpamSummary {
   utilisationPct: number;
   topUtilisedSubnets: ISubnet[];
   vnets: IVNet[];
-  spaces: IIpamSpace[];
 }
 
 export class IpamService {
@@ -79,45 +80,21 @@ export class IpamService {
     this.client = client;
   }
 
-  public async getSpaces(): Promise<IIpamSpace[]> {
+  // Get spaces with full nested data (blocks and vnets)
+  public async getSpacesExpanded(): Promise<IIpamSpaceResponse[]> {
     const response = await this.client.get(
-      `${this.baseUrl}/api/spaces`,
+      `${this.baseUrl}/api/spaces?expand=true`,
       AadHttpClient.configurations.v1
     );
     if (!response.ok) throw new Error(`IPAM API error: ${response.status}`);
-    return await response.json();
-  }
-
-  public async getBlocks(spaceName: string): Promise<IIpamBlock[]> {
-    const response = await this.client.get(
-      `${this.baseUrl}/api/spaces/${encodeURIComponent(spaceName)}/blocks`,
-      AadHttpClient.configurations.v1
-    );
-    if (!response.ok) throw new Error(`IPAM API error: ${response.status}`);
-    return await response.json();
-  }
-
-  public async getNetworks(spaceName: string, blockName: string): Promise<IIpamNetwork[]> {
-    const response = await this.client.get(
-      `${this.baseUrl}/api/spaces/${encodeURIComponent(spaceName)}/blocks/${encodeURIComponent(blockName)}/networks`,
-      AadHttpClient.configurations.v1
-    );
-    if (!response.ok) throw new Error(`IPAM API error: ${response.status}`);
-    return await response.json();
-  }
-
-  public async getStatus(): Promise<{ status: string }> {
-    const response = await this.client.get(
-      `${this.baseUrl}/api/status`,
-      AadHttpClient.configurations.v1
-    );
-    if (!response.ok) throw new Error(`IPAM API error: ${response.status}`);
-    return await response.json();
+    const data = await response.json();
+    console.log('IPAM spaces response:', JSON.stringify(data, null, 2));
+    return data;
   }
 
   public async getSummary(): Promise<IIpamSummary> {
-    // First get all spaces
-    const spaces = await this.getSpaces();
+    // Get all spaces with expanded blocks and vnets
+    const spaces = await this.getSpacesExpanded();
 
     // If no spaces configured, return early
     if (!spaces || spaces.length === 0) {
@@ -131,71 +108,62 @@ export class IpamService {
         usedIPs: 0,
         utilisationPct: 0,
         topUtilisedSubnets: [],
-        vnets: [],
-        spaces: []
+        vnets: []
       };
     }
 
-    // Collect all VNets and subnets across all spaces and blocks
+    // Collect all VNets and subnets from the nested structure
     const allVnets: IVNet[] = [];
     const allSubnets: ISubnet[] = [];
     let totalBlocks = 0;
     let totalIPs = 0;
     let usedIPs = 0;
 
-    // Iterate through spaces and blocks
+    // Iterate through nested spaces -> blocks -> vnets
     for (const space of spaces) {
-      try {
-        const blocks = await this.getBlocks(space.name);
-        totalBlocks += blocks.length;
+      const blocks = space.blocks || [];
+      totalBlocks += blocks.length;
 
-        for (const block of blocks) {
-          try {
-            const networks = await this.getNetworks(space.name, block.name);
+      for (const block of blocks) {
+        const vnets = block.vnets || [];
 
-            for (const network of networks) {
-              // Map network to VNet
-              const vnet: IVNet = {
-                name: network.name,
-                id: network.id,
-                subscription_id: network.subscription_id,
-                resource_group: network.resource_group,
-                cidr: network.cidr,
-                size: network.size || 0,
-                used: network.used || 0,
-                subnets: [],
+        for (const vnetData of vnets) {
+          // Map to display VNet
+          const vnet: IVNet = {
+            name: vnetData.name,
+            id: vnetData.id,
+            subscription_id: vnetData.subscription_id,
+            resource_group: vnetData.resource_group,
+            prefixes: vnetData.prefixes || [],
+            size: vnetData.size || 0,
+            used: vnetData.used || 0,
+            subnets: [],
+            blockName: block.name,
+            spaceName: space.name
+          };
+
+          totalIPs += vnetData.size || 0;
+          usedIPs += vnetData.used || 0;
+
+          // Process subnets if available
+          if (vnetData.subnets && Array.isArray(vnetData.subnets)) {
+            for (const subnet of vnetData.subnets) {
+              const subnetItem: ISubnet = {
+                name: subnet.name,
+                prefix: subnet.prefix,
+                size: subnet.size || 0,
+                used: subnet.used || 0,
+                vnetName: vnetData.name,
                 blockName: block.name,
                 spaceName: space.name
               };
-
-              totalIPs += network.size || 0;
-              usedIPs += network.used || 0;
-
-              // Process subnets if available
-              if (network.subnets && Array.isArray(network.subnets)) {
-                for (const subnet of network.subnets) {
-                  const subnetItem: ISubnet = {
-                    name: subnet.name,
-                    prefix: subnet.cidr,
-                    size: subnet.size || 0,
-                    used: subnet.used || 0,
-                    vnetName: network.name,
-                    blockName: block.name,
-                    spaceName: space.name
-                  };
-                  vnet.subnets.push(subnetItem);
-                  allSubnets.push(subnetItem);
-                }
-              }
-
-              allVnets.push(vnet);
+              vnet.subnets.push(subnetItem);
+              allSubnets.push(subnetItem);
             }
-          } catch (networkErr) {
-            console.warn(`Failed to fetch networks for ${space.name}/${block.name}:`, networkErr);
           }
+
+          allVnets.push(vnet);
         }
-      } catch (blockErr) {
-        console.warn(`Failed to fetch blocks for space ${space.name}:`, blockErr);
       }
     }
 
@@ -222,8 +190,7 @@ export class IpamService {
       usedIPs,
       utilisationPct,
       topUtilisedSubnets,
-      vnets: allVnets,
-      spaces
+      vnets: allVnets
     };
   }
 }

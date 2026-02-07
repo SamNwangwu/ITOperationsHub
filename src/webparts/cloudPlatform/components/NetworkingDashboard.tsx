@@ -307,7 +307,7 @@ export const NetworkingDashboard: React.FC<INetworkingDashboardProps> = (props) 
                   <div key={index} className={styles.vnetRow}>
                     <div className={styles.vnetName}>{vnet.name}</div>
                     <div className={styles.vnetAddressSpace}>
-                      {vnet.cidr || '-'}
+                      {vnet.prefixes?.join(', ') || '-'}
                     </div>
                     <div className={styles.vnetSubnetCount}>
                       {vnet.subnets?.length || 0}
