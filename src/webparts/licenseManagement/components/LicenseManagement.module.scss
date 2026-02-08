@@ -411,8 +411,8 @@ $color-e5: #818CF8;
     }
 
     &.active {
-      border-color: $lb-magenta;
-      box-shadow: 0 0 20px rgba($lb-magenta, 0.2);
+      border-color: $lb-cyan;
+      box-shadow: 0 0 20px rgba($lb-cyan, 0.2);
     }
   }
 
@@ -533,8 +533,8 @@ $color-e5: #818CF8;
 
     &:focus {
       outline: none;
-      border-color: $lb-magenta;
-      box-shadow: 0 0 0 3px rgba($lb-magenta, 0.2);
+      border-color: $lb-cyan;
+      box-shadow: 0 0 0 3px rgba($lb-cyan, 0.2);
     }
   }
 
@@ -597,11 +597,11 @@ $color-e5: #818CF8;
       transition: background 0.15s;
 
       &:hover {
-        background: rgba($lb-magenta, 0.05);
+        background: rgba($lb-cyan, 0.05);
       }
 
       &.selected {
-        background: rgba($lb-magenta, 0.1);
+        background: rgba($lb-cyan, 0.1);
       }
     }
   }
@@ -820,7 +820,7 @@ $color-e5: #818CF8;
   overflow: hidden;
   transition: all 0.2s;
 
-  // Gradient border effect
+  // Gradient border effect - status-based, not magenta
   &::before {
     content: '';
     position: absolute;
@@ -828,7 +828,7 @@ $color-e5: #818CF8;
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, $lb-magenta, $lb-cyan);
+    background: linear-gradient(90deg, $lb-cyan, $lb-blue);
   }
 
   &.clickable {
@@ -839,11 +839,11 @@ $color-e5: #818CF8;
     }
   }
 
-  &.kpiCardPurple::before { background: linear-gradient(90deg, $lb-magenta, $lb-blue); }
+  &.kpiCardPurple::before { background: linear-gradient(90deg, $lb-cyan, $lb-blue); }
   &.kpiCardGreen::before { background: linear-gradient(90deg, $color-healthy, #22c55e); }
   &.kpiCardOrange::before { background: linear-gradient(90deg, $color-warning, $color-e3); }
   &.kpiCardRed::before { background: linear-gradient(90deg, $color-critical, #dc2626); }
-  &.kpiCardBlue::before { background: linear-gradient(90deg, $lb-cyan, $lb-blue); }
+  &.kpiCardBlue::before { background: linear-gradient(90deg, $lb-blue, $lb-cyan); }
 }
 
 .kpiHeader {
@@ -902,7 +902,7 @@ $color-e5: #818CF8;
   border-radius: 12px;
   padding: 16px;
   border: 1px solid $border-default;
-  border-left: 4px solid $lb-magenta;
+  border-left: 4px solid $color-info;
 
   &.insightCritical { border-left-color: $color-critical; }
   &.insightWarning { border-left-color: $color-warning; }
@@ -918,7 +918,7 @@ $color-e5: #818CF8;
   background: $bg-card;
   border-radius: 8px;
   border: 1px solid $border-default;
-  border-left: 3px solid $lb-magenta;
+  border-left: 3px solid $color-info;
 
   &.insightCritical { border-left-color: $color-critical; }
   &.insightWarning { border-left-color: $color-warning; }
@@ -947,8 +947,8 @@ $color-e5: #818CF8;
 .insightMetric {
   font-size: 12px;
   font-weight: 600;
-  color: $lb-magenta;
-  background: rgba($lb-magenta, 0.15);
+  color: $lb-cyan;
+  background: rgba($lb-cyan, 0.15);
   padding: 2px 8px;
   border-radius: 4px;
 }
@@ -1180,11 +1180,11 @@ $color-e5: #818CF8;
     transition: background 0.15s;
 
     &:hover {
-      background: rgba($lb-magenta, 0.05);
+      background: rgba($lb-cyan, 0.05);
     }
 
     &.selected {
-      background: rgba($lb-magenta, 0.1);
+      background: rgba($lb-cyan, 0.1);
     }
 
     &.clickable {
@@ -1322,7 +1322,7 @@ $color-e5: #818CF8;
 
   &.active {
     color: #fff;
-    border-bottom-color: $lb-magenta;
+    border-bottom-color: $lb-cyan;
   }
 }
 
@@ -2180,6 +2180,443 @@ $color-e5: #818CF8;
       -webkit-overflow-scrolling: touch;
     }
   }
+}
+
+// ===========================================
+// Scrollable Table Container
+// ===========================================
+.scrollableTable {
+  max-height: 600px;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1px solid $border-default;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: $bg-base;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $border-subtle;
+    border-radius: 3px;
+    &:hover {
+      background: $text-muted;
+    }
+  }
+}
+
+// ===========================================
+// Feature Usage Expandable Row
+// ===========================================
+.featureRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid $border-default;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: $text-secondary;
+}
+
+.featureUsed {
+  color: $color-healthy;
+}
+
+.featureUnused {
+  color: $text-muted;
+}
+
+// ===========================================
+// Multi-select Filter Chips
+// ===========================================
+.filterChipGroup {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filterChip {
+  padding: 6px 12px;
+  background: $bg-input;
+  border: 1px solid $border-default;
+  border-radius: 6px;
+  color: $text-muted;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $lb-cyan;
+    color: $text-primary;
+  }
+
+  &.filterChipActive {
+    background: rgba($lb-cyan, 0.15);
+    border-color: $lb-cyan;
+    color: $lb-cyan;
+  }
+}
+
+// ===========================================
+// Executive Summary Page Styles
+// ===========================================
+.summaryHeroBanner {
+  margin: 0 32px 24px;
+  padding: 20px 28px;
+  background: linear-gradient(135deg, rgba($lb-magenta, 0.2) 0%, rgba($lb-blue, 0.2) 100%);
+  border: 1px solid rgba($lb-magenta, 0.4);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.summaryHeroLeft {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.summaryHeroIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: rgba($lb-magenta, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.summaryHeroLabel {
+  font-size: 11px;
+  color: $lb-magenta;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.summaryHeroValue {
+  font-size: 32px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.summaryHeroRight {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.summaryHeroStat {
+  text-align: center;
+}
+
+.summaryHeroStatValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.summaryHeroStatLabel {
+  font-size: 11px;
+  color: $text-muted;
+}
+
+.summaryHeroDivider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.summaryHeroBtn {
+  padding: 12px 24px;
+  background: $lb-magenta;
+  border: none;
+  border-radius: 8px;
+  color: $text-primary;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.summaryTimestamp {
+  padding: 8px 32px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summaryTimestampFresh {
+  color: $text-muted;
+}
+
+.summaryTimestampStale {
+  color: $color-warning;
+}
+
+.summaryTimestampDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.summaryTimestampDotFresh {
+  background: $color-healthy;
+}
+
+.summaryTimestampDotStale {
+  background: $color-warning;
+}
+
+.summaryTwoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 0 32px 24px;
+}
+
+.summaryColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.summarySubheading {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summaryAlertBadge {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.summaryAlertBadgeCritical {
+  background: $color-critical;
+}
+
+.summaryAlertBadgeWarning {
+  background: $color-warning;
+}
+
+.summaryTrendPlaceholder {
+  background: $bg-card;
+  border: 1px solid $border-default;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  color: $text-muted;
+}
+
+.summaryTrendTitle {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+// ===========================================
+// Utilisation Page Styles
+// ===========================================
+.utilisationAttentionWrap {
+  padding: 0 32px 24px;
+}
+
+.utilisationTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.utilisationTableHead {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid #374151;
+  color: $text-muted;
+}
+
+.utilisationTableHeadRight {
+  text-align: right;
+  padding: 12px 16px;
+  border-bottom: 1px solid #374151;
+  color: $text-muted;
+}
+
+.utilisationTableCell {
+  padding: 12px 16px;
+  border-bottom: 1px solid $border-default;
+}
+
+.utilisationTableCellRight {
+  padding: 12px 16px;
+  border-bottom: 1px solid $border-default;
+  text-align: right;
+}
+
+.utilisationTableCellBold {
+  padding: 12px 16px;
+  border-bottom: 1px solid $border-default;
+  font-weight: 500;
+}
+
+.utilisationTableRow {
+  &:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
+.utilisationTableRowDimmed {
+  opacity: 0.5;
+}
+
+.utilisationTierBadge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: $text-primary;
+}
+
+.utilisationStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.utilisationStatusOver {
+  background: rgba($color-critical, 0.15);
+  color: $color-critical;
+}
+
+.utilisationStatusNear {
+  background: rgba($color-warning, 0.15);
+  color: $color-warning;
+}
+
+.utilisationStatusUnder {
+  background: rgba(107, 114, 128, 0.15);
+  color: $text-muted;
+}
+
+.utilisationGaugeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 0 32px 24px;
+}
+
+.utilisationEmptyState {
+  padding: 24px 32px;
+  color: $text-muted;
+  font-size: 14px;
+  text-align: center;
+}
+
+.utilisationAllSkusWrap {
+  padding: 0 32px 24px;
+}
+
+.utilisationToggleBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #374151;
+  border-radius: 8px;
+  color: $text-primary;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.utilisationToggleIcon {
+  transition: transform 0.2s;
+}
+
+.utilisationToggleIconExpanded {
+  transform: rotate(90deg);
+}
+
+.utilisationAllSkusTableWrap {
+  margin-top: 16px;
+  overflow-x: auto;
+}
+
+.utilisationPctRed {
+  color: $color-critical;
+  font-weight: 600;
+}
+
+.utilisationPctAmber {
+  color: $color-warning;
+  font-weight: 600;
+}
+
+.utilisationPctGreen {
+  color: $color-healthy;
+  font-weight: 600;
+}
+
+.utilisationPctGrey {
+  color: $text-muted;
+  font-weight: 600;
+}
+
+.utilisationAvailableNeg {
+  color: $color-critical;
+}
+
+.utilisationAvailableNormal {
+  color: $text-muted;
+}
+
+.utilisationSkuTitle {
+  font-weight: 500;
+}
+
+.utilisationSkuPart {
+  font-size: 11px;
+  color: $text-muted;
 }
 
 // Print styles

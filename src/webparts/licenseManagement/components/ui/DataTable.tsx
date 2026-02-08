@@ -59,8 +59,13 @@ const DataTable: React.FC<IDataTableProps> = ({
 
   const handleSort = (field: string): void => {
     if (!onSort) return;
-    const newDirection = sortField === field && sortDirection === 'asc' ? 'desc' : 'asc';
-    onSort(field, newDirection);
+    if (sortField !== field) {
+      onSort(field, 'asc');
+    } else if (sortDirection === 'asc') {
+      onSort(field, 'desc');
+    } else {
+      onSort('', 'asc'); // Clear sort
+    }
   };
 
   const getSortIcon = (field: string): string => {

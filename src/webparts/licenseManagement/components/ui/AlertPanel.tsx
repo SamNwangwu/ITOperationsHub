@@ -21,7 +21,9 @@ const AlertPanel: React.FC<IAlertPanelProps> = ({
   onDismiss,
   compact = false
 }) => {
-  const visibleAlerts = alerts.slice(0, maxVisible);
+  const [expanded, setExpanded] = React.useState(false);
+
+  const displayAlerts = expanded ? alerts : alerts.slice(0, maxVisible);
   const hiddenCount = alerts.length - maxVisible;
 
   const getSeverityIcon = (severity: AlertSeverity): React.ReactElement => {
@@ -103,7 +105,7 @@ const AlertPanel: React.FC<IAlertPanelProps> = ({
       flexDirection: 'column',
       gap: compact ? '8px' : '12px'
     }}>
-      {visibleAlerts.map(alert => (
+      {displayAlerts.map(alert => (
         <div
           key={alert.id}
           onClick={() => onAlertClick?.(alert)}
@@ -197,14 +199,27 @@ const AlertPanel: React.FC<IAlertPanelProps> = ({
         </div>
       ))}
       {hiddenCount > 0 && (
-        <div style={{
-          padding: '8px 16px',
-          textAlign: 'center',
-          fontSize: '12px',
-          color: '#6B7280'
-        }}>
-          +{hiddenCount} more alert{hiddenCount > 1 ? 's' : ''}
-        </div>
+        <button
+          onClick={() => setExpanded(!expanded)}
+          style={{
+            padding: '8px 16px',
+            textAlign: 'center',
+            fontSize: '12px',
+            color: '#00A4E4',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            fontWeight: 500,
+            transition: 'color 0.2s'
+          }}
+          onMouseEnter={(e) => { (e.target as HTMLElement).style.color = '#fff'; }}
+          onMouseLeave={(e) => { (e.target as HTMLElement).style.color = '#00A4E4'; }}
+        >
+          {expanded
+            ? 'Show less'
+            : `+${hiddenCount} more alert${hiddenCount > 1 ? 's' : ''}`
+          }
+        </button>
       )}
     </div>
   );

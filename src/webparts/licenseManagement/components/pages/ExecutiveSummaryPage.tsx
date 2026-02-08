@@ -18,13 +18,9 @@ export interface IExecutiveSummaryPageProps {
   monthComparison?: IMonthComparisonData | null;
   issueCategories?: IIssueCategory[];
   downgradeSummaries?: IDowngradeSummary[];
-  onNavigate?: (tab: string) => void;
+  onNavigate?: (tab: string, filter?: string) => void;
 }
 
-/**
- * Executive Summary Page V3 - Command Center Design
- * Redesigned for actionable intelligence
- */
 const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
   data,
   kpi,
@@ -50,7 +46,7 @@ const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
 
   // Prepare chart data - paid SKUs only, sorted by spend
   const spendByTypeData: ISpendByTypeData[] = data.skus
-    .filter(sku => !classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased).isExcludedFromAggregates)
+    .filter(sku => !classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased, sku.Assigned).isExcludedFromAggregates)
     .map((sku, index) => {
       const pricing = findPricing(sku.Title, sku.SkuPartNumber);
       const monthlySpend = pricing ? sku.Assigned * pricing.MonthlyCostPerUser : 0;
@@ -90,7 +86,12 @@ const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
 
   const handleActionClick = (actionType: string, actionData: unknown) => {
     if (onNavigate) {
-      onNavigate('issues');
+      if (actionType === 'issue') {
+        const issue = actionData as IIssueCategory;
+        onNavigate('issues', issue.type);
+      } else {
+        onNavigate('issues');
+      }
     }
   };
 
@@ -98,63 +99,33 @@ const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
     <div className={styles.pageContent}>
       {/* Hero Savings Banner */}
       {kpi.potentialAnnualSavings > 0 && (
-        <div style={{
-          margin: '0 32px 24px',
-          padding: '20px 28px',
-          background: 'linear-gradient(135deg, rgba(228, 0, 125, 0.2) 0%, rgba(0, 40, 158, 0.2) 100%)',
-          border: '1px solid rgba(228, 0, 125, 0.4)',
-          borderRadius: '12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '24px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '12px',
-              background: 'rgba(228, 0, 125, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <span style={{ fontSize: '28px', fontWeight: 700, color: '#fff' }}>{'\u00A3'}</span>
+        <div className={styles.summaryHeroBanner}>
+          <div className={styles.summaryHeroLeft}>
+            <div className={styles.summaryHeroIcon}>
+              {'\u00A3'}
             </div>
             <div>
-              <div style={{ fontSize: '11px', color: '#E4007D', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
+              <div className={styles.summaryHeroLabel}>
                 Potential Annual Savings
               </div>
-              <div style={{ fontSize: '32px', fontWeight: 700, color: '#fff' }}>
+              <div className={styles.summaryHeroValue}>
                 {'\u00A3'}{kpi.potentialAnnualSavings.toLocaleString()}
               </div>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#fff' }}>{kpi.issuesCount}</div>
-              <div style={{ fontSize: '11px', color: '#9CA3AF' }}>Issues to resolve</div>
+          <div className={styles.summaryHeroRight}>
+            <div className={styles.summaryHeroStat}>
+              <div className={styles.summaryHeroStatValue}>{kpi.issuesCount}</div>
+              <div className={styles.summaryHeroStatLabel}>Issues to resolve</div>
             </div>
-            <div style={{ width: '1px', height: '40px', background: 'rgba(255,255,255,0.2)' }} />
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#fff' }}>{kpi.overallUtilisationPct}%</div>
-              <div style={{ fontSize: '11px', color: '#9CA3AF' }}>Utilisation</div>
+            <div className={styles.summaryHeroDivider} />
+            <div className={styles.summaryHeroStat}>
+              <div className={styles.summaryHeroStatValue}>{kpi.overallUtilisationPct}%</div>
+              <div className={styles.summaryHeroStatLabel}>Utilisation</div>
             </div>
             <button
               onClick={() => onNavigate?.('issues')}
-              style={{
-                padding: '12px 24px',
-                background: '#E4007D',
-                border: 'none',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}
+              className={styles.summaryHeroBtn}
             >
               View Opportunities
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -171,7 +142,7 @@ const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
         <KpiCard
           title="Licensed Users"
           value={kpi.totalLicensedUsers.toLocaleString()}
-          color="purple"
+          color="blue"
           subtitle={`${kpi.activeUsersPct}% active`}
         />
         <KpiCard
@@ -196,59 +167,27 @@ const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
 
       {/* Data Timestamp */}
       {extractDate && (
-        <div style={{
-          padding: '8px 32px',
-          fontSize: '12px',
-          color: isDataStale ? '#F59E0B' : '#6B7280',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          <span style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: isDataStale ? '#F59E0B' : '#10B981'
-          }} />
+        <div className={`${styles.summaryTimestamp} ${isDataStale ? styles.summaryTimestampStale : styles.summaryTimestampFresh}`}>
+          <span className={`${styles.summaryTimestampDot} ${isDataStale ? styles.summaryTimestampDotStale : styles.summaryTimestampDotFresh}`} />
           Data extracted: {extractDate}
-          {isDataStale && <span style={{ marginLeft: '8px' }}> - Data may be outdated</span>}
+          {isDataStale && <span> - Data may be outdated</span>}
         </div>
       )}
 
       {/* Two Column Layout: Alerts + Actions | Charts + Insights */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '24px',
-        padding: '0 32px 24px'
-      }}>
+      <div className={styles.summaryTwoCol}>
         {/* Left Column: Alerts & Action Center */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className={styles.summaryColumn}>
           {/* Alerts Panel */}
           {alerts.length > 0 && (
             <div>
-              <div style={{
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#fff',
-                marginBottom: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
+              <div className={styles.summarySubheading}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                   <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                 </svg>
                 Alerts
-                <span style={{
-                  padding: '2px 8px',
-                  background: criticalAlerts > 0 ? '#EF4444' : '#F59E0B',
-                  borderRadius: '10px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  color: '#fff'
-                }}>
+                <span className={`${styles.summaryAlertBadge} ${criticalAlerts > 0 ? styles.summaryAlertBadgeCritical : styles.summaryAlertBadgeWarning}`}>
                   {alerts.length}
                 </span>
               </div>
@@ -263,15 +202,7 @@ const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
 
           {/* Action Center */}
           <div>
-            <div style={{
-              fontSize: '14px',
-              fontWeight: 600,
-              color: '#fff',
-              marginBottom: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
+            <div className={styles.summarySubheading}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E4007D" strokeWidth="2">
                 <polyline points="9 11 12 14 22 4"/>
                 <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
@@ -287,7 +218,7 @@ const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
         </div>
 
         {/* Right Column: Charts & Comparison */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className={styles.summaryColumn}>
           {/* Spend by Type */}
           <SpendByTypeChart data={spendByTypeData} />
 
@@ -297,15 +228,8 @@ const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
           ) : trendData.length > 0 ? (
             <SpendTrendChart data={trendData} showUsers={true} />
           ) : (
-            <div style={{
-              background: '#111827',
-              border: '1px solid #1F2937',
-              borderRadius: '12px',
-              padding: '20px',
-              textAlign: 'center',
-              color: '#6B7280'
-            }}>
-              <div style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 600, color: '#fff' }}>
+            <div className={styles.summaryTrendPlaceholder}>
+              <div className={styles.summaryTrendTitle}>
                 Monthly Trend
               </div>
               Trend data will appear after multiple extraction runs.

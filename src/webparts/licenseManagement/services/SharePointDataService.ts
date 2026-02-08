@@ -201,7 +201,7 @@ export class SharePointDataService {
 
     // Filter to paid SKUs only for aggregate KPIs (excludes viral/free with inflated counts)
     const paidSkus = skus.filter(s =>
-      !classifySkuWithPurchased(s.SkuPartNumber, s.Purchased).isExcludedFromAggregates
+      !classifySkuWithPurchased(s.SkuPartNumber, s.Purchased, s.Assigned).isExcludedFromAggregates
     );
 
     // Licence counts (paid SKUs only)
@@ -404,7 +404,7 @@ export class SharePointDataService {
     const grouped = new Map<SkuTier, (ILicenceSku & { classification: ISkuClassification })[]>();
 
     skus.forEach(sku => {
-      const classification = classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased);
+      const classification = classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased, sku.Assigned);
       const tier = classification.tier;
       if (!grouped.has(tier)) grouped.set(tier, []);
       grouped.get(tier)!.push({ ...sku, classification });
@@ -426,7 +426,7 @@ export class SharePointDataService {
     const paidSkus = skus
       .map(sku => ({
         ...sku,
-        classification: classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased)
+        classification: classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased, sku.Assigned)
       }))
       .filter(s => !s.classification.isExcludedFromAggregates);
 
@@ -444,7 +444,7 @@ export class SharePointDataService {
     return skus
       .map(sku => ({
         ...sku,
-        classification: classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased)
+        classification: classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased, sku.Assigned)
       }))
       .filter(s => !s.classification.isExcludedFromAggregates);
   }
@@ -456,9 +456,9 @@ export class SharePointDataService {
     return skus
       .map(sku => ({
         ...sku,
-        classification: classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased)
+        classification: classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased, sku.Assigned)
       }))
-      .filter(s => s.classification.tier === 'core-paid');
+      .filter(s => s.classification.isCoreUserLicence);
   }
 }
 

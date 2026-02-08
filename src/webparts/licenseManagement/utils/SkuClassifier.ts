@@ -10,6 +10,7 @@ export interface ISkuClassification {
   tier: SkuTier;
   friendlyName: string;
   isExcludedFromAggregates: boolean;
+  isCoreUserLicence: boolean;
 }
 
 /**
@@ -92,6 +93,43 @@ const SKU_FRIENDLY_NAMES: Record<string, string> = {
 };
 
 /**
+ * SkuPartNumbers that should always be excluded from aggregate KPIs.
+ * These are capacity SKUs, suite components, sandbox allocations, or
+ * auto-provisioned SKUs that inflate totals.
+ */
+const ALWAYS_EXCLUDED_SKUS: string[] = [
+  'INTUNE_A',                  // Intune Plan 1 - 10,000 seat viral allocation
+  'MICROSOFT_BUSINESS_CENTER', // 10,000 seat allocation
+  'CDS_FILE_CAPACITY',         // Capacity SKU, not a user licence
+  'M365_E5_SUITE_COMPONENTS',  // Suite component, auto-provisioned with E5
+  'ADALLOM_STANDALONE',        // Cloud App Security, auto-provisioned
+  'DYN365_ENTERPRISE_P1',      // Dynamics sandbox with very low assignment
+  'DYN365_ENTERPRISE_PLAN1',   // Dynamics sandbox variant
+];
+
+/**
+ * Core user licence SKU patterns - exact SkuPartNumber matches.
+ * Only these appear as gauges in the Core Licence Utilisation section.
+ */
+const CORE_USER_SKU_PATTERNS: string[] = [
+  // M365 E5
+  'SPE_E5', 'ENTERPRISEPREMIUM', 'ENTERPRISEPREMIUM_NOPSTNCONF',
+  // M365 E3
+  'SPE_E3', 'ENTERPRISEPACK', 'ENTERPRISEPACKWITHOUTPROPLUS',
+  // Office 365 E4
+  'ENTERPRISEWITHSCAL',
+  // M365 F1/F3
+  'SPE_F1', 'M365_F1_COMM', 'DESKLESSPACK',
+  // Business plans
+  'SPB', 'O365_BUSINESS_ESSENTIALS', 'O365_BUSINESS_PREMIUM',
+  'SMB_BUSINESS',
+  // Apps for Enterprise/Business
+  'OFFICESUBSCRIPTION', 'O365_BUSINESS',
+  // EMS E3/E5
+  'EMSPREMIUM', 'EMS',
+];
+
+/**
  * Patterns that identify viral/free SKUs.
  * A SKU matching any of these patterns (case-insensitive) is excluded from aggregates.
  */
@@ -123,7 +161,21 @@ const ADDON_PATTERNS: string[] = [
 export function classifySku(skuPartNumber: string): ISkuClassification {
   const upperSku = skuPartNumber.toUpperCase();
 
-  // Check viral/free first
+  // Check always-excluded list first (capacity, suite components, sandbox)
+  const isAlwaysExcluded = ALWAYS_EXCLUDED_SKUS.some(s =>
+    s.toUpperCase() === upperSku
+  );
+
+  if (isAlwaysExcluded) {
+    return {
+      tier: 'add-on',
+      friendlyName: SKU_FRIENDLY_NAMES[skuPartNumber] || skuPartNumber,
+      isExcludedFromAggregates: true,
+      isCoreUserLicence: false,
+    };
+  }
+
+  // Check viral/free patterns
   const isViralFree = VIRAL_FREE_PATTERNS.some(p =>
     upperSku.includes(p.toUpperCase())
   );
@@ -133,16 +185,23 @@ export function classifySku(skuPartNumber: string): ISkuClassification {
       tier: upperSku.includes('VIRAL') || upperSku.includes('TRIAL') ? 'viral' : 'free',
       friendlyName: SKU_FRIENDLY_NAMES[skuPartNumber] || skuPartNumber,
       isExcludedFromAggregates: true,
+      isCoreUserLicence: false,
     };
   }
 
   // Check add-ons (not core suites)
   const isAddon = ADDON_PATTERNS.some(p => upperSku.includes(p));
 
+  // Check if this is a core user licence (exact match against whitelist)
+  const isCoreUser = CORE_USER_SKU_PATTERNS.some(p =>
+    p.toUpperCase() === upperSku
+  );
+
   return {
     tier: isAddon ? 'add-on' : 'core-paid',
     friendlyName: SKU_FRIENDLY_NAMES[skuPartNumber] || skuPartNumber,
     isExcludedFromAggregates: false,
+    isCoreUserLicence: isCoreUser,
   };
 }
 
@@ -153,12 +212,20 @@ export function classifySku(skuPartNumber: string): ISkuClassification {
  * @param purchased The purchased/enabled count from the SKU
  * @returns Classification with fallback for absurdly high purchased counts
  */
-export function classifySkuWithPurchased(skuPartNumber: string, purchased: number): ISkuClassification {
+export function classifySkuWithPurchased(skuPartNumber: string, purchased: number, assigned?: number): ISkuClassification {
   const result = classifySku(skuPartNumber);
 
-  // If the pattern-based check didn't catch it, but purchased is absurdly high, it's viral/free
-  if (!result.isExcludedFromAggregates && purchased >= 100000) {
-    return { ...result, tier: 'viral', isExcludedFromAggregates: true };
+  // If the pattern-based check didn't catch it, apply purchased-count heuristics
+  if (!result.isExcludedFromAggregates) {
+    // Heuristic 1: Absurdly high purchased count (100k+) = viral/free
+    if (purchased >= 100000) {
+      return { ...result, tier: 'viral', isExcludedFromAggregates: true, isCoreUserLicence: false };
+    }
+
+    // Heuristic 2: High purchased (500+) with very low assignment ratio (<5%) = viral allocation
+    if (purchased >= 500 && assigned !== undefined && purchased > 0 && (assigned / purchased) < 0.05) {
+      return { ...result, tier: 'viral', isExcludedFromAggregates: true, isCoreUserLicence: false };
+    }
   }
 
   return result;

@@ -39,7 +39,7 @@ const UserDetailPage: React.FC<IUserDetailPageProps> = ({
       price = pricing.find(p => p.Title === friendlyName);
     }
     const classification = sku
-      ? classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased)
+      ? classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased, sku.Assigned)
       : null;
     return {
       name: licenceName,

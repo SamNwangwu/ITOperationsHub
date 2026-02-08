@@ -1,4 +1,4 @@
-import * as React from 'react';
+﻿import * as React from 'react';
 import styles from './LicenseManagement.module.scss';
 import { ILicenseManagementProps } from './ILicenseManagementProps';
 import { SharePointDataService } from '../services/SharePointDataService';
@@ -20,13 +20,12 @@ import {
   IFeatureUsageStats
 } from '../models/ILicenceData';
 import { KpiCard, IssueCard, DataTable, IDataTableColumn } from './ui';
-import { ExecutiveSummaryPage, CostAnalysisPage, UserDetailPage } from './pages';
+import { ExecutiveSummaryPage, CostAnalysisPage, UserDetailPage, UtilisationPage } from './pages';
 import UsageAnalysisPage from './pages/UsageAnalysisPage';
-import { UtilisationGauge } from './charts';
-import { getTierLabel, getTierColour, classifySkuWithPurchased } from '../utils/SkuClassifier';
 
 type TabType = 'summary' | 'costs' | 'utilisation' | 'issues' | 'users' | 'usage';
 type IssueFilterType = 'all' | 'Disabled' | 'Dual-Licensed' | 'Inactive 90+' | 'Service Account';
+type IssueType = Exclude<IssueFilterType, 'all'>;
 
 interface ILicenseManagementState {
   data: ILicenceDashboardData | null;
@@ -38,14 +37,15 @@ interface ILicenseManagementState {
   extractDate: string;
   isDataStale: boolean;
   activeTab: TabType;
-  issueFilter: IssueFilterType;
+  issueFilters: IssueFilterType[];
   searchText: string;
   selectedUserIds: Set<number>;
   sortField: string;
   sortDirection: 'asc' | 'desc';
   selectedUser: ILicenceUser | null;
-  allSkusExpanded: boolean;
   departmentFilter: string;
+  usersLicenceFilter: string;
+  usersIssueFilters: IssueFilterType[];
   // V3 State
   alerts: IAlert[];
   monthComparison: IMonthComparisonData | null;
@@ -97,14 +97,15 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       extractDate: '-',
       isDataStale: false,
       activeTab: 'summary',
-      issueFilter: 'all',
+      issueFilters: ['all'],
       searchText: '',
       selectedUserIds: new Set(),
       sortField: 'Title',
       sortDirection: 'asc',
       selectedUser: null,
-      allSkusExpanded: false,
       departmentFilter: 'all',
+      usersLicenceFilter: 'all',
+      usersIssueFilters: ['all'],
       // V3 State
       alerts: [],
       monthComparison: null,
@@ -240,8 +241,36 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
     }
   }
 
-  private onIssueFilterChange = (filter: IssueFilterType): void => {
-    this.setState({ issueFilter: filter, selectedUserIds: new Set() });
+  private toggleIssueFilter = (filter: IssueFilterType): void => {
+    this.setState(prev => {
+      if (filter === 'all') {
+        return { issueFilters: ['all'] as IssueFilterType[], selectedUserIds: new Set<number>() };
+      }
+      const withoutAll = prev.issueFilters.filter(f => f !== 'all');
+      const idx = withoutAll.indexOf(filter);
+      let next: IssueFilterType[];
+      if (idx >= 0) {
+        next = withoutAll.filter(f => f !== filter);
+        if (next.length === 0) next = ['all'];
+      } else {
+        next = [...withoutAll, filter];
+      }
+      return { issueFilters: next, selectedUserIds: new Set<number>() };
+    });
+  }
+
+  private navigateWithFilter = (tab: string, filter?: string): void => {
+    const issueFilters: IssueFilterType[] = filter
+      ? [filter as IssueFilterType]
+      : ['all'];
+    this.setState({
+      activeTab: tab as TabType,
+      issueFilters,
+      selectedUser: null
+    });
+    if (tab === 'usage') {
+      void this.loadUsageData();
+    }
   }
 
   private onSearchChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -264,39 +293,64 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
     this.setState({ selectedUser: null });
   }
 
-  private onToggleAllSkus = (): void => {
-    this.setState(prev => ({ allSkusExpanded: !prev.allSkusExpanded }));
-  }
-
   private onDepartmentFilterChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
     this.setState({ departmentFilter: e.target.value });
   }
 
+  private onUsersLicenceFilterChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+    this.setState({ usersLicenceFilter: e.target.value });
+  }
+
+  private toggleUsersIssueFilter = (filter: IssueFilterType): void => {
+    this.setState(prev => {
+      if (filter === 'all') {
+        return { usersIssueFilters: ['all'] as IssueFilterType[] };
+      }
+      const withoutAll = prev.usersIssueFilters.filter(f => f !== 'all');
+      const idx = withoutAll.indexOf(filter);
+      let next: IssueFilterType[];
+      if (idx >= 0) {
+        next = withoutAll.filter(f => f !== filter);
+        if (next.length === 0) next = ['all'];
+      } else {
+        next = [...withoutAll, filter];
+      }
+      return { usersIssueFilters: next };
+    });
+  }
+
   private getFilteredUsers(): ILicenceUser[] {
-    const { data, issueFilter, searchText, sortField, sortDirection } = this.state;
+    const { data, issueFilters, searchText, sortField, sortDirection } = this.state;
     if (!data) return [];
 
     let filtered = this.dataService.filterUsers(
       data.users,
       searchText,
       undefined,
-      issueFilter === 'all' ? undefined : issueFilter
+      undefined
     );
 
-    // Sort
-    filtered = [...filtered].sort((a, b) => {
-      const aVal = (a as unknown as Record<string, unknown>)[sortField] || '';
-      const bVal = (b as unknown as Record<string, unknown>)[sortField] || '';
+    // Apply multi-select issue filters
+    if (issueFilters.indexOf('all') < 0 && issueFilters.length > 0) {
+      filtered = filtered.filter(u => issueFilters.indexOf(u.IssueType as IssueFilterType) >= 0);
+    }
 
-      if (typeof aVal === 'string' && typeof bVal === 'string') {
-        const result = aVal.toLowerCase().localeCompare(bVal.toLowerCase());
-        return sortDirection === 'asc' ? result : -result;
-      }
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
-      }
-      return 0;
-    });
+    // Sort (only if a sort field is active)
+    if (sortField) {
+      filtered = [...filtered].sort((a, b) => {
+        const aVal = (a as unknown as Record<string, unknown>)[sortField] || '';
+        const bVal = (b as unknown as Record<string, unknown>)[sortField] || '';
+
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+          const result = aVal.toLowerCase().localeCompare(bVal.toLowerCase());
+          return sortDirection === 'asc' ? result : -result;
+        }
+        if (typeof aVal === 'number' && typeof bVal === 'number') {
+          return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+        }
+        return 0;
+      });
+    }
 
     return filtered;
   }
@@ -357,14 +411,6 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
             <span className={`${styles.syncDot} ${isDataStale ? styles.syncDotStale : ''}`}></span>
             Last extract: {extractDate}
           </span>
-          <button className={styles.btn} onClick={this.exportToCSV}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Export
-          </button>
         </div>
       </div>
     );
@@ -415,7 +461,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
         monthComparison={monthComparison}
         issueCategories={issueCategories}
         downgradeSummaries={downgradeSummaries}
-        onNavigate={(tab) => this.onTabChange(tab as TabType)}
+        onNavigate={(tab, filter) => this.navigateWithFilter(tab, filter)}
       />
     );
   }
@@ -430,368 +476,27 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
   }
 
   private renderUtilisationTab(): React.ReactElement {
-    const { data, kpi, allSkusExpanded } = this.state;
+    const { data, kpi } = this.state;
     if (!data || !kpi) return <></>;
 
-    // Get categorised SKUs
     const attentionSkus = this.dataService.getAttentionSkus(data.skus);
     const corePaidSkus = this.dataService.getCorePaidSkus(data.skus);
     const paidSkus = this.dataService.getPaidSkus(data.skus);
 
-    // All SKUs classified (for collapsible table - includes viral/free dimmed)
-    const allSkusClassified = data.skus.map(sku => ({
-      ...sku,
-      classification: classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased)
-    }));
-
-    const hasAttentionItems =
-      attentionSkus.overAllocated.length > 0 ||
-      attentionSkus.nearCapacity.length > 0 ||
-      attentionSkus.underUtilised.length > 0;
-
     return (
-      <div className={styles.pageContent}>
-        {/* Page Header */}
-        <div className={styles.pageHeader}>
-          <div className={styles.pageTitle}>Utilisation & Adoption</div>
-          <div className={styles.pageSubtitle}>
-            Licence utilisation across SKUs and user adoption metrics
-          </div>
-        </div>
-
-        {/* KPI Cards */}
-        <div className={styles.kpiGrid}>
-          <KpiCard
-            title="Overall Utilisation"
-            value={`${kpi.overallUtilisationPct}%`}
-            color={kpi.overallUtilisationPct >= 80 ? 'green' : 'orange'}
-            subtitle="Across paid SKUs"
-          />
-          <KpiCard
-            title="Active Users"
-            value={`${kpi.activeUsersPct}%`}
-            color={kpi.activeUsersPct >= 80 ? 'green' : 'orange'}
-            subtitle={`${kpi.activeUsersCount} of ${kpi.totalLicensedUsers}`}
-          />
-          <KpiCard
-            title="Inactive 90+ Days"
-            value={kpi.inactiveCount.toString()}
-            color={kpi.inactiveCount > 0 ? 'orange' : 'green'}
-            subtitle="Potential optimisation"
-          />
-          <KpiCard
-            title="Available Licences"
-            value={(kpi.totalPurchasedLicences - kpi.totalAssignedLicences).toString()}
-            color="blue"
-            subtitle="Unassigned capacity"
-          />
-        </div>
-
-        {/* Section 1: Attention Required Table */}
-        {hasAttentionItems && (
-          <>
-            <div className={styles.sectionHeader} style={{ padding: '0 32px', marginBottom: '16px' }}>
-              <div className={styles.sectionTitle}>Attention Required</div>
-            </div>
-            <div style={{ padding: '0 32px 24px' }}>
-              <table className={styles.dataTable} style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>SKU</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Tier</th>
-                    <th style={{ textAlign: 'right', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Assigned</th>
-                    <th style={{ textAlign: 'right', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Purchased</th>
-                    <th style={{ textAlign: 'right', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Utilisation</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {attentionSkus.overAllocated.map((sku, index) => (
-                    <tr key={`over-${sku.Id}`} style={{
-                      background: index % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)'
-                    }}>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', fontWeight: 500 }}>
-                        {sku.Title}
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
-                        <span style={{
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          background: getTierColour(sku.classification.tier),
-                          color: '#fff'
-                        }}>
-                          {getTierLabel(sku.classification.tier)}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
-                        {sku.Assigned.toLocaleString()}
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
-                        {sku.Purchased.toLocaleString()}
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right', color: '#EF4444', fontWeight: 600 }}>
-                        {sku.UtilisationPct}%
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
-                        <span style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          padding: '4px 10px',
-                          borderRadius: '6px',
-                          background: 'rgba(239, 68, 68, 0.15)',
-                          color: '#EF4444',
-                          fontSize: '12px',
-                          fontWeight: 500
-                        }}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                          </svg>
-                          Over-allocated (+{sku.Assigned - sku.Purchased})
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                  {attentionSkus.nearCapacity.map((sku, index) => (
-                    <tr key={`near-${sku.Id}`} style={{
-                      background: (attentionSkus.overAllocated.length + index) % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)'
-                    }}>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', fontWeight: 500 }}>
-                        {sku.Title}
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
-                        <span style={{
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          background: getTierColour(sku.classification.tier),
-                          color: '#fff'
-                        }}>
-                          {getTierLabel(sku.classification.tier)}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
-                        {sku.Assigned.toLocaleString()}
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
-                        {sku.Purchased.toLocaleString()}
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right', color: '#F59E0B', fontWeight: 600 }}>
-                        {sku.UtilisationPct}%
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
-                        <span style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          padding: '4px 10px',
-                          borderRadius: '6px',
-                          background: 'rgba(245, 158, 11, 0.15)',
-                          color: '#F59E0B',
-                          fontSize: '12px',
-                          fontWeight: 500
-                        }}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="12" y1="8" x2="12" y2="12"/>
-                            <line x1="12" y1="16" x2="12.01" y2="16"/>
-                          </svg>
-                          Near capacity ({sku.Purchased - sku.Assigned} left)
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                  {attentionSkus.underUtilised.map((sku, index) => (
-                    <tr key={`under-${sku.Id}`} style={{
-                      background: (attentionSkus.overAllocated.length + attentionSkus.nearCapacity.length + index) % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)'
-                    }}>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', fontWeight: 500 }}>
-                        {sku.Title}
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
-                        <span style={{
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          background: getTierColour(sku.classification.tier),
-                          color: '#fff'
-                        }}>
-                          {getTierLabel(sku.classification.tier)}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
-                        {sku.Assigned.toLocaleString()}
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
-                        {sku.Purchased.toLocaleString()}
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right', color: '#6B7280', fontWeight: 600 }}>
-                        {sku.UtilisationPct}%
-                      </td>
-                      <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
-                        <span style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          padding: '4px 10px',
-                          borderRadius: '6px',
-                          background: 'rgba(107, 114, 128, 0.15)',
-                          color: '#9CA3AF',
-                          fontSize: '12px',
-                          fontWeight: 500
-                        }}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                          </svg>
-                          Under-utilised ({sku.Purchased - sku.Assigned} unused)
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-
-        {/* Section 2: Core Paid Licence Gauges */}
-        <div className={styles.sectionHeader} style={{ padding: '0 32px', marginBottom: '16px' }}>
-          <div className={styles.sectionTitle}>Core Licence Utilisation</div>
-        </div>
-        {corePaidSkus.length > 0 ? (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: '16px',
-            padding: '0 32px 24px'
-          }}>
-            {corePaidSkus.map(sku => (
-              <UtilisationGauge
-                key={sku.Id}
-                value={sku.UtilisationPct}
-                title={sku.Title}
-                subtitle={`${sku.Assigned.toLocaleString()} of ${sku.Purchased.toLocaleString()}`}
-              />
-            ))}
-          </div>
-        ) : (
-          <div style={{
-            padding: '24px 32px',
-            color: '#6B7280',
-            fontSize: '14px',
-            textAlign: 'center'
-          }}>
-            No core paid SKUs found in the licence data.
-          </div>
-        )}
-
-        {/* Section 3: Collapsible All Licences Table */}
-        <div style={{ padding: '0 32px 24px' }}>
-          <button
-            onClick={this.onToggleAllSkus}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              width: '100%',
-              padding: '12px 16px',
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid #374151',
-              borderRadius: '8px',
-              color: '#fff',
-              fontSize: '14px',
-              fontWeight: 500,
-              cursor: 'pointer',
-              textAlign: 'left'
-            }}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              style={{
-                transform: allSkusExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                transition: 'transform 0.2s'
-              }}
-            >
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
-            All Licences ({allSkusClassified.length} total - {paidSkus.length} paid)
-          </button>
-
-          {allSkusExpanded && (
-            <div style={{ marginTop: '16px', overflowX: 'auto' }}>
-              <table className={styles.dataTable} style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>SKU</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Tier</th>
-                    <th style={{ textAlign: 'right', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Assigned</th>
-                    <th style={{ textAlign: 'right', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Purchased</th>
-                    <th style={{ textAlign: 'right', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Available</th>
-                    <th style={{ textAlign: 'right', padding: '12px 16px', borderBottom: '1px solid #374151', color: '#9CA3AF' }}>Utilisation</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allSkusClassified.map((sku, index) => {
-                    const available = sku.Purchased - sku.Assigned;
-                    let utilisationColor = '#10B981'; // green
-                    if (sku.UtilisationPct >= 100) utilisationColor = '#EF4444'; // red
-                    else if (sku.UtilisationPct >= 90) utilisationColor = '#F59E0B'; // amber
-                    else if (sku.UtilisationPct < 50) utilisationColor = '#6B7280'; // grey
-
-                    return (
-                      <tr key={sku.Id} style={{
-                        background: index % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)',
-                        opacity: sku.classification.isExcludedFromAggregates ? 0.5 : 1
-                      }}>
-                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
-                          <div style={{ fontWeight: 500 }}>{sku.Title}</div>
-                          <div style={{ fontSize: '11px', color: '#6B7280' }}>{sku.SkuPartNumber}</div>
-                        </td>
-                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937' }}>
-                          <span style={{
-                            padding: '2px 8px',
-                            borderRadius: '4px',
-                            fontSize: '11px',
-                            background: getTierColour(sku.classification.tier),
-                            color: '#fff'
-                          }}>
-                            {getTierLabel(sku.classification.tier)}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
-                          {sku.Assigned.toLocaleString()}
-                        </td>
-                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
-                          {sku.Purchased.toLocaleString()}
-                        </td>
-                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right', color: available < 0 ? '#EF4444' : '#9CA3AF' }}>
-                          {available.toLocaleString()}
-                        </td>
-                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #1F2937', textAlign: 'right' }}>
-                          <span style={{ color: utilisationColor, fontWeight: 600 }}>
-                            {sku.UtilisationPct}%
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
+      <UtilisationPage
+        kpi={kpi}
+        attentionSkus={attentionSkus}
+        corePaidSkus={corePaidSkus}
+        paidSkus={paidSkus}
+        allSkus={data.skus}
+      />
     );
   }
 
+
   private renderIssuesTab(): React.ReactElement {
-    const { data, issueCategories, issueFilter, kpi } = this.state;
+    const { issueCategories, issueFilters } = this.state;
     const filteredUsers = this.getFilteredUsers();
 
     const columns: IDataTableColumn[] = [
@@ -805,6 +510,10 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
 
     const totalIssues = issueCategories.reduce((sum, c) => sum + c.count, 0);
     const totalSavings = issueCategories.reduce((sum, c) => sum + c.potentialSavings, 0);
+
+    const filterLabel = issueFilters.indexOf('all') >= 0
+      ? 'All Users'
+      : issueFilters.join(', ');
 
     return (
       <div className={styles.pageContent}>
@@ -843,19 +552,19 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
             </div>
             <div style={{ flex: 1 }} />
             <div style={{ fontSize: '13px', color: '#9CA3AF', maxWidth: '300px' }}>
-              Click a category below to filter the user list and review accounts for remediation.
+              Click categories below to filter. Multiple selections supported.
             </div>
           </div>
         )}
 
-        {/* Issue Category Cards */}
+        {/* Issue Category Cards - Multi-select */}
         <div className={styles.issuesGrid} style={{ padding: '0 32px 24px' }}>
           {issueCategories.map(issue => (
             <IssueCard
               key={issue.type}
               issue={issue}
-              isActive={issueFilter === issue.type}
-              onClick={() => this.onIssueFilterChange(issue.type)}
+              isActive={issueFilters.indexOf(issue.type) >= 0}
+              onClick={() => this.toggleIssueFilter(issue.type)}
             />
           ))}
         </div>
@@ -864,8 +573,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
         <div className={styles.tableSection}>
           <div className={styles.tableHeader}>
             <div className={styles.tableTitle}>
-              {issueFilter === 'all' ? 'All Users with Issues' : `${issueFilter} Users`}
-              {' '}({filteredUsers.length})
+              {filterLabel} ({filteredUsers.length})
             </div>
             <div className={styles.tableActions}>
               <input
@@ -875,17 +583,33 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
                 value={this.state.searchText}
                 onChange={this.onSearchChange}
               />
-              <select
-                className={styles.filterDropdown}
-                value={issueFilter}
-                onChange={(e) => this.onIssueFilterChange(e.target.value as IssueFilterType)}
-              >
-                <option value="all">All Issues</option>
-                <option value="Disabled">Disabled</option>
-                <option value="Dual-Licensed">Dual-Licensed</option>
-                <option value="Inactive 90+">Inactive 90+</option>
-                <option value="Service Account">Service Account</option>
-              </select>
+              {/* Multi-select filter chips */}
+              <div className={styles.filterChipGroup}>
+                {[
+                  { key: 'all' as IssueFilterType, label: 'All' },
+                  { key: 'Disabled' as IssueFilterType, label: 'Disabled' },
+                  { key: 'Dual-Licensed' as IssueFilterType, label: 'Dual-Licensed' },
+                  { key: 'Inactive 90+' as IssueFilterType, label: 'Inactive 90+' },
+                  { key: 'Service Account' as IssueFilterType, label: 'Service Acct' }
+                ].map(opt => (
+                  <button
+                    key={opt.key}
+                    onClick={() => this.toggleIssueFilter(opt.key)}
+                    className={`${styles.filterChip}${issueFilters.indexOf(opt.key) >= 0 ? ` ${styles.filterChipActive}` : ''}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              {/* Export button in table area */}
+              <button className={styles.btn} onClick={this.exportToCSV} style={{ marginLeft: '8px' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export
+              </button>
             </div>
           </div>
           <DataTable
@@ -905,19 +629,55 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
   }
 
   private renderUsersTab(): React.ReactElement {
-    const { data, departmentFilter } = this.state;
+    const { data, departmentFilter, usersLicenceFilter, usersIssueFilters, searchText, sortField, sortDirection } = this.state;
     if (!data) return <></>;
 
     // Get unique departments for filter dropdown
     const departments = this.dataService.getDepartments(data.users);
 
-    // Get all users filtered by search and department
-    const allUsers = this.dataService.filterUsers(
+    // Get all users with multi-filter support
+    let allUsers = this.dataService.filterUsers(
       data.users,
-      this.state.searchText,
+      searchText,
       departmentFilter === 'all' ? undefined : departmentFilter,
       undefined
     );
+
+    // Apply licence type filter
+    if (usersLicenceFilter !== 'all') {
+      switch (usersLicenceFilter) {
+        case 'E5':
+          allUsers = allUsers.filter(u => u.HasE5);
+          break;
+        case 'E3':
+          allUsers = allUsers.filter(u => u.HasE3 && !u.HasE5);
+          break;
+        case 'other':
+          allUsers = allUsers.filter(u => !u.HasE3 && !u.HasE5);
+          break;
+      }
+    }
+
+    // Apply issue type filter (multi-select)
+    if (usersIssueFilters.indexOf('all') < 0 && usersIssueFilters.length > 0) {
+      allUsers = allUsers.filter(u => usersIssueFilters.indexOf(u.IssueType as IssueFilterType) >= 0);
+    }
+
+    // Apply sorting (only if a sort field is active)
+    if (sortField) {
+      allUsers = [...allUsers].sort((a, b) => {
+        const aVal = (a as unknown as Record<string, unknown>)[sortField] || '';
+        const bVal = (b as unknown as Record<string, unknown>)[sortField] || '';
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+          const result = aVal.toLowerCase().localeCompare(bVal.toLowerCase());
+          return sortDirection === 'asc' ? result : -result;
+        }
+        if (typeof aVal === 'number' && typeof bVal === 'number') {
+          return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+        }
+        return 0;
+      });
+    }
 
     const columns: IDataTableColumn[] = [
       { key: 'user', header: 'User', sortable: true },
@@ -925,6 +685,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       { key: 'jobTitle', header: 'Job Title' },
       { key: 'licences', header: 'Licences' },
       { key: 'status', header: 'Status' },
+      { key: 'issueType', header: 'Issue Type' },
       { key: 'lastSignIn', header: 'Last Sign-In', sortable: true }
     ];
 
@@ -951,9 +712,10 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
                 type="text"
                 className={styles.searchBox}
                 placeholder="Search by name, email, or dept..."
-                value={this.state.searchText}
+                value={searchText}
                 onChange={this.onSearchChange}
               />
+              {/* Department filter */}
               <select
                 className={styles.filterDropdown}
                 value={departmentFilter}
@@ -967,18 +729,58 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
                   );
                 })}
               </select>
+              {/* Licence type filter */}
+              <select
+                className={styles.filterDropdown}
+                value={usersLicenceFilter}
+                onChange={this.onUsersLicenceFilterChange}
+              >
+                <option value="all">All Licences</option>
+                <option value="E5">E5 Only</option>
+                <option value="E3">E3 Only</option>
+                <option value="other">Other</option>
+              </select>
+              {/* Issue type filter chips */}
+              <div className={styles.filterChipGroup}>
+                {[
+                  { key: 'all' as IssueFilterType, label: 'All' },
+                  { key: 'Disabled' as IssueFilterType, label: 'Disabled' },
+                  { key: 'Dual-Licensed' as IssueFilterType, label: 'Dual' },
+                  { key: 'Inactive 90+' as IssueFilterType, label: 'Inactive' },
+                  { key: 'Service Account' as IssueFilterType, label: 'Svc Acct' }
+                ].map(opt => (
+                  <button
+                    key={opt.key}
+                    onClick={() => this.toggleUsersIssueFilter(opt.key)}
+                    className={`${styles.filterChip}${usersIssueFilters.indexOf(opt.key) >= 0 ? ` ${styles.filterChipActive}` : ''}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              {/* Export button in table area */}
+              <button className={styles.btn} onClick={this.exportToCSV} style={{ marginLeft: '8px' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export
+              </button>
             </div>
           </div>
-          <DataTable
-            users={allUsers}
-            columns={columns}
-            selectedIds={this.state.selectedUserIds}
-            onSelectionChange={this.onSelectionChange}
-            onSort={this.onSort}
-            sortField={this.state.sortField}
-            sortDirection={this.state.sortDirection}
-            onRowClick={this.onUserClick}
-          />
+          <div className={styles.scrollableTable}>
+            <DataTable
+              users={allUsers}
+              columns={columns}
+              selectedIds={this.state.selectedUserIds}
+              onSelectionChange={this.onSelectionChange}
+              onSort={this.onSort}
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onRowClick={this.onUserClick}
+            />
+          </div>
         </div>
       </div>
     );

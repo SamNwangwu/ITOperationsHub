@@ -39,7 +39,7 @@ const CostAnalysisPage: React.FC<ICostAnalysisPageProps> = ({
 
   // Prepare cost breakdown data - paid SKUs only with pricing
   const costBreakdown: ICostBreakdownRow[] = data.skus
-    .filter(sku => !classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased).isExcludedFromAggregates)
+    .filter(sku => !classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased, sku.Assigned).isExcludedFromAggregates)
     .map(sku => {
       const pricing = findPricing(sku.Title, sku.SkuPartNumber);
       if (!pricing) return null;
@@ -62,7 +62,7 @@ const CostAnalysisPage: React.FC<ICostAnalysisPageProps> = ({
 
   const skusWithPricing = costBreakdown.length;
   const totalSkus = data.skus.filter(s =>
-    !classifySkuWithPurchased(s.SkuPartNumber, s.Purchased).isExcludedFromAggregates
+    !classifySkuWithPurchased(s.SkuPartNumber, s.Purchased, s.Assigned).isExcludedFromAggregates
   ).length;
 
   // Prepare spend by type data for chart - top 5 + "Other"

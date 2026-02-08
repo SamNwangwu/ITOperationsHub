@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styles from '../LicenseManagement.module.scss';
-import { IUserUsageProfile, IUsageAnalysisSummary, IFeatureUsageStats } from '../../models/ILicenceData';
+import { IUserUsageProfile, IUsageAnalysisSummary, IFeatureUsageStats, E5_EXCLUSIVE_FEATURES } from '../../models/ILicenceData';
 import FeatureUsageCard, { FeatureUsageStatsCard } from '../ui/FeatureUsageCard';
 
 export interface IUsageAnalysisPageProps {
@@ -11,6 +11,9 @@ export interface IUsageAnalysisPageProps {
   onRefresh?: () => void;
   onExport?: () => void;
 }
+
+type FilterKey = 'all' | 'e5' | 'downgrade';
+type SortKey = 'name-asc' | 'name-desc' | 'utilisation-asc' | 'utilisation-desc' | 'savings-desc' | 'savings-asc';
 
 /**
  * Usage Analysis Page - V3 Feature
@@ -24,19 +27,48 @@ const UsageAnalysisPage: React.FC<IUsageAnalysisPageProps> = ({
   onRefresh,
   onExport
 }) => {
-  const [filter, setFilter] = React.useState<'all' | 'e5' | 'downgrade'>('all');
+  const [activeFilters, setActiveFilters] = React.useState<FilterKey[]>(['all']);
   const [searchTerm, setSearchTerm] = React.useState('');
-  const [sortBy, setSortBy] = React.useState<'name' | 'utilisation' | 'savings'>('savings');
+  const [sortBy, setSortBy] = React.useState<SortKey>('savings-desc');
+  const [expandedUsers, setExpandedUsers] = React.useState<Set<number>>(new Set());
+
+  const toggleFilter = (key: FilterKey): void => {
+    setActiveFilters(prev => {
+      if (key === 'all') {
+        return ['all'];
+      }
+      const withoutAll = prev.filter(f => f !== 'all');
+      if (withoutAll.indexOf(key) >= 0) {
+        const next = withoutAll.filter(f => f !== key);
+        return next.length === 0 ? ['all'] : next;
+      }
+      return [...withoutAll, key];
+    });
+  };
+
+  const toggleExpanded = (userId: number): void => {
+    setExpandedUsers(prev => {
+      const next = new Set(prev);
+      if (next.has(userId)) {
+        next.delete(userId);
+      } else {
+        next.add(userId);
+      }
+      return next;
+    });
+  };
 
   // Filter and sort profiles
   const filteredProfiles = React.useMemo(() => {
     let result = [...profiles];
 
-    // Apply filter
-    if (filter === 'e5') {
-      result = result.filter(p => p.hasE5 === true);
-    } else if (filter === 'downgrade') {
-      result = result.filter(p => p.canDowngrade === true);
+    // Apply filters (multi-select)
+    if (activeFilters.indexOf('all') < 0) {
+      result = result.filter(p => {
+        if (activeFilters.indexOf('e5') >= 0 && p.hasE5 === true) return true;
+        if (activeFilters.indexOf('downgrade') >= 0 && p.canDowngrade === true) return true;
+        return false;
+      });
     }
 
     // Apply search
@@ -51,19 +83,28 @@ const UsageAnalysisPage: React.FC<IUsageAnalysisPageProps> = ({
 
     // Apply sort
     switch (sortBy) {
-      case 'name':
+      case 'name-asc':
         result.sort((a, b) => a.displayName.localeCompare(b.displayName));
         break;
-      case 'utilisation':
+      case 'name-desc':
+        result.sort((a, b) => b.displayName.localeCompare(a.displayName));
+        break;
+      case 'utilisation-asc':
         result.sort((a, b) => a.e5UtilisationPct - b.e5UtilisationPct);
         break;
-      case 'savings':
+      case 'utilisation-desc':
+        result.sort((a, b) => b.e5UtilisationPct - a.e5UtilisationPct);
+        break;
+      case 'savings-desc':
         result.sort((a, b) => b.potentialAnnualSavings - a.potentialAnnualSavings);
+        break;
+      case 'savings-asc':
+        result.sort((a, b) => a.potentialAnnualSavings - b.potentialAnnualSavings);
         break;
     }
 
     return result;
-  }, [profiles, filter, searchTerm, sortBy]);
+  }, [profiles, activeFilters, searchTerm, sortBy]);
 
   const formatCurrency = (value: number): string => {
     if (value >= 1000000) {
@@ -289,41 +330,27 @@ const UsageAnalysisPage: React.FC<IUsageAnalysisPageProps> = ({
               }}
             />
 
-            {/* Filter Buttons */}
-            <div style={{
-              display: 'flex',
-              background: '#0d1a2d',
-              borderRadius: '8px',
-              padding: '4px'
-            }}>
+            {/* Multi-select Filter Chips */}
+            <div className={styles.filterChipGroup}>
               {[
-                { key: 'all', label: 'All Users' },
-                { key: 'e5', label: 'E5 Only' },
-                { key: 'downgrade', label: 'Can Downgrade' }
+                { key: 'all' as FilterKey, label: 'All Users' },
+                { key: 'e5' as FilterKey, label: 'E5 Only' },
+                { key: 'downgrade' as FilterKey, label: 'Can Downgrade' }
               ].map(opt => (
                 <button
                   key={opt.key}
-                  onClick={() => setFilter(opt.key as typeof filter)}
-                  style={{
-                    padding: '8px 14px',
-                    background: filter === opt.key ? '#E4007D' : 'transparent',
-                    border: 'none',
-                    borderRadius: '6px',
-                    color: filter === opt.key ? '#fff' : '#9CA3AF',
-                    fontSize: '12px',
-                    fontWeight: 500,
-                    cursor: 'pointer'
-                  }}
+                  onClick={() => toggleFilter(opt.key)}
+                  className={`${styles.filterChip}${activeFilters.indexOf(opt.key) >= 0 ? ` ${styles.filterChipActive}` : ''}`}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
 
-            {/* Sort */}
+            {/* Sort Dropdown */}
             <select
               value={sortBy}
-              onChange={e => setSortBy(e.target.value as typeof sortBy)}
+              onChange={e => setSortBy(e.target.value as SortKey)}
               style={{
                 padding: '10px 14px',
                 background: '#0d1a2d',
@@ -334,9 +361,12 @@ const UsageAnalysisPage: React.FC<IUsageAnalysisPageProps> = ({
                 cursor: 'pointer'
               }}
             >
-              <option value="savings">Sort by Savings</option>
-              <option value="utilisation">Sort by Utilisation</option>
-              <option value="name">Sort by Name</option>
+              <option value="savings-desc">Savings High-Low</option>
+              <option value="savings-asc">Savings Low-High</option>
+              <option value="utilisation-asc">Utilisation Low-High</option>
+              <option value="utilisation-desc">Utilisation High-Low</option>
+              <option value="name-asc">Name A-Z</option>
+              <option value="name-desc">Name Z-A</option>
             </select>
 
             <div style={{ marginLeft: 'auto', fontSize: '12px', color: '#6B7280' }}>
@@ -344,34 +374,126 @@ const UsageAnalysisPage: React.FC<IUsageAnalysisPageProps> = ({
             </div>
           </div>
 
-          {/* User Cards */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
-            flex: 1,
-            minHeight: 0,
-            overflowY: 'auto',
-            paddingRight: '8px'
-          }}>
-            {filteredProfiles.length === 0 ? (
-              <div style={{
-                padding: '40px',
-                textAlign: 'center',
-                color: '#6B7280',
-                background: '#111827',
-                borderRadius: '12px'
-              }}>
-                No users match your criteria
-              </div>
-            ) : (
-              filteredProfiles.map(profile => (
-                <FeatureUsageCard
-                  key={profile.userId}
-                  profile={profile}
-                />
-              ))
-            )}
+          {/* User Cards - Scrollable Container */}
+          <div className={styles.scrollableTable}>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              padding: '8px'
+            }}>
+              {filteredProfiles.length === 0 ? (
+                <div style={{
+                  padding: '40px',
+                  textAlign: 'center',
+                  color: '#6B7280',
+                  background: '#111827',
+                  borderRadius: '12px'
+                }}>
+                  No users match your criteria
+                </div>
+              ) : (
+                filteredProfiles.map(profile => (
+                  <div key={profile.userId}>
+                    <FeatureUsageCard
+                      profile={profile}
+                    />
+                    {/* Expandable Feature Usage for Downgrade Candidates */}
+                    {profile.canDowngrade && profile.hasE5 && (
+                      <div style={{ marginTop: '-1px' }}>
+                        <button
+                          onClick={() => toggleExpanded(profile.userId)}
+                          style={{
+                            width: '100%',
+                            padding: '8px 20px',
+                            background: '#0d1a2d',
+                            border: '1px solid #1F2937',
+                            borderTop: 'none',
+                            borderRadius: '0 0 12px 12px',
+                            color: '#9CA3AF',
+                            fontSize: '11px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px'
+                          }}
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            style={{
+                              transform: expandedUsers.has(profile.userId) ? 'rotate(180deg)' : 'none',
+                              transition: 'transform 0.2s ease'
+                            }}
+                          >
+                            <polyline points="6 9 12 15 18 9"/>
+                          </svg>
+                          {expandedUsers.has(profile.userId) ? 'Hide' : 'Show'} E5 Feature Breakdown
+                        </button>
+
+                        {expandedUsers.has(profile.userId) && (
+                          <div style={{
+                            background: '#0d1a2d',
+                            border: '1px solid #1F2937',
+                            borderTop: 'none',
+                            borderRadius: '0 0 12px 12px',
+                            padding: '16px 20px',
+                            marginTop: '-12px'
+                          }}>
+                            <div style={{
+                              fontSize: '11px',
+                              color: '#6B7280',
+                              textTransform: 'uppercase',
+                              marginBottom: '12px',
+                              fontWeight: 600
+                            }}>
+                              E5-Exclusive Feature Usage
+                            </div>
+                            <div className={styles.featureRow}>
+                              {E5_EXCLUSIVE_FEATURES.map(feature => {
+                                const isUsed = (profile.e5FeaturesUsed || []).indexOf(feature.name) >= 0;
+                                return (
+                                  <div
+                                    key={feature.id}
+                                    className={`${styles.featureItem} ${isUsed ? styles.featureUsed : styles.featureUnused}`}
+                                  >
+                                    {isUsed ? (
+                                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5">
+                                        <polyline points="20 6 9 17 4 12"/>
+                                      </svg>
+                                    ) : (
+                                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2">
+                                        <line x1="18" y1="6" x2="6" y2="18"/>
+                                        <line x1="6" y1="6" x2="18" y2="18"/>
+                                      </svg>
+                                    )}
+                                    <span style={{ fontSize: '11px' }}>
+                                      {feature.name.length > 30 ? feature.name.slice(0, 28) + '...' : feature.name}
+                                    </span>
+                                    <span style={{
+                                      fontSize: '9px',
+                                      color: '#4B5563',
+                                      marginLeft: 'auto'
+                                    }}>
+                                      {feature.category}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
 

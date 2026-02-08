@@ -6,20 +6,27 @@ export interface IUtilisationGaugeProps {
   value: number;
   title: string;
   subtitle?: string;
+  assigned?: number;
+  purchased?: number;
 }
 
 /**
  * Utilisation Gauge - Semi-circular gauge showing utilisation percentage
- * Shows "100% +X%" for over-allocated SKUs (>100%)
+ * Over-allocated SKUs: full red arc, assigned count centre, "N over-allocated" badge
  */
 const UtilisationGauge: React.FC<IUtilisationGaugeProps> = ({
   value,
   title,
-  subtitle
+  subtitle,
+  assigned,
+  purchased
 }) => {
   // Clamp value between 0 and 100 for the arc display
   const clampedValue = Math.max(0, Math.min(100, value));
   const isOverAllocated = value > 100;
+  const overCount = (assigned !== undefined && purchased !== undefined)
+    ? assigned - purchased
+    : 0;
 
   // Determine colour based on utilisation
   const getColour = (pct: number): string => {
@@ -30,9 +37,8 @@ const UtilisationGauge: React.FC<IUtilisationGaugeProps> = ({
     return '#6B7280'; // Under-utilised - grey
   };
 
-  // Arc uses clamped colour (shows full red arc for over-allocated)
-  const arcColour = getColour(clampedValue);
-  // Text colour reflects actual state
+  // Arc colour based on actual value (full red for over-allocated)
+  const arcColour = getColour(value);
   const textColour = isOverAllocated ? '#EF4444' : arcColour;
 
   // Data for the gauge (filled portion and empty portion)
@@ -43,7 +49,7 @@ const UtilisationGauge: React.FC<IUtilisationGaugeProps> = ({
 
   return (
     <div className={styles.chartContainer} style={{ padding: '16px', textAlign: 'center' }}>
-      <div className={styles.chartTitle} style={{ marginBottom: '8px' }}>{title}</div>
+      <div className={styles.chartTitle} style={{ marginBottom: '8px', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</div>
       <ResponsiveContainer width="100%" height={140}>
         <PieChart>
           <Pie
@@ -63,26 +69,40 @@ const UtilisationGauge: React.FC<IUtilisationGaugeProps> = ({
         </PieChart>
       </ResponsiveContainer>
       <div style={{ marginTop: '-60px', position: 'relative' }}>
-        <div style={{
-          fontSize: '28px',
-          fontWeight: 700,
-          color: textColour
-        }}>
-          {isOverAllocated ? (
-            <>
-              100%
-              <span style={{ fontSize: '13px', color: '#EF4444', marginLeft: '4px' }}>
-                +{Math.round(value - 100)}%
-              </span>
-            </>
-          ) : (
-            <>{Math.round(value)}%</>
-          )}
-        </div>
-        {subtitle && (
-          <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '4px' }}>
-            {subtitle}
-          </div>
+        {isOverAllocated && assigned !== undefined ? (
+          <>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: textColour }}>
+              {assigned.toLocaleString()}
+            </div>
+            {purchased !== undefined && (
+              <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '2px' }}>
+                of {purchased.toLocaleString()} purchased
+              </div>
+            )}
+            <div style={{
+              display: 'inline-block',
+              marginTop: '4px',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              background: 'rgba(239, 68, 68, 0.15)',
+              color: '#EF4444',
+              fontSize: '10px',
+              fontWeight: 600
+            }}>
+              {overCount > 0 ? `${overCount} over-allocated` : 'Over-allocated'}
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: textColour }}>
+              {Math.round(value)}%
+            </div>
+            {subtitle && (
+              <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '4px' }}>
+                {subtitle}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
