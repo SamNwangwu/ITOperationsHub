@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import styles from './CloudPlatform.module.scss';
 import { ICloudPlatformProps } from './ICloudPlatformProps';
-import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
+import { SPHttpClient, SPHttpClientResponse, AadHttpClient, AadHttpClientFactory } from '@microsoft/sp-http';
 import { NetworkingDashboard } from './components/NetworkingDashboard';
 
 // Platform configurations
@@ -45,7 +45,7 @@ const PLATFORM_CONFIGS = {
     primaryColor: '#0078D4',
     accentColor: '#00BCF2',
     gradient: 'linear-gradient(135deg, #0078D4 0%, #004578 50%, #00BCF2 150%)',
-    subtitle: 'UK South & UK West regions • AVD, D365, Corporate Infrastructure',
+    subtitle: 'North Europe, West Europe & Sweden Central regions • AVD, D365, Corporate Infrastructure',
     consoleUrl: 'https://portal.azure.com',
     consoleName: 'Azure Portal',
     sections: [
@@ -69,9 +69,73 @@ const PLATFORM_CONFIGS = {
       { label: 'Subscriptions', value: '8', icon: '🏢' },
       { label: 'Virtual Machines', value: '120', icon: '🖥️' },
       { label: 'AVD Session Hosts', value: '85', icon: '💻' },
-      { label: 'Storage Accounts', value: '34', icon: '📦' },
-      { label: 'VNets', value: '80+', icon: '🌐' }
+      { label: 'Storage Accounts', value: '34', icon: '📦' }
     ]
+  }
+};
+
+interface IAzureStats {
+  subscriptions: number;
+  virtualMachines: number;
+  resourceGroups: number;
+  storageAccounts: number;
+}
+
+const fetchAzureStats = async (aadHttpClientFactory: AadHttpClientFactory): Promise<IAzureStats> => {
+  const client = await aadHttpClientFactory.getClient('https://management.azure.com');
+
+  const defaultStats: IAzureStats = { subscriptions: 0, virtualMachines: 0, resourceGroups: 0, storageAccounts: 0 };
+
+  try {
+    // Get subscriptions
+    const subsResponse = await client.get(
+      'https://management.azure.com/subscriptions?api-version=2022-12-01',
+      AadHttpClient.configurations.v1
+    );
+    const subsData = await subsResponse.json();
+    const subscriptions = subsData.value?.length || 0;
+
+    // Use Resource Graph for efficient counting
+    const queryBody = {
+      query: `
+        Resources
+        | where type in~ (
+            'microsoft.compute/virtualmachines',
+            'microsoft.storage/storageaccounts',
+            'microsoft.desktopvirtualization/hostpools'
+          )
+        | summarize count() by type
+      `
+    };
+
+    const graphResponse = await client.post(
+      'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01',
+      AadHttpClient.configurations.v1,
+      {
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(queryBody)
+      }
+    );
+    const graphData = await graphResponse.json();
+
+    let virtualMachines = 0;
+    let storageAccounts = 0;
+    let avdHostPools = 0;
+
+    if (graphData.data?.rows) {
+      for (const row of graphData.data.rows) {
+        const resourceType = (row[0] || '').toLowerCase();
+        const count = row[1] || 0;
+        if (resourceType.includes('virtualmachines')) virtualMachines = count;
+        else if (resourceType.includes('storageaccounts')) storageAccounts = count;
+        else if (resourceType.includes('hostpools')) avdHostPools = count;
+      }
+    }
+
+    return { subscriptions, virtualMachines, resourceGroups: avdHostPools, storageAccounts };
+  } catch (error) {
+    console.error('Failed to fetch Azure stats:', error);
+    return defaultStats;
   }
 };
 
@@ -89,19 +153,36 @@ interface ISectionDocs {
 export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
   const { platform, spHttpClient, siteUrl, customStats, aadHttpClient } = props;
   const config = PLATFORM_CONFIGS[platform] || PLATFORM_CONFIGS.aws;
-  
+
   const [activeSection, setActiveSection] = useState<string>(config.sections[0]?.id || 'architecture');
   const [documents, setDocuments] = useState<ISectionDocs>({});
   const [loading, setLoading] = useState<boolean>(true);
+  const [azureStats, setAzureStats] = useState<IAzureStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState<boolean>(false);
 
-  // Parse custom stats if provided
-  const stats = customStats ? (() => {
-    try {
-      return JSON.parse(customStats);
-    } catch {
-      return config.stats;
+  useEffect(() => {
+    if (platform === 'azure' && props.aadHttpClientFactory && !customStats) {
+      setStatsLoading(true);
+      fetchAzureStats(props.aadHttpClientFactory)
+        .then((data) => {
+          setAzureStats(data);
+          setStatsLoading(false);
+        })
+        .catch(() => setStatsLoading(false));
     }
-  })() : config.stats;
+  }, [platform, props.aadHttpClientFactory]);
+
+  // Parse custom stats if provided, or use live Azure data
+  const stats = customStats
+    ? (() => { try { return JSON.parse(customStats); } catch { return config.stats; } })()
+    : (platform === 'azure' && azureStats)
+      ? [
+          { label: 'Subscriptions', value: String(azureStats.subscriptions), icon: '🏢' },
+          { label: 'Virtual Machines', value: String(azureStats.virtualMachines), icon: '🖥️' },
+          { label: 'AVD Host Pools', value: String(azureStats.resourceGroups), icon: '💻' },
+          { label: 'Storage Accounts', value: String(azureStats.storageAccounts), icon: '📦' }
+        ]
+      : config.stats;
 
   // Fetch documents from SharePoint
   useEffect(() => {
@@ -198,6 +279,7 @@ export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
           <p className={styles.heroSubtitle}>{config.subtitle}</p>
         </div>
         <div className={styles.heroStats}>
+          {statsLoading && <div className={styles.loadingMessage}>Fetching live data...</div>}
           {stats.map((stat: any, index: number) => (
             <div key={index} className={styles.statCard}>
               <div className={styles.statValue}>{stat.value}</div>
@@ -249,7 +331,7 @@ export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
               <span className={styles.navIcon}>📞</span>
               Escalation Matrix
             </a>
-            <a href="https://lebara.service-now.com" target="_blank" rel="noopener noreferrer" className={styles.navItem}>
+            <a href="https://fixit.lebara.com/app/lebara/HomePage.do" target="_blank" rel="noopener noreferrer" className={styles.navItem}>
               <span className={styles.navIcon}>🎫</span>
               Raise Ticket
             </a>

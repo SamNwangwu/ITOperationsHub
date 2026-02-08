@@ -49,6 +49,10 @@
       {
         "resource": "Lebara-IPAM-Engine",
         "scope": "access_as_user"
+      },
+      {
+        "resource": "Windows Azure Service Management API",
+        "scope": "user_impersonation"
       }
     ]
   },

@@ -40,7 +40,8 @@ export default class CloudPlatformWebPart extends BaseClientSideWebPart<ICloudPl
         spHttpClient: this.context.spHttpClient,
         siteUrl: this.context.pageContext.web.absoluteUrl,
         customStats: this.properties.customStats,
-        aadHttpClient: this.aadHttpClient
+        aadHttpClient: this.aadHttpClient,
+        aadHttpClientFactory: this.context.aadHttpClientFactory
       }
     );
 

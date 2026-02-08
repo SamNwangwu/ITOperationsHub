@@ -43,8 +43,8 @@ const SITE_CONFIGS: { [key: string]: {
     platformCards: [
       {
         title: 'Infrastructure',
-        description: 'AWS, Azure, servers & certificates',
-        url: '/sites/Infrastructure',
+        description: 'AWS, Azure, certificates & cloud platforms',
+        url: '/sites/InfrastructureV2',
         icon: '🖥️',
         colour: '#ffffff',
         backgroundColour: '#0047ab'
@@ -76,7 +76,7 @@ const SITE_CONFIGS: { [key: string]: {
     ],
     quickLinks: [
       { title: 'New Relic', url: 'https://one.newrelic.com', icon: '📊' },
-      { title: 'Service Desk', url: 'https://lebara.service-now.com', icon: '🎫' },
+      { title: 'FixIt (Service Desk)', url: 'https://fixit.lebara.com/app/lebara/HomePage.do', icon: '🎫' },
       { title: 'Azure Portal', url: 'https://portal.azure.com', icon: '<svg viewBox="0 0 96 96" width="26" height="26"><path fill="#0078D4" d="M33.3 6.8h26.5l-27 77.6c-.4 1.2-1.5 2-2.8 2H6.9c-1.6 0-2.9-1.3-2.9-2.9 0-.4.1-.8.2-1.1l24.3-73.6c.4-1.2 1.5-2 2.8-2z"/><path fill="#0078D4" d="M71.2 60.1H29.9c-.7 0-1.1.8-.6 1.3l26.6 24.8c.5.5 1.2.8 1.9.8h23.7L71.2 60.1z"/><path fill="#0078D4" d="M33.3 6.8c-1.3 0-2.4.8-2.8 2L6.3 82.3c-.1.4-.2.7-.2 1.1 0 1.6 1.3 2.9 2.9 2.9h24.3c1.2-.1 2.2-.9 2.6-2l5.1-14.9 18.5 17.2c.5.4 1.2.7 1.8.7h23.6l-10.2-27h-29l17.8-53.5H33.3z"/><path fill="url(#azh)" d="M62.7 8.8c-.4-1.2-1.5-2-2.8-2H33.7c1.3 0 2.4.8 2.8 2l24.3 73.6c.1.4.2.8.2 1.1 0 1.6-1.3 2.9-2.9 2.9h26.2c1.6 0 2.9-1.3 2.9-2.9 0-.4-.1-.8-.2-1.1L62.7 8.8z"/><defs><linearGradient id="azh" x1="45.8" y1="11.3" x2="69" y2="86.4" gradientUnits="userSpaceOnUse"><stop stop-color="#114A8B"/><stop offset="1" stop-color="#0669BC"/></linearGradient></defs></svg>' },
       { title: 'AWS Console', url: 'https://console.aws.amazon.com', icon: '<svg viewBox="0 0 40 40" width="26" height="26"><rect fill="#232F3E" width="40" height="40" rx="6"/><text x="20" y="24" text-anchor="middle" fill="#FF9900" font-family="Arial,sans-serif" font-size="12" font-weight="bold">AWS</text></svg>' },
       { title: 'Runbooks', url: '/sites/ITOps-ServiceMgmt/Lists/Runbooks', icon: '📋' },
@@ -120,9 +120,9 @@ const SITE_CONFIGS: { [key: string]: {
     background: '#5C2D91',
     platformCards: [
       {
-        title: 'License Management',
-        description: 'M365, software licenses & costs',
-        url: 'Lists/LicenseInventory',
+        title: 'Licence Intelligence',
+        description: 'M365 licence analytics, optimisation & cost savings',
+        url: 'https://lebara.sharepoint.com/sites/ITOps-IAM/SitePages/Licence-Management.aspx',
         icon: '📄',
         colour: '#ffffff',
         backgroundColour: '#0078D4'
@@ -155,10 +155,10 @@ const SITE_CONFIGS: { [key: string]: {
     quickLinks: [
       { title: 'Entra Admin', url: 'https://entra.microsoft.com', icon: '🔐' },
       { title: 'M365 Admin', url: 'https://admin.microsoft.com', icon: '📊' },
-      { title: 'License Report', url: 'Lists/LicenseInventory', icon: '📄' },
+      { title: 'Licence Intelligence', url: 'https://lebara.sharepoint.com/sites/ITOps-IAM/SitePages/Licence-Management.aspx', icon: '📄' },
       { title: 'JML Tracker', url: 'Lists/JMLTracker', icon: '👥' },
       { title: 'Cezanne HR', url: 'https://lebara.cezanneondemand.com', icon: '👤' },
-      { title: 'Service Desk', url: 'https://lebara.service-now.com', icon: '🎫' }
+      { title: 'FixIt (Service Desk)', url: 'https://fixit.lebara.com/app/lebara/HomePage.do', icon: '🎫' }
     ]
   },
   'Platform': {
@@ -200,7 +200,7 @@ const SITE_CONFIGS: { [key: string]: {
       }
     ],
     quickLinks: [
-      { title: 'GitHub', url: 'https://github.com/lebara', icon: '🐙' },
+      { title: 'Azure DevOps', url: 'https://lebara.visualstudio.com/Platform%20Engineering', icon: '🚀' },
       { title: 'Azure DevOps', url: 'https://dev.azure.com/lebara', icon: '🚀' },
       { title: 'Terraform Registry', url: 'https://registry.terraform.io', icon: '📦' },
       { title: 'ADRs', url: 'Lists/ArchitectureDecisionRecords', icon: '🏗️' },
@@ -238,16 +238,16 @@ const SITE_CONFIGS: { [key: string]: {
         backgroundColour: '#0078D4'
       },
       {
-        title: 'Service Desk',
-        description: 'ServiceNow portal',
-        url: 'https://lebara.service-now.com',
+        title: 'FixIt (Service Desk)',
+        description: 'ManageEngine FixIt portal',
+        url: 'https://fixit.lebara.com/app/lebara/HomePage.do',
         icon: '🎫',
         colour: '#ffffff',
         backgroundColour: '#81B5A1'
       }
     ],
     quickLinks: [
-      { title: 'Service Desk', url: 'https://lebara.service-now.com', icon: '🎫' },
+      { title: 'FixIt (Service Desk)', url: 'https://fixit.lebara.com/app/lebara/HomePage.do', icon: '🎫' },
       { title: 'Runbooks', url: 'Lists/Runbooks', icon: '📋' },
       { title: 'Escalation', url: 'Lists/EscalationMatrix', icon: '📞' },
       { title: 'Knowledge Base', url: 'Lists/KnowledgeBase', icon: '📚' },

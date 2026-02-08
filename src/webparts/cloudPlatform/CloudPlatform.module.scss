@@ -351,6 +351,14 @@
     color: #888;
   }
 
+  .loadingMessage {
+    text-align: center;
+    padding: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    width: 100%;
+  }
+
   .emptyState {
     text-align: center;
     padding: 40px;
