@@ -185,7 +185,7 @@ const UsageAnalysisPage: React.FC<IUsageAnalysisPageProps> = ({
                 onClick={onExport}
                 style={{
                   padding: '10px 16px',
-                  background: '#E4007D',
+                  background: '#00289e',
                   border: 'none',
                   borderRadius: '8px',
                   color: '#fff',
@@ -277,12 +277,12 @@ const UsageAnalysisPage: React.FC<IUsageAnalysisPageProps> = ({
 
         {/* Potential Savings */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(228, 0, 125, 0.2) 0%, rgba(0, 40, 158, 0.2) 100%)',
-          border: '1px solid rgba(228, 0, 125, 0.4)',
+          background: 'linear-gradient(135deg, rgba(0, 40, 158, 0.2) 0%, rgba(0, 40, 158, 0.2) 100%)',
+          border: '1px solid rgba(0, 40, 158, 0.4)',
           borderRadius: '12px',
           padding: '20px'
         }}>
-          <div style={{ fontSize: '11px', color: '#E4007D', textTransform: 'uppercase', marginBottom: '8px' }}>
+          <div style={{ fontSize: '11px', color: '#00289e', textTransform: 'uppercase', marginBottom: '8px' }}>
             Potential Savings
           </div>
           <div style={{ fontSize: '28px', fontWeight: 700, color: '#fff' }}>

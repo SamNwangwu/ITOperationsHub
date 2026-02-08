@@ -14,7 +14,7 @@ export interface ISpendByTypeChartProps {
 }
 
 // Lebara brand colour palette for charts
-const COLORS = ['#00289e', '#00A4E4', '#10B981', '#F59E0B', '#818CF8', '#E4007D'];
+const COLORS = ['#00289e', '#00A4E4', '#10B981', '#F59E0B', '#818CF8', '#374151'];
 
 const MAX_ITEMS = 6;
 

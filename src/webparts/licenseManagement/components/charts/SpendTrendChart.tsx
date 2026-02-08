@@ -92,9 +92,9 @@ const SpendTrendChart: React.FC<ISpendTrendChartProps> = ({
             type="monotone"
             dataKey="spend"
             name="Spend"
-            stroke="#E4007D"
+            stroke="#00A4E4"
             strokeWidth={2}
-            dot={{ fill: '#E4007D', strokeWidth: 2, r: 4 }}
+            dot={{ fill: '#00A4E4', strokeWidth: 2, r: 4 }}
             activeDot={{ r: 6, strokeWidth: 0 }}
           />
           {showUsers && (

@@ -38,8 +38,8 @@ const SavingsTracker: React.FC<ISavingsTrackerProps> = ({
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, rgba(228, 0, 125, 0.15) 0%, rgba(0, 40, 158, 0.15) 100%)',
-      border: '1px solid rgba(228, 0, 125, 0.3)',
+      background: 'linear-gradient(135deg, rgba(0, 40, 158, 0.15) 0%, rgba(0, 40, 158, 0.15) 100%)',
+      border: '1px solid rgba(0, 40, 158, 0.3)',
       borderRadius: '12px',
       padding: '20px 24px',
       position: 'relative',
@@ -55,7 +55,7 @@ const SavingsTracker: React.FC<ISavingsTrackerProps> = ({
         <div>
           <div style={{
             fontSize: '11px',
-            color: '#E4007D',
+            color: '#00289e',
             textTransform: 'uppercase',
             letterSpacing: '1px',
             marginBottom: '4px'
@@ -210,7 +210,7 @@ const SavingsTracker: React.FC<ISavingsTrackerProps> = ({
           style={{
             width: '100%',
             padding: '10px 16px',
-            background: '#E4007D',
+            background: '#00289e',
             border: 'none',
             borderRadius: '6px',
             color: '#fff',

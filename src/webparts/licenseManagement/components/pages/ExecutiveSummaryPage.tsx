@@ -50,7 +50,7 @@ const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
     .map((sku, index) => {
       const pricing = findPricing(sku.Title, sku.SkuPartNumber);
       const monthlySpend = pricing ? sku.Assigned * pricing.MonthlyCostPerUser : 0;
-      const colours = ['#E4007D', '#00289e', '#00A4E4', '#10B981', '#F59E0B', '#818CF8'];
+      const colours = ['#00289e', '#00289e', '#00A4E4', '#10B981', '#F59E0B', '#818CF8'];
       return {
         name: sku.Title,
         value: monthlySpend,
@@ -203,7 +203,7 @@ const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
           {/* Action Center */}
           <div>
             <div className={styles.summarySubheading}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E4007D" strokeWidth="2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00289e" strokeWidth="2">
                 <polyline points="9 11 12 14 22 4"/>
                 <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
               </svg>

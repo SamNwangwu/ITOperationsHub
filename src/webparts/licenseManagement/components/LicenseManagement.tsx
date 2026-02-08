@@ -389,6 +389,35 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
     link.click();
   }
 
+  private exportUsageToCSV = (): void => {
+    const { usageProfiles } = this.state;
+    if (!usageProfiles.length) return;
+
+    const headers = ['Display Name', 'Email', 'Department', 'Has E5', 'E5 Utilisation %', 'Can Downgrade', 'Potential Annual Savings', 'E5 Features Used', 'Recommendation'];
+    const rows = usageProfiles.map(p => [
+      p.displayName,
+      p.userPrincipalName,
+      p.department || '',
+      p.hasE5 ? 'Yes' : 'No',
+      p.e5UtilisationPct.toString(),
+      p.canDowngrade ? 'Yes' : 'No',
+      p.potentialAnnualSavings.toString(),
+      (p.e5FeaturesUsed || []).join('; '),
+      p.recommendedLicence || p.downgradeReason || ''
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `usage-analysis-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  }
+
   private renderHeader(): React.ReactElement {
     const { extractDate, isDataStale } = this.state;
 
@@ -533,12 +562,12 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
             gap: '24px',
             padding: '16px 24px',
             margin: '0 32px 24px',
-            background: 'linear-gradient(135deg, rgba(228, 0, 125, 0.1), rgba(0, 40, 158, 0.1))',
+            background: 'linear-gradient(135deg, rgba(0, 40, 158, 0.1), rgba(0, 40, 158, 0.1))',
             borderRadius: '12px',
-            border: '1px solid rgba(228, 0, 125, 0.2)'
+            border: '1px solid rgba(0, 40, 158, 0.2)'
           }}>
             <div>
-              <div style={{ fontSize: '28px', fontWeight: 700, color: '#E4007D' }}>
+              <div style={{ fontSize: '28px', fontWeight: 700, color: '#00289e' }}>
                 {totalIssues}
               </div>
               <div style={{ fontSize: '12px', color: '#9CA3AF' }}>Total Issues</div>
@@ -809,6 +838,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
           this.setState({ usageProfiles: [], usageSummary: null, usageFeatureStats: [] });
           void this.loadUsageData();
         }}
+        onExport={() => this.exportUsageToCSV()}
       />
     );
   }

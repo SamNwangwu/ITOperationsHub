@@ -125,7 +125,7 @@ const UserDetailPage: React.FC<IUserDetailPageProps> = ({
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '24px', fontWeight: 700, color: '#E4007D' }}>
+          <div style={{ fontSize: '24px', fontWeight: 700, color: '#00289e' }}>
             {'\u00A3'}{totalMonthlyCost.toLocaleString()}
           </div>
           <div style={{ fontSize: '12px', color: '#6B7280' }}>Monthly Cost</div>
@@ -222,7 +222,7 @@ const UserDetailPage: React.FC<IUserDetailPageProps> = ({
           {/* Mailbox Storage */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E4007D" strokeWidth="2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00289e" strokeWidth="2">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
@@ -247,7 +247,7 @@ const UserDetailPage: React.FC<IUserDetailPageProps> = ({
                   <div style={{
                     height: '100%',
                     width: `${Math.min(100, (userUsage.MailboxUsedGB / userUsage.MailboxAllocatedGB) * 100)}%`,
-                    background: userUsage.MailboxUsedGB / userUsage.MailboxAllocatedGB > 0.9 ? '#F59E0B' : '#E4007D',
+                    background: userUsage.MailboxUsedGB / userUsage.MailboxAllocatedGB > 0.9 ? '#F59E0B' : '#00289e',
                     borderRadius: '3px',
                     transition: 'width 0.3s'
                   }} />
@@ -322,7 +322,7 @@ const UserDetailPage: React.FC<IUserDetailPageProps> = ({
               <div style={{ textAlign: 'right' }}>
                 {licence.monthlyCost > 0 ? (
                   <>
-                    <div style={{ fontWeight: 600, color: '#E4007D' }}>
+                    <div style={{ fontWeight: 600, color: '#00289e' }}>
                       {'\u00A3'}{licence.monthlyCost.toFixed(2)}/mo
                     </div>
                     <div style={{ fontSize: '11px', color: '#6B7280' }}>
@@ -352,7 +352,7 @@ const UserDetailPage: React.FC<IUserDetailPageProps> = ({
           <div className={styles.sectionTitle} style={{ marginBottom: '16px' }}>
             Recommendations
           </div>
-          <div className={styles.insightCard} style={{ borderLeftColor: '#E4007D' }}>
+          <div className={styles.insightCard} style={{ borderLeftColor: '#00289e' }}>
             <div className={styles.insightHeader}>
               <span className={styles.insightTitle}>Optimisation Opportunity</span>
             </div>

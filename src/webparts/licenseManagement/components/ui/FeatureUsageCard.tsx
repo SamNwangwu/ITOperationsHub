@@ -75,7 +75,7 @@ const FeatureUsageCard: React.FC<IFeatureUsageCardProps> = ({ profile, onDowngra
             minWidth: '40px',
             minHeight: '40px',
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #E4007D, #00289e)',
+            background: 'linear-gradient(135deg, #00289e, #00289e)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

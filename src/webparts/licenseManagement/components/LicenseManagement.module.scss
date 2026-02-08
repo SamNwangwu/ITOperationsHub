@@ -5,7 +5,7 @@
 
 // Lebara Brand Colours
 $lb-blue: #00289e;
-$lb-magenta: #E4007D;
+$lb-blue: #E4007D;
 $lb-cyan: #00A4E4;
 
 // Background colours
@@ -62,9 +62,9 @@ $color-e5: #818CF8;
     }
   }
 
-  // Header with Lebara magenta gradient
+  // Header with Lebara blue gradient
   .header {
-    background: linear-gradient(135deg, $lb-magenta 0%, $lb-blue 50%, $bg-base 100%);
+    background: linear-gradient(135deg, $lb-blue 0%, darken($lb-blue, 15%) 50%, $bg-base 100%);
     padding: 16px 32px;
     display: flex;
     justify-content: space-between;
@@ -158,12 +158,12 @@ $color-e5: #818CF8;
   }
 
   .btnPrimary {
-    background: $lb-magenta;
-    border-color: $lb-magenta;
+    background: $lb-blue;
+    border-color: $lb-blue;
   }
 
   .btnPrimary:hover {
-    background: darken($lb-magenta, 10%);
+    background: darken($lb-blue, 10%);
   }
 
   .btnTheme {
@@ -196,7 +196,7 @@ $color-e5: #818CF8;
     width: 40px;
     height: 40px;
     border: 3px solid $border-default;
-    border-top-color: $lb-magenta;
+    border-top-color: $lb-blue;
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
@@ -233,8 +233,8 @@ $color-e5: #818CF8;
     &.e5::before { background: $lb-blue; }
     &.e3::before { background: $color-e3; }
     &.savings {
-      background: linear-gradient(135deg, rgba($lb-magenta, 0.3) 0%, rgba($lb-magenta, 0.1) 100%);
-      border-color: rgba($lb-magenta, 0.5);
+      background: linear-gradient(135deg, rgba($lb-blue, 0.3) 0%, rgba($lb-blue, 0.1) 100%);
+      border-color: rgba($lb-blue, 0.5);
       text-align: center;
       display: flex;
       flex-direction: column;
@@ -252,13 +252,13 @@ $color-e5: #818CF8;
   .savingsAmount {
     font-size: 36px;
     font-weight: 700;
-    color: $lb-magenta;
+    color: $lb-blue;
     margin-bottom: 4px;
   }
 
   .savingsLabel {
     font-size: 12px;
-    color: $lb-magenta;
+    color: $lb-blue;
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: 8px;
@@ -461,10 +461,14 @@ $color-e5: #818CF8;
     border: 1px solid $border-default;
     margin: 0 32px 24px;
     overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
   .bulkActions {
-    background: $lb-magenta;
+    background: $lb-blue;
     padding: 12px 20px;
     display: flex;
     justify-content: space-between;
@@ -549,7 +553,7 @@ $color-e5: #818CF8;
   }
 
   .tableContainer {
-    max-height: 400px;
+    flex: 1;
     overflow-y: auto;
 
     &::-webkit-scrollbar {
@@ -635,7 +639,7 @@ $color-e5: #818CF8;
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: linear-gradient(135deg, $lb-magenta, $lb-blue);
+    background: linear-gradient(135deg, $lb-blue, $lb-blue);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -724,7 +728,7 @@ $color-e5: #818CF8;
     .statValue {
       font-size: 20px;
       font-weight: 700;
-      color: $lb-magenta;
+      color: $lb-blue;
     }
 
     .statLabel {
@@ -737,7 +741,7 @@ $color-e5: #818CF8;
   input[type="checkbox"] {
     width: 16px;
     height: 16px;
-    accent-color: $lb-magenta;
+    accent-color: $lb-blue;
     cursor: pointer;
   }
 }
@@ -1118,8 +1122,8 @@ $color-e5: #818CF8;
 // Savings Hero Component Styles (Magenta gradient)
 // ===========================================
 .savingsHero {
-  background: linear-gradient(135deg, rgba($lb-magenta, 0.3) 0%, rgba($lb-magenta, 0.1) 100%);
-  border: 1px solid rgba($lb-magenta, 0.5);
+  background: linear-gradient(135deg, rgba($lb-blue, 0.3) 0%, rgba($lb-blue, 0.1) 100%);
+  border: 1px solid rgba($lb-blue, 0.5);
   border-radius: 12px;
   padding: 24px 32px;
   margin: 0 32px 24px;
@@ -1134,13 +1138,13 @@ $color-e5: #818CF8;
 
 .savingsAction {
   .btnPrimary {
-    background: $lb-magenta;
-    border-color: $lb-magenta;
+    background: $lb-blue;
+    border-color: $lb-blue;
     color: #fff;
     font-weight: 600;
 
     &:hover {
-      background: darken($lb-magenta, 10%);
+      background: darken($lb-blue, 10%);
     }
   }
 }
@@ -1454,6 +1458,8 @@ $color-e5: #818CF8;
   flex: 1;
   min-height: 0;
   overflow: visible;
+  display: flex;
+  flex-direction: column;
 }
 
 .pageHeader {
@@ -1490,7 +1496,7 @@ $color-e5: #818CF8;
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, $lb-magenta, $lb-blue);
+  background: linear-gradient(135deg, $lb-blue, $lb-blue);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1560,7 +1566,7 @@ $color-e5: #818CF8;
   transition: all 0.2s;
 
   &:hover {
-    border-color: $lb-magenta;
+    border-color: $lb-blue;
     color: #fff;
   }
 }
@@ -1592,7 +1598,7 @@ $color-e5: #818CF8;
 .costCardValue {
   font-size: 32px;
   font-weight: 700;
-  color: $lb-magenta;
+  color: $lb-blue;
   margin-bottom: 8px;
 }
 
@@ -2186,7 +2192,7 @@ $color-e5: #818CF8;
 // Scrollable Table Container
 // ===========================================
 .scrollableTable {
-  max-height: 600px;
+  flex: 1;
   overflow-y: auto;
   border-radius: 8px;
   border: 1px solid $border-default;
@@ -2272,8 +2278,8 @@ $color-e5: #818CF8;
 .summaryHeroBanner {
   margin: 0 32px 24px;
   padding: 20px 28px;
-  background: linear-gradient(135deg, rgba($lb-magenta, 0.2) 0%, rgba($lb-blue, 0.2) 100%);
-  border: 1px solid rgba($lb-magenta, 0.4);
+  background: linear-gradient(135deg, rgba($lb-blue, 0.25) 0%, rgba($lb-cyan, 0.15) 100%);
+  border: 1px solid rgba($lb-blue, 0.4);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -2291,7 +2297,7 @@ $color-e5: #818CF8;
   width: 56px;
   height: 56px;
   border-radius: 12px;
-  background: rgba($lb-magenta, 0.3);
+  background: rgba($lb-blue, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2302,7 +2308,7 @@ $color-e5: #818CF8;
 
 .summaryHeroLabel {
   font-size: 11px;
-  color: $lb-magenta;
+  color: $lb-cyan;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 4px;
@@ -2343,7 +2349,7 @@ $color-e5: #818CF8;
 
 .summaryHeroBtn {
   padding: 12px 24px;
-  background: $lb-magenta;
+  background: $lb-blue;
   border: none;
   border-radius: 8px;
   color: $text-primary;

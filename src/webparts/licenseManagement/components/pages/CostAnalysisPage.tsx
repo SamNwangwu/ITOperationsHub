@@ -69,7 +69,7 @@ const CostAnalysisPage: React.FC<ICostAnalysisPageProps> = ({
   const topSkus = costBreakdown.slice(0, 5);
   const otherSpend = costBreakdown.slice(5).reduce((sum, row) => sum + row.monthlyTotal, 0);
 
-  const colours = ['#E4007D', '#00289e', '#00A4E4', '#10B981', '#F59E0B', '#818CF8'];
+  const colours = ['#00289e', '#00289e', '#00A4E4', '#10B981', '#F59E0B', '#818CF8'];
   const spendByTypeData: ISpendByTypeData[] = [
     ...topSkus.map((row, index) => ({
       name: row.name,
@@ -216,8 +216,8 @@ const CostAnalysisPage: React.FC<ICostAnalysisPageProps> = ({
                       minWidth: '50px',
                       padding: '2px 8px',
                       borderRadius: '4px',
-                      background: row.percentOfSpend >= 20 ? 'rgba(228, 0, 125, 0.15)' : 'rgba(255,255,255,0.05)',
-                      color: row.percentOfSpend >= 20 ? '#E4007D' : '#9CA3AF'
+                      background: row.percentOfSpend >= 20 ? 'rgba(0, 40, 158, 0.15)' : 'rgba(255,255,255,0.05)',
+                      color: row.percentOfSpend >= 20 ? '#00289e' : '#9CA3AF'
                     }}>
                       {row.percentOfSpend}%
                     </span>
