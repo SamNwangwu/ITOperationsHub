@@ -279,15 +279,6 @@ export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
           </h1>
           <p className={styles.heroSubtitle}>{config.subtitle}</p>
         </div>
-        <div className={styles.heroStats}>
-          {statsLoading && <div className={styles.loadingMessage}>Fetching live data...</div>}
-          {stats.map((stat: any, index: number) => (
-            <div key={index} className={styles.statCard}>
-              <div className={styles.statValue}>{stat.value}</div>
-              <div className={styles.statLabel}>{stat.label}</div>
-            </div>
-          ))}
-        </div>
       </section>
 
       {/* Main Content */}
@@ -353,6 +344,7 @@ export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
               </a>
             </div>
             <div className={styles.sectionContent}>
+              {statsLoading && <div className={styles.loadingMessage}>Fetching live data...</div>}
               <div className={styles.quickStats}>
                 {stats.map((stat: any, index: number) => (
                   <div key={index} className={styles.quickStat}>
