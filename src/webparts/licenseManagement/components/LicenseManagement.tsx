@@ -448,7 +448,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
   private renderNavTabs(): React.ReactElement {
     const { activeTab } = this.state;
     const tabs: { key: TabType; label: string }[] = [
-      { key: 'summary', label: 'Executive Summary' },
+      { key: 'summary', label: 'Summary' },
       { key: 'costs', label: 'Cost Analysis' },
       { key: 'utilisation', label: 'Utilisation & Adoption' },
       { key: 'usage', label: 'Usage Analysis' },
