@@ -498,7 +498,7 @@ const UsageAnalysisPage: React.FC<IUsageAnalysisPageProps> = ({
         </div>
 
         {/* Right Column - Feature Stats */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxHeight: 'calc(100vh - 340px)', overflowY: 'auto' }}>
           {/* Feature Utilisation */}
           <FeatureUsageStatsCard stats={featureStats} />
 
