@@ -179,6 +179,7 @@ export interface IAlert {
   actionLabel?: string;
   actionType?: 'navigate' | 'dismiss' | 'external';
   actionTarget?: string;
+  actionFilter?: string;
   createdAt: Date;
   dismissedAt?: Date;
   dismissedBy?: string;

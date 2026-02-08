@@ -189,7 +189,8 @@ export class AlertService {
         metric: `${kpi.disabledCount} accounts`,
         actionLabel: 'Remove Licences',
         actionType: 'navigate',
-        actionTarget: 'issues'
+        actionTarget: 'issues',
+        actionFilter: 'Disabled'
       });
     }
 
@@ -203,7 +204,8 @@ export class AlertService {
         metric: `${kpi.dualLicensedCount} users`,
         actionLabel: 'Fix Duplicates',
         actionType: 'navigate',
-        actionTarget: 'issues'
+        actionTarget: 'issues',
+        actionFilter: 'Dual-Licensed'
       });
     }
 
@@ -218,7 +220,8 @@ export class AlertService {
         metric: `${kpi.inactiveCount} users`,
         actionLabel: 'Review Inactive',
         actionType: 'navigate',
-        actionTarget: 'issues'
+        actionTarget: 'issues',
+        actionFilter: 'Inactive 90+'
       });
     }
 

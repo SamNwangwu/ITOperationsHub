@@ -80,7 +80,7 @@ const ExecutiveSummaryPage: React.FC<IExecutiveSummaryPageProps> = ({
 
   const handleAlertClick = (alert: IAlert) => {
     if (alert.actionTarget && onNavigate) {
-      onNavigate(alert.actionTarget);
+      onNavigate(alert.actionTarget, alert.actionFilter);
     }
   };
 

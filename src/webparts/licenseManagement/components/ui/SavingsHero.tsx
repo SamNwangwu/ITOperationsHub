@@ -10,7 +10,7 @@ export interface ISavingsHeroProps {
 
 /**
  * Savings Hero component - prominently displays potential cost savings
- * Uses Lebara magenta gradient styling
+ * Uses Lebara blue gradient styling
  */
 const SavingsHero: React.FC<ISavingsHeroProps> = ({
   monthlyAmount,

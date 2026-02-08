@@ -5,7 +5,6 @@
 
 // Lebara Brand Colours
 $lb-blue: #00289e;
-$lb-blue: #E4007D;
 $lb-cyan: #00A4E4;
 
 // Background colours
@@ -553,7 +552,7 @@ $color-e5: #818CF8;
   }
 
   .tableContainer {
-    flex: 1;
+    max-height: calc(100vh - 340px);
     overflow-y: auto;
 
     &::-webkit-scrollbar {
@@ -824,7 +823,7 @@ $color-e5: #818CF8;
   overflow: hidden;
   transition: all 0.2s;
 
-  // Gradient border effect - status-based, not magenta
+  // Gradient border effect - status-based
   &::before {
     content: '';
     position: absolute;
@@ -1119,7 +1118,7 @@ $color-e5: #818CF8;
 }
 
 // ===========================================
-// Savings Hero Component Styles (Magenta gradient)
+// Savings Hero Component Styles
 // ===========================================
 .savingsHero {
   background: linear-gradient(135deg, rgba($lb-blue, 0.3) 0%, rgba($lb-blue, 0.1) 100%);
@@ -2192,7 +2191,7 @@ $color-e5: #818CF8;
 // Scrollable Table Container
 // ===========================================
 .scrollableTable {
-  flex: 1;
+  max-height: calc(100vh - 300px);
   overflow-y: auto;
   border-radius: 8px;
   border: 1px solid $border-default;
