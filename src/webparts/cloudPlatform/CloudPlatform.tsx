@@ -122,10 +122,11 @@ const fetchAzureStats = async (aadHttpClientFactory: AadHttpClientFactory): Prom
     let storageAccounts = 0;
     let avdHostPools = 0;
 
-    if (graphData.data?.rows) {
-      for (const row of graphData.data.rows) {
-        const resourceType = (row[0] || '').toLowerCase();
-        const count = row[1] || 0;
+    if (Array.isArray(graphData.data)) {
+      // REST API returns data as array of objects: { type, count_ }
+      for (const row of graphData.data) {
+        const resourceType = (row.type || '').toLowerCase();
+        const count = row.count_ || 0;
         if (resourceType.includes('virtualmachines')) virtualMachines = count;
         else if (resourceType.includes('storageaccounts')) storageAccounts = count;
         else if (resourceType.includes('hostpools')) avdHostPools = count;
