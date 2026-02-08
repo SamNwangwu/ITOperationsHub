@@ -80,20 +80,26 @@ export class IpamService {
     this.client = client;
   }
 
-  // Get spaces with full nested data (blocks and vnets)
+  // Get spaces with blocks (names only, no utilisation data)
   public async getSpacesExpanded(): Promise<IIpamSpaceResponse[]> {
     const response = await this.client.get(
       `${this.baseUrl}/api/spaces?expand=true`,
       AadHttpClient.configurations.v1
     );
     if (!response.ok) throw new Error(`IPAM API error: ${response.status}`);
-    const data = await response.json();
-    console.log('IPAM spaces response:', JSON.stringify(data, null, 2));
-    return data;
+    return response.json();
+  }
+
+  // Get a single block with full utilisation data at every level
+  public async getBlockDetail(spaceName: string, blockName: string): Promise<IIpamBlockResponse> {
+    const url = `${this.baseUrl}/api/spaces/${encodeURIComponent(spaceName)}/blocks/${encodeURIComponent(blockName)}?expand=true&utilization=true`;
+    const response = await this.client.get(url, AadHttpClient.configurations.v1);
+    if (!response.ok) throw new Error(`IPAM block API error: ${response.status}`);
+    return response.json();
   }
 
   public async getSummary(): Promise<IIpamSummary> {
-    // Get all spaces with expanded blocks and vnets
+    // Get all spaces with blocks listed
     const spaces = await this.getSpacesExpanded();
 
     // If no spaces configured, return early
@@ -112,62 +118,75 @@ export class IpamService {
       };
     }
 
-    // Collect all VNets and subnets from the nested structure
-    const allVnets: IVNet[] = [];
-    const allSubnets: ISubnet[] = [];
-    let totalBlocks = 0;
-    let totalIPs = 0;
-    let usedIPs = 0;
-
-    // Iterate through nested spaces -> blocks -> vnets
+    // Fetch each block with utilisation data in parallel
+    const blockRequests: { spaceName: string; blockName: string }[] = [];
     for (const space of spaces) {
-      const blocks = space.blocks || [];
-      totalBlocks += blocks.length;
-
-      for (const block of blocks) {
-        const vnets = block.vnets || [];
-
-        for (const vnetData of vnets) {
-          // Map to display VNet
-          const vnet: IVNet = {
-            name: vnetData.name,
-            id: vnetData.id,
-            subscription_id: vnetData.subscription_id,
-            resource_group: vnetData.resource_group,
-            prefixes: vnetData.prefixes || [],
-            size: vnetData.size || 0,
-            used: vnetData.used || 0,
-            subnets: [],
-            blockName: block.name,
-            spaceName: space.name
-          };
-
-          totalIPs += vnetData.size || 0;
-          usedIPs += vnetData.used || 0;
-
-          // Process subnets if available
-          if (vnetData.subnets && Array.isArray(vnetData.subnets)) {
-            for (const subnet of vnetData.subnets) {
-              const subnetItem: ISubnet = {
-                name: subnet.name,
-                prefix: subnet.prefix,
-                size: subnet.size || 0,
-                used: subnet.used || 0,
-                vnetName: vnetData.name,
-                blockName: block.name,
-                spaceName: space.name
-              };
-              vnet.subnets.push(subnetItem);
-              allSubnets.push(subnetItem);
-            }
-          }
-
-          allVnets.push(vnet);
-        }
+      for (const block of (space.blocks || [])) {
+        blockRequests.push({ spaceName: space.name, blockName: block.name });
       }
     }
 
-    // Sort subnets by utilisation for top utilised list
+    const blockDetails = await Promise.all(
+      blockRequests.map(req => this.getBlockDetail(req.spaceName, req.blockName))
+    );
+
+    // Collect all VNets and subnets from the block details
+    const allVnets: IVNet[] = [];
+    const allSubnets: ISubnet[] = [];
+    let totalSubnetSize = 0;
+    let totalSubnetUsed = 0;
+
+    blockRequests.forEach((req, i) => {
+      const block = blockDetails[i];
+      const vnets = block.vnets || [];
+
+      for (const vnetData of vnets) {
+        const subnets: ISubnet[] = [];
+        let vnetSubnetSize = 0;
+        let vnetSubnetUsed = 0;
+
+        // Process subnets - this is where real utilisation lives
+        if (vnetData.subnets && Array.isArray(vnetData.subnets)) {
+          for (const subnet of vnetData.subnets) {
+            const subnetSize = subnet.size || 0;
+            const subnetUsed = subnet.used || 0;
+            vnetSubnetSize += subnetSize;
+            vnetSubnetUsed += subnetUsed;
+
+            const subnetItem: ISubnet = {
+              name: subnet.name,
+              prefix: subnet.prefix,
+              size: subnetSize,
+              used: subnetUsed,
+              vnetName: vnetData.name,
+              blockName: req.blockName,
+              spaceName: req.spaceName
+            };
+            subnets.push(subnetItem);
+            allSubnets.push(subnetItem);
+          }
+        }
+
+        totalSubnetSize += vnetSubnetSize;
+        totalSubnetUsed += vnetSubnetUsed;
+
+        // VNet utilisation derived from its subnets
+        allVnets.push({
+          name: vnetData.name,
+          id: vnetData.id,
+          subscription_id: vnetData.subscription_id,
+          resource_group: vnetData.resource_group,
+          prefixes: vnetData.prefixes || [],
+          size: vnetSubnetSize,
+          used: vnetSubnetUsed,
+          subnets,
+          blockName: req.blockName,
+          spaceName: req.spaceName
+        });
+      }
+    });
+
+    // Sort subnets by utilisation descending (most used first)
     const subnetsByUtilisation = allSubnets
       .map(subnet => ({
         ...subnet,
@@ -178,16 +197,19 @@ export class IpamService {
     // Top 5 most utilised subnets
     const topUtilisedSubnets = subnetsByUtilisation.slice(0, 5);
 
-    const utilisationPct = totalIPs > 0 ? Math.round((usedIPs / totalIPs) * 100) : 0;
+    // Overall IP utilisation: total subnet.used / total subnet.size
+    const utilisationPct = totalSubnetSize > 0
+      ? Math.round((totalSubnetUsed / totalSubnetSize) * 100)
+      : 0;
 
     return {
       spacesConfigured: true,
       totalSpaces: spaces.length,
-      totalBlocks,
+      totalBlocks: blockRequests.length,
       totalVnets: allVnets.length,
       totalSubnets: allSubnets.length,
-      totalIPs,
-      usedIPs,
+      totalIPs: totalSubnetSize,
+      usedIPs: totalSubnetUsed,
       utilisationPct,
       topUtilisedSubnets,
       vnets: allVnets
