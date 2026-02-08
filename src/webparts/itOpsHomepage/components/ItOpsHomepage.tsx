@@ -2,6 +2,7 @@ import * as React from 'react';
 import styles from './ItOpsHomepage.module.scss';
 import { IItOpsHomepageProps, IItOpsHomepageState, IArchitectureDiagram } from './IItOpsHomepageProps';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
+import { FeedbackButton } from '../../../components/FeedbackButton/FeedbackButton';
 
 // Lebara brand colours
 const COLOURS = {
@@ -294,6 +295,16 @@ export default class ItOpsHomepage extends React.Component<IItOpsHomepageProps, 
             <p>IT Operations Hub • <a href="https://lebara.sharepoint.com/sites/ITOpsHub">Home</a> • <a href="mailto:infrastructure@lebara.com">Contact</a></p>
           </div>
         </footer>
+
+        {/* Feedback Button */}
+        {this.props.graphClient && (
+          <FeedbackButton
+            spHttpClient={this.props.context.spHttpClient}
+            graphClient={this.props.graphClient}
+            siteUrl={this.props.context.pageContext.web.absoluteUrl}
+            currentPage={this.props.siteType}
+          />
+        )}
       </div>
     );
   }

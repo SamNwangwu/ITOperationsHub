@@ -1,5 +1,6 @@
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
+import { MSGraphClientV3 } from '@microsoft/sp-http';
 
 export interface IPlatformCard {
   title: string;
@@ -36,6 +37,7 @@ export interface IItOpsHomepageProps {
   platformCards: IPlatformCard[];
   quickLinks: IQuickLink[];
   context: WebPartContext;
+  graphClient?: MSGraphClientV3;
   themeVariant?: IReadonlyTheme;
 }
 

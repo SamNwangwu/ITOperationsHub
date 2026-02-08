@@ -1,4 +1,4 @@
-import { SPHttpClient, AadHttpClient, AadHttpClientFactory } from '@microsoft/sp-http';
+import { SPHttpClient, AadHttpClient, AadHttpClientFactory, MSGraphClientV3 } from '@microsoft/sp-http';
 
 export interface ICloudPlatformProps {
   platform: 'aws' | 'azure';
@@ -7,4 +7,5 @@ export interface ICloudPlatformProps {
   customStats?: string;
   aadHttpClient?: AadHttpClient;
   aadHttpClientFactory?: AadHttpClientFactory;
+  graphClient?: MSGraphClientV3;
 }

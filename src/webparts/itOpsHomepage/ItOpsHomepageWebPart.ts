@@ -10,6 +10,7 @@ import {
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { ThemeProvider, ThemeChangedEventArgs, IReadonlyTheme } from '@microsoft/sp-component-base';
+import { MSGraphClientV3 } from '@microsoft/sp-http';
 
 import ItOpsHomepage from './components/ItOpsHomepage';
 import { IItOpsHomepageProps, IPlatformCard, IQuickLink } from './components/IItOpsHomepageProps';
@@ -201,7 +202,6 @@ const SITE_CONFIGS: { [key: string]: {
     ],
     quickLinks: [
       { title: 'Azure DevOps', url: 'https://lebara.visualstudio.com/Platform%20Engineering', icon: '🚀' },
-      { title: 'Azure DevOps', url: 'https://dev.azure.com/lebara', icon: '🚀' },
       { title: 'Terraform Registry', url: 'https://registry.terraform.io', icon: '📦' },
       { title: 'ADRs', url: 'Lists/ArchitectureDecisionRecords', icon: '🏗️' },
       { title: 'Documentation', url: 'Documents', icon: '📁' },
@@ -260,11 +260,18 @@ const SITE_CONFIGS: { [key: string]: {
 export default class ItOpsHomepageWebPart extends BaseClientSideWebPart<IItOpsHomepageWebPartProps> {
   private _themeProvider: ThemeProvider;
   private _themeVariant: IReadonlyTheme | undefined;
+  private _graphClient: MSGraphClientV3;
 
-  protected onInit(): Promise<void> {
+  protected async onInit(): Promise<void> {
     this._themeProvider = this.context.serviceScope.consume(ThemeProvider.serviceKey);
     this._themeVariant = this._themeProvider.tryGetTheme();
     this._themeProvider.themeChangedEvent.add(this, this._handleThemeChangedEvent);
+
+    try {
+      this._graphClient = await this.context.msGraphClientFactory.getClient('3');
+    } catch (error) {
+      console.warn('Graph client not available:', error);
+    }
 
     return super.onInit();
   }
@@ -314,6 +321,7 @@ export default class ItOpsHomepageWebPart extends BaseClientSideWebPart<IItOpsHo
         platformCards: platformCards,
         quickLinks: quickLinks,
         context: this.context,
+        graphClient: this._graphClient,
         themeVariant: this._themeVariant
       }
     );

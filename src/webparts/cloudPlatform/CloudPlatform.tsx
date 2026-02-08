@@ -4,6 +4,7 @@ import styles from './CloudPlatform.module.scss';
 import { ICloudPlatformProps } from './ICloudPlatformProps';
 import { SPHttpClient, SPHttpClientResponse, AadHttpClient, AadHttpClientFactory } from '@microsoft/sp-http';
 import { NetworkingDashboard } from './components/NetworkingDashboard';
+import { FeedbackButton } from '../../components/FeedbackButton/FeedbackButton';
 
 // Platform configurations
 const PLATFORM_CONFIGS = {
@@ -41,7 +42,7 @@ const PLATFORM_CONFIGS = {
   },
   azure: {
     name: 'Azure',
-    icon: '🔷',
+    icon: '<svg viewBox="0 0 96 96" width="40" height="40"><path fill="#fff" d="M33.3 6.8h26.5l-27 77.6c-.4 1.2-1.5 2-2.8 2H6.9c-1.6 0-2.9-1.3-2.9-2.9 0-.4.1-.8.2-1.1l24.3-73.6c.4-1.2 1.5-2 2.8-2z"/><path fill="rgba(255,255,255,0.8)" d="M71.2 60.1H29.9c-.7 0-1.1.8-.6 1.3l26.6 24.8c.5.5 1.2.8 1.9.8h23.7L71.2 60.1z"/><path fill="#fff" d="M33.3 6.8c-1.3 0-2.4.8-2.8 2L6.3 82.3c-.1.4-.2.7-.2 1.1 0 1.6 1.3 2.9 2.9 2.9h24.3c1.2-.1 2.2-.9 2.6-2l5.1-14.9 18.5 17.2c.5.4 1.2.7 1.8.7h23.6l-10.2-27h-29l17.8-53.5H33.3z"/><path fill="url(#azcp)" d="M62.7 8.8c-.4-1.2-1.5-2-2.8-2H33.7c1.3 0 2.4.8 2.8 2l24.3 73.6c.1.4.2.8.2 1.1 0 1.6-1.3 2.9-2.9 2.9h26.2c1.6 0 2.9-1.3 2.9-2.9 0-.4-.1-.8-.2-1.1L62.7 8.8z"/><defs><linearGradient id="azcp" x1="45.8" y1="11.3" x2="69" y2="86.4" gradientUnits="userSpaceOnUse"><stop stop-color="rgba(255,255,255,0.7)"/><stop offset="1" stop-color="rgba(255,255,255,0.9)"/></linearGradient></defs></svg>',
     primaryColor: '#0078D4',
     accentColor: '#00BCF2',
     gradient: 'linear-gradient(135deg, #0078D4 0%, #004578 50%, #00BCF2 150%)',
@@ -274,7 +275,13 @@ export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
             <a href="/sites/InfrastructureV2">Infrastructure</a> / {config.name}
           </div>
           <h1 className={styles.heroTitle}>
-            <span className={styles.heroIcon}>{config.icon}</span>
+            <span
+              className={styles.heroIcon}
+              {...(config.icon.startsWith('<svg')
+                ? { dangerouslySetInnerHTML: { __html: config.icon } }
+                : { children: config.icon }
+              )}
+            />
             {config.name} Platform
           </h1>
           <p className={styles.heroSubtitle}>{config.subtitle}</p>
@@ -430,6 +437,16 @@ export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
       <footer className={styles.footer}>
         Infrastructure • <a href="/sites/ITOpsHub">IT Operations Hub</a> • <a href="mailto:infrastructure@lebara.com">Contact Support</a>
       </footer>
+
+      {/* Feedback Button */}
+      {props.graphClient && (
+        <FeedbackButton
+          spHttpClient={spHttpClient}
+          graphClient={props.graphClient}
+          siteUrl={siteUrl}
+          currentPage={platform === 'azure' ? 'Azure' : 'AWS'}
+        />
+      )}
     </div>
   );
 };

@@ -7,7 +7,7 @@ import {
   PropertyPaneTextField
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
-import { AadHttpClient } from '@microsoft/sp-http';
+import { AadHttpClient, MSGraphClientV3 } from '@microsoft/sp-http';
 import CloudPlatform from './CloudPlatform';
 import { ICloudPlatformProps } from './ICloudPlatformProps';
 
@@ -21,13 +21,18 @@ export interface ICloudPlatformWebPartProps {
 
 export default class CloudPlatformWebPart extends BaseClientSideWebPart<ICloudPlatformWebPartProps> {
   private aadHttpClient: AadHttpClient | undefined;
+  private _graphClient: MSGraphClientV3;
 
   protected async onInit(): Promise<void> {
     try {
       this.aadHttpClient = await this.context.aadHttpClientFactory.getClient(IPAM_APP_ID);
     } catch (error) {
       console.warn('IPAM API client not available:', error);
-      // Non-fatal - web part works without IPAM data
+    }
+    try {
+      this._graphClient = await this.context.msGraphClientFactory.getClient('3');
+    } catch (error) {
+      console.warn('Graph client not available:', error);
     }
     return super.onInit();
   }
@@ -41,7 +46,8 @@ export default class CloudPlatformWebPart extends BaseClientSideWebPart<ICloudPl
         siteUrl: this.context.pageContext.web.absoluteUrl,
         customStats: this.properties.customStats,
         aadHttpClient: this.aadHttpClient,
-        aadHttpClientFactory: this.context.aadHttpClientFactory
+        aadHttpClientFactory: this.context.aadHttpClientFactory,
+        graphClient: this._graphClient
       }
     );
 
