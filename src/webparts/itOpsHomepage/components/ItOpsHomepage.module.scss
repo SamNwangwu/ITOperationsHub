@@ -30,7 +30,10 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
     display: none !important;
   }
 
-  // Note: SiteHeader is NOT hidden to preserve mobile navigation
+  // Hide the site title text in the nav bar (web parts have their own hero)
+  [data-automationid="SiteHeaderTitle"] {
+    display: none !important;
+  }
 
   // Style the page background
   .SPCanvas,
@@ -38,6 +41,11 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
   [data-automation-id="Canvas"] {
     background: transparent !important;
   }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 // ========================================
@@ -55,6 +63,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
   box-sizing: border-box;
   min-height: 100vh;
   display: flex;
+  animation: fadeIn 0.3s ease-out;
   flex-direction: column;
 
   // Subtle background pattern
