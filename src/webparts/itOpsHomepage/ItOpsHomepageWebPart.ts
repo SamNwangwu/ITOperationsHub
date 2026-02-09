@@ -343,6 +343,132 @@ const SITE_CONFIGS: { [key: string]: {
       { title: 'Purview Compliance', url: 'https://compliance.microsoft.com', icon: '\uD83D\uDCCB' },
       { title: 'KnowBe4', url: 'https://training.knowbe4.com', icon: '\uD83C\uDF93' }
     ]
+  },
+  'NOC': {
+    title: 'Network Operations Centre',
+    subtitle: 'Monitoring, patching, availability, and incident response',
+    background: '#003366',
+    platformCards: [
+      {
+        title: 'Monitoring & Alerting',
+        description: 'NewRelic dashboards, uptime SLAs, alert noise ratio, MTTA/MTTR',
+        url: 'SitePages/MonitoringAlerting.aspx',
+        icon: '\uD83D\uDCE1',
+        colour: '#ffffff',
+        backgroundColour: '#1B3A5C'
+      },
+      {
+        title: 'Patch Management',
+        description: 'Server patch compliance, upcoming windows, OS version distribution',
+        url: 'SitePages/PatchManagement.aspx',
+        icon: '\uD83D\uDD27',
+        colour: '#ffffff',
+        backgroundColour: '#0D2137'
+      },
+      {
+        title: 'Incident Management',
+        description: 'P1/P2 incidents, escalation stats, RCA completion rates',
+        url: 'SitePages/IncidentManagement.aspx',
+        icon: '\uD83D\uDEA8',
+        colour: '#ffffff',
+        backgroundColour: '#003366'
+      },
+      {
+        title: 'Availability & SLAs',
+        description: 'Uptime by service/environment, planned vs unplanned downtime',
+        url: 'SitePages/AvailabilitySLAs.aspx',
+        icon: '\u2705',
+        colour: '#ffffff',
+        backgroundColour: '#1B3A5C'
+      },
+      {
+        title: 'Capacity Monitoring',
+        description: 'CPU/memory/disk trends, threshold breaches, forecasting',
+        url: 'SitePages/CapacityMonitoring.aspx',
+        icon: '\uD83D\uDCCA',
+        colour: '#ffffff',
+        backgroundColour: '#0D2137'
+      },
+      {
+        title: 'Change Management',
+        description: 'Scheduled maintenance, change success rate, emergency changes',
+        url: 'SitePages/ChangeManagement.aspx',
+        icon: '\uD83D\uDCC5',
+        colour: '#ffffff',
+        backgroundColour: '#003366'
+      }
+    ],
+    quickLinks: [
+      { title: 'NewRelic', url: 'https://one.newrelic.com', icon: '\uD83D\uDCCA' },
+      { title: 'ManageEngine FixIt', url: 'https://fixit.lebara.com', icon: '\uD83C\uDFAB' },
+      { title: 'Azure Monitor', url: 'https://portal.azure.com/#blade/Microsoft_Azure_Monitoring', icon: '\uD83D\uDD0D' },
+      { title: 'Patch Schedule', url: 'SitePages/PatchSchedule.aspx', icon: '\uD83D\uDCC5' },
+      { title: 'Escalation Matrix', url: '/sites/ITOps-ServiceMgmt/Lists/EscalationMatrix', icon: '\uD83D\uDCDE' },
+      { title: 'On-Call Rota', url: 'SitePages/OnCallRota.aspx', icon: '\uD83D\uDC64' }
+    ]
+  },
+  'NetworkInfra': {
+    title: 'Network Infrastructure & Connectivity',
+    subtitle: 'VPN, ExpressRoute, RADIUS, DNS, and network services',
+    background: '#001a4d',
+    platformCards: [
+      {
+        title: 'IPAM & Subnet Management',
+        description: 'VNet utilisation, IP allocation, subnet capacity',
+        url: '/sites/Infrastructure/SitePages/IPAM.aspx',
+        icon: '\uD83C\uDF10',
+        colour: '#ffffff',
+        backgroundColour: '#0D2137'
+      },
+      {
+        title: 'ExpressRoute & WAN',
+        description: 'Circuit health, bandwidth utilisation, peering status',
+        url: 'SitePages/ExpressRoute.aspx',
+        icon: '\u26A1',
+        colour: '#ffffff',
+        backgroundColour: '#001a4d'
+      },
+      {
+        title: 'VPN Services',
+        description: 'Site-to-site tunnels, client VPN usage, split tunnel policies',
+        url: 'SitePages/VPNServices.aspx',
+        icon: '\uD83D\uDD12',
+        colour: '#ffffff',
+        backgroundColour: '#1B3A5C'
+      },
+      {
+        title: 'RADIUS & NAC',
+        description: 'Authentication success/failure rates, device compliance, 802.1X',
+        url: 'SitePages/RadiusNAC.aspx',
+        icon: '\uD83D\uDD11',
+        colour: '#ffffff',
+        backgroundColour: '#0D2137'
+      },
+      {
+        title: 'DNS & DHCP',
+        description: 'Scope utilisation, query volumes, zone health',
+        url: 'SitePages/DnsDhcp.aspx',
+        icon: '\uD83D\uDDA5\uFE0F',
+        colour: '#ffffff',
+        backgroundColour: '#001a4d'
+      },
+      {
+        title: 'Firewall & Network Security',
+        description: 'Rule reviews, ACL changes, policy compliance',
+        url: 'SitePages/FirewallManagement.aspx',
+        icon: '\uD83D\uDEE1\uFE0F',
+        colour: '#ffffff',
+        backgroundColour: '#1B3A5C'
+      }
+    ],
+    quickLinks: [
+      { title: 'Azure IPAM', url: 'https://ipam.lebara.com', icon: '\uD83C\uDF10' },
+      { title: 'Network Watcher', url: 'https://portal.azure.com/#blade/Microsoft_Azure_Network', icon: '\uD83D\uDD0D' },
+      { title: 'ExpressRoute', url: 'https://portal.azure.com/#blade/HubsExtension/BrowseResource/resourceType/Microsoft.Network%2FexpressRouteCircuits', icon: '\u26A1' },
+      { title: 'VPN Gateway', url: 'https://portal.azure.com/#blade/HubsExtension/BrowseResource/resourceType/Microsoft.Network%2FvirtualNetworkGateways', icon: '\uD83D\uDD12' },
+      { title: 'Firewall Manager', url: 'https://portal.azure.com/#blade/Microsoft_Azure_HybridNetworking/FirewallManagerMenuBlade', icon: '\uD83D\uDEE1\uFE0F' },
+      { title: 'Circuit Vendor Portal', url: 'https://vendor.placeholder.com', icon: '\uD83D\uDCDE' }
+    ]
   }
 };
 
@@ -464,7 +590,9 @@ export default class ItOpsHomepageWebPart extends BaseClientSideWebPart<IItOpsHo
                     { key: 'IAM', text: 'Identity & Access Management' },
                     { key: 'Platform', text: 'Platform Engineering' },
                     { key: 'ServiceMgmt', text: 'Service Management' },
-                    { key: 'Security', text: 'Security Operations' }
+                    { key: 'Security', text: 'Security Operations' },
+                    { key: 'NOC', text: 'Network Operations Centre' },
+                    { key: 'NetworkInfra', text: 'Network Infrastructure' }
                   ],
                   selectedKey: siteType
                 })

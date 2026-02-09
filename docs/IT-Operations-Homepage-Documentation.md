@@ -38,6 +38,8 @@ A reusable SharePoint Framework (SPFx) web part that provides a configurable hom
 | Platform Engineering | /sites/ITOps-Platform | `Platform` |
 | Service Management | /sites/ITOps-ServiceMgmt | `ServiceMgmt` |
 | Security Operations | /sites/ITOps-Security | `Security` |
+| Network Operations Centre | /sites/Infrastructure/SitePages/NOC.aspx | `NOC` |
+| Network Infrastructure | /sites/Infrastructure/SitePages/NetworkInfra.aspx | `NetworkInfra` |
 
 ### Features
 
@@ -286,6 +288,20 @@ When you select a Site Type in the web part property pane, content auto-populate
 - **Background:** #C41E3A
 - **Cards:** Vulnerability Management, Cloud Security Posture, Data Security & DLP, Privileged Access (PAM), SIEM & Threat Detection, Security Awareness
 - **Quick Links:** Rapid7 Console, Wiz Portal, Microsoft Sentinel, CyberArk, Purview Compliance, KnowBe4
+
+#### NOC
+- **Title:** Network Operations Centre
+- **Subtitle:** Monitoring, patching, availability, and incident response
+- **Background:** #003366
+- **Cards:** Monitoring & Alerting, Patch Management, Incident Management, Availability & SLAs, Capacity Monitoring, Change Management
+- **Quick Links:** NewRelic, ManageEngine FixIt, Azure Monitor, Patch Schedule, Escalation Matrix, On-Call Rota
+
+#### NetworkInfra
+- **Title:** Network Infrastructure & Connectivity
+- **Subtitle:** VPN, ExpressRoute, RADIUS, DNS, and network services
+- **Background:** #001a4d
+- **Cards:** IPAM & Subnet Management, ExpressRoute & WAN, VPN Services, RADIUS & NAC, DNS & DHCP, Firewall & Network Security
+- **Quick Links:** Azure IPAM, Network Watcher, ExpressRoute, VPN Gateway, Firewall Manager, Circuit Vendor Portal
 
 ### Custom Configuration
 

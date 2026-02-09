@@ -44,7 +44,7 @@ When you add the web part to a page, you can configure:
 
 | Property | Type | Description |
 |----------|------|-------------|
-| siteType | Choice | Infrastructure / IAM / Platform / ServiceMgmt / Security / Hub |
+| siteType | Choice | Infrastructure / IAM / Platform / ServiceMgmt / Security / NOC / NetworkInfra / Hub |
 | heroTitle | String | Main heading text |
 | heroSubtitle | String | Subtitle text |
 | heroBackground | Colour | Background colour (hex) |
