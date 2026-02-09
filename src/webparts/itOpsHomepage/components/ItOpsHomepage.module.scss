@@ -1,5 +1,12 @@
 @import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
 
+// Hide native SharePoint page title to prevent flash before web part renders
+:global {
+  div[data-automation-id="pageHeader"] {
+    display: none !important;
+  }
+}
+
 // Lebara Brand Colours
 $lebara-primary: #00289e;
 $lebara-magenta: #E4007D;
