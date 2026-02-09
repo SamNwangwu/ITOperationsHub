@@ -111,13 +111,21 @@ export const CostManagementDashboard: React.FC<ICostManagementDashboardProps> = 
 
     spHttpClient.get(apiUrl, SPHttpClient.configurations.v1)
       .then(function(response) {
+        if (response.status === 404) {
+          // List not provisioned yet — treat as empty, not error
+          setItems([]);
+          setLoading(false);
+          return null;
+        }
         if (!response.ok) {
           throw new Error('Failed to load cost data (HTTP ' + response.status + ')');
         }
         return response.json();
       })
       .then(function(data) {
-        setItems(data.value || []);
+        if (data) {
+          setItems(data.value || []);
+        }
         setLoading(false);
       })
       .catch(function(err) {
