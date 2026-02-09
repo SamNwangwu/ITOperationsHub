@@ -80,7 +80,7 @@ const SITE_CONFIGS: { [key: string]: {
         url: '/sites/ITOps-Security',
         icon: '\uD83D\uDEE1\uFE0F',
         colour: '#ffffff',
-        backgroundColour: '#C41E3A'
+        backgroundColour: '#0F4C5C'
       }
     ],
     quickLinks: [
@@ -116,7 +116,7 @@ const SITE_CONFIGS: { [key: string]: {
       {
         title: 'Network Operations (NOC)',
         description: 'Monitoring, patching, availability & incident response',
-        url: 'SitePages/NOC.aspx',
+        url: '/sites/InfrastructureV2/SitePages/NOC.aspx',
         icon: '\uD83D\uDCE1',
         colour: '#ffffff',
         backgroundColour: '#003366'
@@ -124,7 +124,7 @@ const SITE_CONFIGS: { [key: string]: {
       {
         title: 'Network Infrastructure',
         description: 'VPN, ExpressRoute, RADIUS, DNS & connectivity',
-        url: 'SitePages/NetworkInfra.aspx',
+        url: '/sites/InfrastructureV2/SitePages/NetworkInfra.aspx',
         icon: '\uD83C\uDF10',
         colour: '#ffffff',
         backgroundColour: '#001a4d'
@@ -284,7 +284,7 @@ const SITE_CONFIGS: { [key: string]: {
   'Security': {
     title: 'Security Operations',
     subtitle: 'Threat management, compliance, and security posture',
-    background: '#C41E3A',
+    background: '#0F4C5C',
     platformCards: [
       {
         title: 'Vulnerability Management',
@@ -292,7 +292,7 @@ const SITE_CONFIGS: { [key: string]: {
         url: 'SitePages/VulnerabilityManagement.aspx',
         icon: '\uD83D\uDEE1\uFE0F',
         colour: '#ffffff',
-        backgroundColour: '#8B0000'
+        backgroundColour: '#0A3A47'
       },
       {
         title: 'Cloud Security Posture',
@@ -300,7 +300,7 @@ const SITE_CONFIGS: { [key: string]: {
         url: 'SitePages/CloudSecurityPosture.aspx',
         icon: '\u2601\uFE0F',
         colour: '#ffffff',
-        backgroundColour: '#A0153E'
+        backgroundColour: '#0F4C5C'
       },
       {
         title: 'Data Security & DLP',
@@ -308,7 +308,7 @@ const SITE_CONFIGS: { [key: string]: {
         url: 'SitePages/DataSecurity.aspx',
         icon: '\uD83D\uDD12',
         colour: '#ffffff',
-        backgroundColour: '#B22222'
+        backgroundColour: '#0D3D4A'
       },
       {
         title: 'Privileged Access (PAM)',
@@ -316,7 +316,7 @@ const SITE_CONFIGS: { [key: string]: {
         url: 'SitePages/PrivilegedAccess.aspx',
         icon: '\uD83D\uDD10',
         colour: '#ffffff',
-        backgroundColour: '#9B1B30'
+        backgroundColour: '#0A3440'
       },
       {
         title: 'SIEM & Threat Detection',
@@ -324,7 +324,7 @@ const SITE_CONFIGS: { [key: string]: {
         url: 'SitePages/SIEMThreatDetection.aspx',
         icon: '\uD83D\uDEA8',
         colour: '#ffffff',
-        backgroundColour: '#800020'
+        backgroundColour: '#083038'
       },
       {
         title: 'Security Awareness',
@@ -332,7 +332,7 @@ const SITE_CONFIGS: { [key: string]: {
         url: 'SitePages/SecurityAwareness.aspx',
         icon: '\uD83C\uDF93',
         colour: '#ffffff',
-        backgroundColour: '#C41E3A'
+        backgroundColour: '#0F4C5C'
       }
     ],
     quickLinks: [
