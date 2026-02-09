@@ -375,7 +375,7 @@ export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
             <CertificateHeroBanner
               spHttpClient={spHttpClient}
               siteUrl={siteUrl}
-              monitorPageUrl="https://lebaragroup.sharepoint.com/sites/InfrastructureV2/SitePages/CertificateMonitor.aspx"
+              monitorPageUrl="https://lebara.sharepoint.com/sites/InfrastructureV2/SitePages/CertificateMonitor.aspx"
             />
           )}
 
