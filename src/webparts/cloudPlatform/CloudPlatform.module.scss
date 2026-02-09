@@ -1,12 +1,5 @@
 @import '~@fluentui/react/dist/sass/References.scss';
 
-// Hide native SharePoint page title to prevent flash before web part renders
-:global {
-  div[data-automation-id="pageHeader"] {
-    display: none !important;
-  }
-}
-
 .cloudPlatform {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: #f5f5f5;
