@@ -431,8 +431,9 @@ export class SharePointDataService {
       .filter(s => !s.classification.isExcludedFromAggregates);
 
     return {
-      overAllocated: paidSkus.filter(s => s.Assigned > s.Purchased),
-      nearCapacity: paidSkus.filter(s => s.UtilisationPct >= 90 && s.Assigned <= s.Purchased),
+      // Exclude Purchased=0 (bundled/add-on SKUs where purchase count is not tracked)
+      overAllocated: paidSkus.filter(s => s.Purchased > 0 && s.Assigned > s.Purchased),
+      nearCapacity: paidSkus.filter(s => s.Purchased > 0 && s.UtilisationPct >= 90 && s.Assigned <= s.Purchased),
       underUtilised: paidSkus.filter(s => s.UtilisationPct < 50 && s.Purchased >= 5),
     };
   }

@@ -22,6 +22,7 @@ import {
 import { KpiCard, IssueCard, DataTable, IDataTableColumn } from './ui';
 import { ExecutiveSummaryPage, CostAnalysisPage, UserDetailPage, UtilisationPage } from './pages';
 import UsageAnalysisPage from './pages/UsageAnalysisPage';
+import { FeedbackButton } from '../../../components/FeedbackButton/FeedbackButton';
 
 type TabType = 'summary' | 'costs' | 'utilisation' | 'issues' | 'users' | 'usage';
 type IssueFilterType = 'all' | 'Disabled' | 'Dual-Licensed' | 'Inactive 90+' | 'Service Account';
@@ -285,6 +286,21 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
     this.setState({ sortField: field, sortDirection: direction });
   }
 
+  /**
+   * Map DataTable column keys to ILicenceUser property names
+   */
+  private resolveSortField(columnKey: string): string {
+    var map: Record<string, string> = {
+      'user': 'Title',
+      'lastSignIn': 'LastSignInDate',
+      'department': 'Department',
+      'jobTitle': 'JobTitle',
+      'licences': 'Licences',
+      'issueType': 'IssueType'
+    };
+    return map[columnKey] || columnKey;
+  }
+
   private onUserClick = (user: ILicenceUser): void => {
     this.setState({ selectedUser: user });
   }
@@ -337,12 +353,17 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
 
     // Sort (only if a sort field is active)
     if (sortField) {
+      var actualField = this.resolveSortField(sortField);
       filtered = [...filtered].sort((a, b) => {
-        const aVal = (a as unknown as Record<string, unknown>)[sortField] || '';
-        const bVal = (b as unknown as Record<string, unknown>)[sortField] || '';
+        var aVal = (a as unknown as Record<string, unknown>)[actualField];
+        var bVal = (b as unknown as Record<string, unknown>)[actualField];
+        // Push nulls/undefined to end regardless of direction
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
 
         if (typeof aVal === 'string' && typeof bVal === 'string') {
-          const result = aVal.toLowerCase().localeCompare(bVal.toLowerCase());
+          var result = aVal.toLowerCase().localeCompare(bVal.toLowerCase());
           return sortDirection === 'asc' ? result : -result;
         }
         if (typeof aVal === 'number' && typeof bVal === 'number') {
@@ -694,11 +715,17 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
 
     // Apply sorting (only if a sort field is active)
     if (sortField) {
+      var actualField = this.resolveSortField(sortField);
       allUsers = [...allUsers].sort((a, b) => {
-        const aVal = (a as unknown as Record<string, unknown>)[sortField] || '';
-        const bVal = (b as unknown as Record<string, unknown>)[sortField] || '';
+        var aVal = (a as unknown as Record<string, unknown>)[actualField];
+        var bVal = (b as unknown as Record<string, unknown>)[actualField];
+        // Push nulls/undefined to end regardless of direction
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
+
         if (typeof aVal === 'string' && typeof bVal === 'string') {
-          const result = aVal.toLowerCase().localeCompare(bVal.toLowerCase());
+          var result = aVal.toLowerCase().localeCompare(bVal.toLowerCase());
           return sortDirection === 'asc' ? result : -result;
         }
         if (typeof aVal === 'number' && typeof bVal === 'number') {
@@ -903,6 +930,15 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
             {!selectedUser && this.renderNavTabs()}
             {this.renderContent()}
           </>
+        )}
+
+        {this.props.graphClient && (
+          <FeedbackButton
+            spHttpClient={this.props.context.spHttpClient}
+            graphClient={this.props.graphClient}
+            siteUrl={this.props.context.pageContext.web.absoluteUrl}
+            currentPage="LicenceIntelligence"
+          />
         )}
       </div>
     );

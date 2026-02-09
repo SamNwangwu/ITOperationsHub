@@ -348,36 +348,54 @@ export class UsageReportService {
     }
 
     // For E5 users, determine E5 feature usage
-    // Note: Full E5 feature tracking requires additional Graph API calls or Defender APIs
-    // For now, we use heuristics based on activity patterns
+    // Uses department/title heuristics combined with actual app usage signals
     const e5FeaturesUsed: string[] = [];
     const e5FeaturesNotUsed: string[] = [];
     let e5UtilisationPct = 0;
 
+    // Determine if user is active on Teams (used for Audio Conferencing / Phone System inference)
+    const hasTeamsActive = appsUsed.indexOf('Teams') >= 0;
+
     if (hasE5) {
-      // Heuristic: If user is in certain departments, they likely use certain features
-      // Check likely feature usage based on role/department
       E5_EXCLUSIVE_FEATURES.forEach(feature => {
         let likelyUsed = false;
 
         switch (feature.id) {
           case 'defender_endpoint':
           case 'defender_o365':
-            likelyUsed = dept.indexOf('security') >= 0 || dept.indexOf('it') >= 0 || title.indexOf('security') >= 0;
+            // Defender runs silently for all active E5 users; attribute to IT/Security explicitly
+            likelyUsed = daysSinceSignIn < 30 && (
+              dept.indexOf('security') >= 0 || dept.indexOf('it') >= 0 ||
+              dept.indexOf('infrastructure') >= 0 || dept.indexOf('engineering') >= 0 ||
+              title.indexOf('security') >= 0 || title.indexOf('engineer') >= 0 ||
+              title.indexOf('admin') >= 0
+            );
+            break;
+          case 'information_protection':
+          case 'cloud_app_security':
+            // AIP and MCAS are tenant-wide; attribute to Security, IT, Compliance
+            likelyUsed = dept.indexOf('security') >= 0 || dept.indexOf('it') >= 0 ||
+              dept.indexOf('compliance') >= 0 || dept.indexOf('infrastructure') >= 0 ||
+              title.indexOf('security') >= 0;
             break;
           case 'ediscovery_premium':
           case 'advanced_compliance':
-            likelyUsed = dept.indexOf('legal') >= 0 || dept.indexOf('compliance') >= 0 || dept.indexOf('hr') >= 0;
+            likelyUsed = dept.indexOf('legal') >= 0 || dept.indexOf('compliance') >= 0 ||
+              dept.indexOf('hr') >= 0 || dept.indexOf('human') >= 0 ||
+              title.indexOf('legal') >= 0 || title.indexOf('compliance') >= 0;
             break;
           case 'power_bi_pro':
-            likelyUsed = dept.indexOf('finance') >= 0 || dept.indexOf('analytics') >= 0 || title.indexOf('analyst') >= 0;
+            likelyUsed = dept.indexOf('finance') >= 0 || dept.indexOf('analytics') >= 0 ||
+              dept.indexOf('data') >= 0 || dept.indexOf('business intelligence') >= 0 ||
+              title.indexOf('analyst') >= 0 || title.indexOf('data') >= 0 ||
+              title.indexOf('bi ') >= 0 || title.indexOf('reporting') >= 0;
             break;
           case 'audio_conferencing':
           case 'phone_system':
-            likelyUsed = dept.indexOf('sales') >= 0 || dept.indexOf('support') >= 0 || title.indexOf('manager') >= 0;
+            // Any active Teams user likely uses calling/conferencing features
+            likelyUsed = hasTeamsActive && daysSinceSignIn < 30;
             break;
           case 'my_analytics':
-            // Most E5 users have access, usage varies
             likelyUsed = daysSinceSignIn < 30;
             break;
         }

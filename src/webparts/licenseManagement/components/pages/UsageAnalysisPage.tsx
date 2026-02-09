@@ -90,16 +90,40 @@ const UsageAnalysisPage: React.FC<IUsageAnalysisPageProps> = ({
         result.sort((a, b) => b.displayName.localeCompare(a.displayName));
         break;
       case 'utilisation-asc':
-        result.sort((a, b) => a.e5UtilisationPct - b.e5UtilisationPct);
+        // E5 users first (sorted low-to-high), then non-E5 at end
+        result.sort((a, b) => {
+          if (a.hasE5 !== b.hasE5) return a.hasE5 ? -1 : 1;
+          var diff = a.e5UtilisationPct - b.e5UtilisationPct;
+          if (diff !== 0) return diff;
+          // Tie-break: fewer apps = lower utilisation
+          var appsDiff = a.appsUsed.length - b.appsUsed.length;
+          if (appsDiff !== 0) return appsDiff;
+          return a.displayName.localeCompare(b.displayName);
+        });
         break;
       case 'utilisation-desc':
-        result.sort((a, b) => b.e5UtilisationPct - a.e5UtilisationPct);
+        result.sort((a, b) => {
+          if (a.hasE5 !== b.hasE5) return a.hasE5 ? -1 : 1;
+          var diff = b.e5UtilisationPct - a.e5UtilisationPct;
+          if (diff !== 0) return diff;
+          var appsDiff = b.appsUsed.length - a.appsUsed.length;
+          if (appsDiff !== 0) return appsDiff;
+          return a.displayName.localeCompare(b.displayName);
+        });
         break;
       case 'savings-desc':
-        result.sort((a, b) => b.potentialAnnualSavings - a.potentialAnnualSavings);
+        result.sort((a, b) => {
+          var diff = b.potentialAnnualSavings - a.potentialAnnualSavings;
+          if (diff !== 0) return diff;
+          return a.displayName.localeCompare(b.displayName);
+        });
         break;
       case 'savings-asc':
-        result.sort((a, b) => a.potentialAnnualSavings - b.potentialAnnualSavings);
+        result.sort((a, b) => {
+          var diff = a.potentialAnnualSavings - b.potentialAnnualSavings;
+          if (diff !== 0) return diff;
+          return a.displayName.localeCompare(b.displayName);
+        });
         break;
     }
 
