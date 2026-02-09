@@ -24,7 +24,31 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
 // ========================================
 // GLOBAL OVERRIDES - Hide SharePoint elements
 // ========================================
+
+// Suppress SharePoint native page title/header to prevent flash during SPA navigation
 :global {
+  // Page title region and skeleton placeholder
+  div[data-automation-id="pageHeader"],
+  div[data-automation-id="pageHeaderTitleRow"],
+  .SPPageChrome--title,
+  div[class*="pageTitle"],
+  div[class*="PageTitle"] {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  // SharePoint skeleton shimmer bars that appear during page load
+  div[class*="shimmer"],
+  div[class*="Shimmer"],
+  div[data-automation-id="titleRegion"] {
+    display: none !important;
+    height: 0 !important;
+  }
+
   // Hide social bar (Like, Views, Save for later)
   #CommentsWrapper {
     display: none !important;
@@ -43,11 +67,6 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
   }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 // ========================================
 // MAIN CONTAINER
 // ========================================
@@ -63,7 +82,6 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
   box-sizing: border-box;
   min-height: 100vh;
   display: flex;
-  animation: fadeIn 0.3s ease-out;
   flex-direction: column;
 
   // Subtle background pattern
@@ -97,6 +115,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
   position: relative;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  min-height: 200px;
 
   // Decorative elements
   &::before {
@@ -208,6 +227,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
 .platformSection {
   margin-bottom: 24px;
   overflow: visible;
+  min-height: 180px;
 }
 
 .platformGrid {
@@ -336,6 +356,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border-radius: 16px;
   padding: 28px 32px;
+  min-height: 100px;
   margin-bottom: 24px;
   box-shadow: $shadow-md;
   border: 1px solid rgba(0, 0, 0, 0.04);
@@ -399,6 +420,7 @@ $shadow-glow: 0 0 30px rgba(0, 40, 158, 0.12);
   margin-bottom: 24px;
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border-radius: 16px;
+  min-height: 200px;
   padding: 28px 32px;
   box-shadow: $shadow-md;
   border: 1px solid rgba(0, 0, 0, 0.04);
