@@ -6,6 +6,7 @@ import { SPHttpClient, SPHttpClientResponse, AadHttpClient, AadHttpClientFactory
 import { NetworkingDashboard } from './components/NetworkingDashboard';
 import { FeedbackButton } from '../../components/FeedbackButton/FeedbackButton';
 import CertificateHeroBanner from './components/CertificateHeroBanner';
+import { CostManagementDashboard } from './components/CostManagementDashboard';
 
 // Platform configurations
 const PLATFORM_CONFIGS = {
@@ -52,7 +53,7 @@ const PLATFORM_CONFIGS = {
     consoleName: 'Azure Portal',
     sections: [
       { id: 'architecture', title: 'Architecture', icon: '🏗️', folder: 'Azure/Architecture' },
-      { id: 'cost', title: 'Cost Management', icon: '💰', folder: 'Azure/Cost-Management' },
+      { id: 'cost', title: 'Cost Management', icon: '💰', folder: 'Cost Management' },
       { id: 'avd', title: 'AVD (Virtual Desktop)', icon: '💻', folder: 'Azure/AVD' },
       { id: 'security', title: 'Security', icon: '🔒', folder: 'Azure/Security' },
       { id: 'certificates', title: 'Certificates', icon: '🔐', folder: 'Azure/Certificates' },
@@ -162,6 +163,7 @@ export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [azureStats, setAzureStats] = useState<IAzureStats | null>(null);
   const [statsLoading, setStatsLoading] = useState<boolean>(false);
+  const [costSummary, setCostSummary] = useState<{ effectiveCost: number; savingsRate: number } | null>(null);
 
   useEffect(() => {
     if (platform === 'azure' && props.aadHttpClientFactory && !customStats) {
@@ -175,8 +177,31 @@ export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
     }
   }, [platform, props.aadHttpClientFactory]);
 
+  // Fetch cost summary for Resource Overview KPIs
+  useEffect(() => {
+    if (platform === 'azure' && spHttpClient && siteUrl) {
+      var url = siteUrl + "/_api/web/lists/getbytitle('CloudCostSummary')/items?$orderby=ReportMonth desc&$top=1&$select=EffectiveCost,EffectiveSavingsRate,ReportMonth";
+      spHttpClient.get(url, SPHttpClient.configurations.v1)
+        .then(function(response) {
+          if (response.ok) return response.json();
+          return null;
+        })
+        .then(function(data) {
+          if (data && data.value && data.value.length > 0) {
+            setCostSummary({
+              effectiveCost: data.value[0].EffectiveCost,
+              savingsRate: data.value[0].EffectiveSavingsRate
+            });
+          }
+        })
+        .catch(function(err) {
+          console.warn('Cost summary not available:', err);
+        });
+    }
+  }, [platform, spHttpClient, siteUrl]);
+
   // Parse custom stats if provided, or use live Azure data
-  const stats = customStats
+  const baseStats = customStats
     ? (() => { try { return JSON.parse(customStats); } catch { return config.stats; } })()
     : (platform === 'azure' && azureStats)
       ? [
@@ -186,6 +211,15 @@ export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
           { label: 'Storage Accounts', value: String(azureStats.storageAccounts), icon: '📦' }
         ]
       : config.stats;
+
+  const costStats = (platform === 'azure' && costSummary)
+    ? [
+        { label: 'Monthly Spend', value: '\u00A3' + Math.round(costSummary.effectiveCost / 1000) + 'K', icon: '💰' },
+        { label: 'Savings Rate', value: costSummary.savingsRate.toFixed(1) + '%', icon: '📉' }
+      ]
+    : [];
+
+  const stats = baseStats.concat(costStats);
 
   // Fetch documents from SharePoint
   useEffect(() => {
@@ -377,6 +411,11 @@ export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
               siteUrl={siteUrl}
               monitorPageUrl="https://lebara.sharepoint.com/sites/InfrastructureV2/SitePages/CertificateMonitor.aspx"
             />
+          )}
+
+          {/* Cost Management Dashboard — Azure Cost tab only */}
+          {platform === 'azure' && activeSection === 'cost' && (
+            <CostManagementDashboard spHttpClient={spHttpClient} siteUrl={siteUrl} />
           )}
 
           {/* Current Section Documents */}
