@@ -238,7 +238,7 @@ export const NetworkingDashboard: React.FC<INetworkingDashboardProps> = (props) 
         <div className={styles.sectionCard}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>
-              <span className={styles.icon}>🔥</span>
+              <span className={styles.icon}>📊</span>
               Highest Utilised Subnets
             </h2>
           </div>

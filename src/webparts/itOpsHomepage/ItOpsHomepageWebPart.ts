@@ -73,6 +73,14 @@ const SITE_CONFIGS: { [key: string]: {
         icon: '📋',
         colour: '#ffffff',
         backgroundColour: '#003366'
+      },
+      {
+        title: 'Security Operations',
+        description: 'Threat management, compliance & posture',
+        url: '/sites/ITOps-Security',
+        icon: '\uD83D\uDEE1\uFE0F',
+        colour: '#ffffff',
+        backgroundColour: '#C41E3A'
       }
     ],
     quickLinks: [
@@ -104,6 +112,22 @@ const SITE_CONFIGS: { [key: string]: {
         icon: '<svg viewBox="0 0 96 96" width="40" height="40"><path fill="#0078D4" d="M33.3 6.8h26.5l-27 77.6c-.4 1.2-1.5 2-2.8 2H6.9c-1.6 0-2.9-1.3-2.9-2.9 0-.4.1-.8.2-1.1l24.3-73.6c.4-1.2 1.5-2 2.8-2z"/><path fill="#0078D4" d="M71.2 60.1H29.9c-.7 0-1.1.8-.6 1.3l26.6 24.8c.5.5 1.2.8 1.9.8h23.7L71.2 60.1z"/><path fill="#0078D4" d="M33.3 6.8c-1.3 0-2.4.8-2.8 2L6.3 82.3c-.1.4-.2.7-.2 1.1 0 1.6 1.3 2.9 2.9 2.9h24.3c1.2-.1 2.2-.9 2.6-2l5.1-14.9 18.5 17.2c.5.4 1.2.7 1.8.7h23.6l-10.2-27h-29l17.8-53.5H33.3z"/><path fill="url(#a)" d="M62.7 8.8c-.4-1.2-1.5-2-2.8-2H33.7c1.3 0 2.4.8 2.8 2l24.3 73.6c.1.4.2.8.2 1.1 0 1.6-1.3 2.9-2.9 2.9h26.2c1.6 0 2.9-1.3 2.9-2.9 0-.4-.1-.8-.2-1.1L62.7 8.8z"/><defs><linearGradient id="a" x1="45.8" y1="11.3" x2="69" y2="86.4" gradientUnits="userSpaceOnUse"><stop stop-color="#114A8B"/><stop offset="1" stop-color="#0669BC"/></linearGradient></defs></svg>',
         colour: '#ffffff',
         backgroundColour: '#0078D4'
+      },
+      {
+        title: 'Network Operations (NOC)',
+        description: 'Monitoring, patching, availability & incident response',
+        url: 'SitePages/NOC.aspx',
+        icon: '\uD83D\uDCE1',
+        colour: '#ffffff',
+        backgroundColour: '#003366'
+      },
+      {
+        title: 'Network Infrastructure',
+        description: 'VPN, ExpressRoute, RADIUS, DNS & connectivity',
+        url: 'SitePages/NetworkInfra.aspx',
+        icon: '\uD83C\uDF10',
+        colour: '#ffffff',
+        backgroundColour: '#001a4d'
       }
     ],
     quickLinks: [
@@ -112,7 +136,9 @@ const SITE_CONFIGS: { [key: string]: {
       { title: 'Azure Portal', url: 'https://portal.azure.com', icon: '<svg viewBox="0 0 96 96" width="26" height="26"><path fill="#0078D4" d="M33.3 6.8h26.5l-27 77.6c-.4 1.2-1.5 2-2.8 2H6.9c-1.6 0-2.9-1.3-2.9-2.9 0-.4.1-.8.2-1.1l24.3-73.6c.4-1.2 1.5-2 2.8-2z"/><path fill="#0078D4" d="M71.2 60.1H29.9c-.7 0-1.1.8-.6 1.3l26.6 24.8c.5.5 1.2.8 1.9.8h23.7L71.2 60.1z"/><path fill="#0078D4" d="M33.3 6.8c-1.3 0-2.4.8-2.8 2L6.3 82.3c-.1.4-.2.7-.2 1.1 0 1.6 1.3 2.9 2.9 2.9h24.3c1.2-.1 2.2-.9 2.6-2l5.1-14.9 18.5 17.2c.5.4 1.2.7 1.8.7h23.6l-10.2-27h-29l17.8-53.5H33.3z"/><path fill="url(#az)" d="M62.7 8.8c-.4-1.2-1.5-2-2.8-2H33.7c1.3 0 2.4.8 2.8 2l24.3 73.6c.1.4.2.8.2 1.1 0 1.6-1.3 2.9-2.9 2.9h26.2c1.6 0 2.9-1.3 2.9-2.9 0-.4-.1-.8-.2-1.1L62.7 8.8z"/><defs><linearGradient id="az" x1="45.8" y1="11.3" x2="69" y2="86.4" gradientUnits="userSpaceOnUse"><stop stop-color="#114A8B"/><stop offset="1" stop-color="#0669BC"/></linearGradient></defs></svg>' },
       { title: 'Runbooks', url: '/sites/ITOps-ServiceMgmt/Lists/Runbooks', icon: '📋' },
       { title: 'Escalation', url: '/sites/ITOps-ServiceMgmt/Lists/EscalationMatrix', icon: '📞' },
-      { title: 'Certificates', url: 'Lists/CertInventory', icon: '🔐' }
+      { title: 'Certificates', url: 'Lists/CertInventory', icon: '🔐' },
+      { title: 'Azure Monitor', url: 'https://portal.azure.com/#blade/Microsoft_Azure_Monitoring', icon: '\uD83D\uDCCA' },
+      { title: 'Patch Schedule', url: 'SitePages/PatchSchedule.aspx', icon: '\uD83D\uDD27' }
     ]
   },
   'IAM': {
@@ -254,6 +280,69 @@ const SITE_CONFIGS: { [key: string]: {
       { title: 'New Relic', url: 'https://one.newrelic.com', icon: '📊' },
       { title: 'PagerDuty', url: 'https://lebara.pagerduty.com', icon: '🚨' }
     ]
+  },
+  'Security': {
+    title: 'Security Operations',
+    subtitle: 'Threat management, compliance, and security posture',
+    background: '#C41E3A',
+    platformCards: [
+      {
+        title: 'Vulnerability Management',
+        description: 'Rapid7 scan coverage, aging vulnerabilities, remediation SLAs',
+        url: 'SitePages/VulnerabilityManagement.aspx',
+        icon: '\uD83D\uDEE1\uFE0F',
+        colour: '#ffffff',
+        backgroundColour: '#8B0000'
+      },
+      {
+        title: 'Cloud Security Posture',
+        description: 'Wiz findings, misconfigurations, compliance frameworks',
+        url: 'SitePages/CloudSecurityPosture.aspx',
+        icon: '\u2601\uFE0F',
+        colour: '#ffffff',
+        backgroundColour: '#A0153E'
+      },
+      {
+        title: 'Data Security & DLP',
+        description: 'Varonis alerts, sensitive data exposure, Purview DLP policies',
+        url: 'SitePages/DataSecurity.aspx',
+        icon: '\uD83D\uDD12',
+        colour: '#ffffff',
+        backgroundColour: '#B22222'
+      },
+      {
+        title: 'Privileged Access (PAM)',
+        description: 'CyberArk sessions, password rotation, vault onboarding',
+        url: 'SitePages/PrivilegedAccess.aspx',
+        icon: '\uD83D\uDD10',
+        colour: '#ffffff',
+        backgroundColour: '#9B1B30'
+      },
+      {
+        title: 'SIEM & Threat Detection',
+        description: 'Sentinel alerts, MTTR, incident trends, false positive rates',
+        url: 'SitePages/SIEMThreatDetection.aspx',
+        icon: '\uD83D\uDEA8',
+        colour: '#ffffff',
+        backgroundColour: '#800020'
+      },
+      {
+        title: 'Security Awareness',
+        description: 'KnowBe4 training completion, phishing simulation results',
+        url: 'SitePages/SecurityAwareness.aspx',
+        icon: '\uD83C\uDF93',
+        colour: '#ffffff',
+        backgroundColour: '#C41E3A'
+      }
+    ],
+    quickLinks: [
+      { title: 'Rapid7 Console', url: 'https://insight.rapid7.com', icon: '\uD83D\uDEE1\uFE0F' },
+      { title: 'Wiz Portal', url: 'https://app.wiz.io', icon: '\u2601\uFE0F' },
+      { title: 'Microsoft Sentinel', url: 'https://portal.azure.com/#blade/Microsoft_Azure_Security_Insights', icon: '\uD83D\uDD0D' },
+      { title: 'CyberArk', url: 'https://cyberark.lebara.com', icon: '\uD83D\uDD10' },
+      { title: 'Purview Compliance', url: 'https://compliance.microsoft.com', icon: '\uD83D\uDCCB' },
+      { title: 'KnowBe4', url: 'https://training.knowbe4.com', icon: '\uD83C\uDF93' }
+    ]
   }
 };
 
@@ -374,7 +463,8 @@ export default class ItOpsHomepageWebPart extends BaseClientSideWebPart<IItOpsHo
                     { key: 'Infrastructure', text: 'Infrastructure' },
                     { key: 'IAM', text: 'Identity & Access Management' },
                     { key: 'Platform', text: 'Platform Engineering' },
-                    { key: 'ServiceMgmt', text: 'Service Management' }
+                    { key: 'ServiceMgmt', text: 'Service Management' },
+                    { key: 'Security', text: 'Security Operations' }
                   ],
                   selectedKey: siteType
                 })

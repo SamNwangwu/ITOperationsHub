@@ -51,8 +51,8 @@ const PLATFORM_CONFIGS = {
     consoleName: 'Azure Portal',
     sections: [
       { id: 'architecture', title: 'Architecture', icon: '🏗️', folder: 'Azure/Architecture' },
+      { id: 'cost', title: 'Cost Management', icon: '💰', folder: 'Azure/Cost-Management' },
       { id: 'avd', title: 'AVD (Virtual Desktop)', icon: '💻', folder: 'Azure/AVD' },
-      { id: 'd365', title: 'D365 Migration', icon: '📦', folder: 'Azure/D365-Migration' },
       { id: 'security', title: 'Security', icon: '🔒', folder: 'Azure/Security' },
       { id: 'certificates', title: 'Certificates', icon: '🔐', folder: 'Azure/Certificates' },
       { id: 'networking', title: 'Networking', icon: '🌐', folder: 'Azure/Networking' }

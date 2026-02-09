@@ -37,6 +37,7 @@ A reusable SharePoint Framework (SPFx) web part that provides a configurable hom
 | Identity & Access | /sites/ITOps-IAM | `IAM` |
 | Platform Engineering | /sites/ITOps-Platform | `Platform` |
 | Service Management | /sites/ITOps-ServiceMgmt | `ServiceMgmt` |
+| Security Operations | /sites/ITOps-Security | `Security` |
 
 ### Features
 
@@ -255,8 +256,8 @@ When you select a Site Type in the web part property pane, content auto-populate
 - **Title:** Infrastructure Services
 - **Subtitle:** Cloud platforms, networking, and core systems
 - **Background:** #00289e
-- **Cards:** AWS, Azure
-- **Quick Links:** New Relic, AWS Console, Azure Portal, Runbooks, Escalation, Certificates
+- **Cards:** AWS, Azure, Network Operations (NOC), Network Infrastructure
+- **Quick Links:** New Relic, AWS Console, Azure Portal, Runbooks, Escalation, Certificates, Azure Monitor, Patch Schedule
 
 #### IAM
 - **Title:** Identity & Access Management
@@ -278,6 +279,13 @@ When you select a Site Type in the web part property pane, content auto-populate
 - **Background:** #107C10
 - **Cards:** Runbooks, Escalation Matrix, Knowledge Base, Service Desk
 - **Quick Links:** Service Desk, Runbooks, Escalation, Knowledge Base, New Relic, PagerDuty
+
+#### Security
+- **Title:** Security Operations
+- **Subtitle:** Threat management, compliance, and security posture
+- **Background:** #C41E3A
+- **Cards:** Vulnerability Management, Cloud Security Posture, Data Security & DLP, Privileged Access (PAM), SIEM & Threat Detection, Security Awareness
+- **Quick Links:** Rapid7 Console, Wiz Portal, Microsoft Sentinel, CyberArk, Purview Compliance, KnowBe4
 
 ### Custom Configuration
 
