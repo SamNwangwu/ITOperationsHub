@@ -16,9 +16,7 @@
     padding: 0 !important;
   }
 
-  // SharePoint skeleton shimmer bars that appear during page load
-  div[class*="shimmer"],
-  div[class*="Shimmer"],
+  // SharePoint title region skeleton
   div[data-automation-id="titleRegion"] {
     display: none !important;
     height: 0 !important;
