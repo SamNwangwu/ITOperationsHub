@@ -5,6 +5,7 @@ import { ICloudPlatformProps } from './ICloudPlatformProps';
 import { SPHttpClient, SPHttpClientResponse, AadHttpClient, AadHttpClientFactory } from '@microsoft/sp-http';
 import { NetworkingDashboard } from './components/NetworkingDashboard';
 import { FeedbackButton } from '../../components/FeedbackButton/FeedbackButton';
+import CertificateHeroBanner from './components/CertificateHeroBanner';
 
 // Platform configurations
 const PLATFORM_CONFIGS = {
@@ -367,6 +368,15 @@ export const CloudPlatform: React.FC<ICloudPlatformProps> = (props) => {
           {/* IPAM Dashboard - only for networking section on Azure platform */}
           {platform === 'azure' && activeSection === 'networking' && (
             <NetworkingDashboard aadHttpClient={aadHttpClient} />
+          )}
+
+          {/* Certificate Monitor Hero — Azure Certificates tab only */}
+          {platform === 'azure' && activeSection === 'certificates' && (
+            <CertificateHeroBanner
+              spHttpClient={spHttpClient}
+              siteUrl={siteUrl}
+              monitorPageUrl="https://lebaragroup.sharepoint.com/sites/InfrastructureV2/SitePages/CertificateMonitor.aspx"
+            />
           )}
 
           {/* Current Section Documents */}
