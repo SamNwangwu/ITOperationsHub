@@ -14,7 +14,19 @@
       "Bash(gulp package-solution:*)",
       "Bash(grep:*)",
       "Bash(dir:*)",
-      "Bash(npx gulp:*)"
+      "Bash(npx gulp:*)",
+      "Bash(gulp build:*)",
+      "Bash(del \"c:\\\\Users\\\\Samuel.Nwangwu\\\\Documents\\\\Lebara\\\\ITOperationsHub\\\\spfx-itops-homepage\\\\remove-lines.ps1\")",
+      "Bash(git status:*)",
+      "Bash(Select-Object -First 1)",
+      "Bash(powershell.exe -Command \"az graph query -q \"\"Resources | where type in~ \\(''microsoft.compute/virtualmachines'', ''microsoft.storage/storageaccounts'', ''microsoft.desktopvirtualization/hostpools''\\) | summarize count\\(\\) by type\"\" --first 100 -o json 2>&1\")",
+      "Bash(powershell.exe -Command \"az rest --method post --url ''https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01'' --body ''{\"\"query\"\": \"\"Resources | where type in~ \\(''''microsoft.compute/virtualmachines'''', ''''microsoft.storage/storageaccounts'''', ''''microsoft.desktopvirtualization/hostpools''''\\) | summarize count\\(\\) by type\"\"}'' -o json 2>&1\")",
+      "Bash(powershell.exe -NoProfile -Command \"$body = @{ query = \"\"Resources | where type in~ \\(''microsoft.compute/virtualmachines'', ''microsoft.storage/storageaccounts'', ''microsoft.desktopvirtualization/hostpools''\\) | summarize count\\(\\) by type\"\" } | ConvertTo-Json; $body | Out-File -FilePath $env:TEMP\\\\rgquery.json -Encoding utf8; az rest --method post --url ''https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01'' --body ''@'' -o json < $env:TEMP\\\\rgquery.json 2>&1\")",
+      "Bash(powershell.exe -NoProfile -Command \"az rest --method post --url ''https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01'' --body ''@c:\\\\Users\\\\Samuel.Nwangwu\\\\Documents\\\\Lebara\\\\ITOperationsHub\\\\spfx-itops-homepage\\\\temp_rgquery.json'' -o json 2>&1\")",
+      "Bash(powershell.exe -NoProfile -Command \"az rest --method get --url ''https://management.azure.com/subscriptions?api-version=2022-12-01'' -o json 2>&1 | ConvertFrom-Json | Select-Object -ExpandProperty value | Measure-Object | Select-Object -ExpandProperty Count\")",
+      "Bash(powershell.exe -NoProfile -Command \"\\(az rest --method get --url ''https://management.azure.com/subscriptions?api-version=2022-12-01'' -o json 2>$null | ConvertFrom-Json\\).value.Count\")",
+      "Bash(powershell.exe -NoProfile -Command \"az account list --query ''length\\([]\\)'' -o tsv\")",
+      "Bash(del:*)"
     ]
   }
 }
