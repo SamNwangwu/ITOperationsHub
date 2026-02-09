@@ -23,6 +23,7 @@ export interface IItOpsHomepageWebPartProps {
   heroImage: string;
   showStatusBadge: boolean;
   statusApiUrl: string;
+  hubSiteUrl: string;
   showArchitectureDiagrams: boolean;
   diagramsLibraryUrl: string;
   platformCardsJson: string;
@@ -531,6 +532,7 @@ export default class ItOpsHomepageWebPart extends BaseClientSideWebPart<IItOpsHo
         heroImage: this.properties.heroImage,
         showStatusBadge: this.properties.showStatusBadge !== false,
         statusApiUrl: this.properties.statusApiUrl,
+        hubSiteUrl: this.properties.hubSiteUrl,
         showArchitectureDiagrams: this.properties.showArchitectureDiagrams !== false,
         diagramsLibraryUrl: this.properties.diagramsLibraryUrl,
         platformCards: platformCards,
@@ -625,6 +627,11 @@ export default class ItOpsHomepageWebPart extends BaseClientSideWebPart<IItOpsHo
                   label: 'Show Status Badge',
                   onText: 'Yes',
                   offText: 'No'
+                }),
+                PropertyPaneTextField('hubSiteUrl', {
+                  label: 'Hub Site URL',
+                  description: 'URL of the IT Ops Hub site (for status indicator). Leave blank if this IS the hub site.',
+                  placeholder: 'https://lebaragroup.sharepoint.com/sites/ITOpsHub'
                 })
               ]
             },

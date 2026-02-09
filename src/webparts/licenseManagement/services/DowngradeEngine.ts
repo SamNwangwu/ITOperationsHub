@@ -18,21 +18,8 @@ import {
   DowngradeType,
   IUserCostBreakdown
 } from '../models/ILicenceData';
-import { getSkuFriendlyName } from '../utils/SkuClassifier';
-
-// Standard UK pricing (fallback if not in pricing list)
-const STANDARD_PRICING: Record<string, number> = {
-  'Microsoft 365 E5': 49.20,
-  'Microsoft 365 E3': 30.20,
-  'Office 365 E5': 32.00,
-  'Office 365 E3': 19.00,
-  'Microsoft 365 F3': 7.50,
-  'Office 365 F3': 3.40,
-  'Microsoft 365 Business Basic': 4.50,
-  'Microsoft 365 Business Standard': 9.40,
-  'Microsoft 365 Business Premium': 16.60,
-  'Microsoft 365 Apps for Enterprise': 11.20,
-};
+import { getSkuFriendlyName, classifySkuWithPurchased } from '../utils/SkuClassifier';
+import { STANDARD_PRICING } from '../constants/Pricing';
 
 // SKU part numbers for licence identification
 const E5_SKUS = ['ENTERPRISEPREMIUM', 'SPE_E5', 'ENTERPRISEPREMIUM_NOPSTNCONF'];
@@ -105,13 +92,12 @@ export class DowngradeEngine {
       return { cost: this.pricing.get(directFriendlyName)!, source: 'friendly_name' };
     }
 
-    // Strategy 5: Standard pricing fallback
+    // Strategy 5: Standard pricing fallback - only if licence name contains full standard name
     const standardNames = Object.keys(STANDARD_PRICING);
     for (let i = 0; i < standardNames.length; i++) {
       const name = standardNames[i];
       const cost = STANDARD_PRICING[name];
-      if (trimmedName.toLowerCase().indexOf(name.toLowerCase()) >= 0 ||
-          name.toLowerCase().indexOf(trimmedName.toLowerCase()) >= 0) {
+      if (trimmedName.toLowerCase().indexOf(name.toLowerCase()) >= 0) {
         return { cost, source: 'standard' };
       }
     }
@@ -128,8 +114,21 @@ export class DowngradeEngine {
     const licenceNames = user.Licences.split(',').map(l => l.trim()).filter(l => l);
 
     const licences = licenceNames.map(name => {
-      const { cost, source } = this.getLicenceCost(name);
       const sku = this.skuMap.get(name) || this.skuMap.get(name.toLowerCase());
+      // Exclude free/viral SKUs from costing
+      if (sku) {
+        const classification = classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased, sku.Assigned);
+        if (classification.isExcludedFromAggregates) {
+          return {
+            name,
+            skuPartNumber: sku.SkuPartNumber,
+            monthlyCost: 0,
+            annualCost: 0,
+            pricingSource: 'not_found' as 'direct' | 'sku_lookup' | 'friendly_name' | 'not_found'
+          };
+        }
+      }
+      const { cost, source } = this.getLicenceCost(name);
       return {
         name,
         skuPartNumber: sku?.SkuPartNumber,
@@ -152,11 +151,14 @@ export class DowngradeEngine {
         break;
 
       case 'Dual-Licensed':
-        // Keep the most expensive licence, save the rest
+        // Keep the most expensive paid licence, save the rest
         if (licences.length > 1) {
-          const sorted = [...licences].sort((a, b) => b.monthlyCost - a.monthlyCost);
-          potentialMonthlySavings = sorted.slice(1).reduce((sum, l) => sum + l.monthlyCost, 0);
-          savingsReason = `Remove redundant licence(s), keep ${sorted[0].name}`;
+          const paidLicences = licences.filter(function(l) { return l.monthlyCost > 0; });
+          if (paidLicences.length > 1) {
+            const sorted = [...paidLicences].sort((a, b) => b.monthlyCost - a.monthlyCost);
+            potentialMonthlySavings = sorted.slice(1).reduce((sum, l) => sum + l.monthlyCost, 0);
+            savingsReason = `Remove redundant licence(s), keep ${sorted[0].name}`;
+          }
         }
         break;
 
@@ -234,7 +236,7 @@ export class DowngradeEngine {
           currentLicence: 'Microsoft 365 E5',
           recommendedLicence: 'Microsoft 365 E3',
           downgradeType: 'E5→E3',
-          reason: `Low activity (${user.DaysSinceSignIn} days since sign-in) suggests E5 features may not be needed`,
+          reason: `Reduced sign-in activity (${user.DaysSinceSignIn} days since last sign-in). Review E5 feature usage before downgrading.`,
           monthlySavings,
           annualSavings: monthlySavings * 12,
           confidence: user.DaysSinceSignIn > 60 ? 'high' : 'medium'

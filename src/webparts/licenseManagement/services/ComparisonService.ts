@@ -5,15 +5,17 @@
 
 import {
   ILicenceSnapshot,
+  ILicenceSku,
   IMonthComparison,
   IMonthComparisonData
 } from '../models/ILicenceData';
+import { classifySkuWithPurchased } from '../utils/SkuClassifier';
 
 export class ComparisonService {
   /**
    * Generate month-over-month comparison from snapshots
    */
-  public generateMonthComparison(snapshots: ILicenceSnapshot[]): IMonthComparisonData | null {
+  public generateMonthComparison(snapshots: ILicenceSnapshot[], skus?: ILicenceSku[]): IMonthComparisonData | null {
     if (!snapshots || snapshots.length === 0) {
       return null;
     }
@@ -32,9 +34,9 @@ export class ComparisonService {
     const currentSnapshots = snapshots.filter(s => s.SnapshotDate === currentDate);
     const previousSnapshots = snapshots.filter(s => s.SnapshotDate === previousDate);
 
-    // Calculate totals for each period
-    const current = this.calculatePeriodTotals(currentSnapshots);
-    const previous = this.calculatePeriodTotals(previousSnapshots);
+    // Calculate totals for each period (filtering to paid SKUs only)
+    const current = this.calculatePeriodTotals(currentSnapshots, skus);
+    const previous = this.calculatePeriodTotals(previousSnapshots, skus);
 
     const comparisons: IMonthComparison[] = [];
 
@@ -123,8 +125,9 @@ export class ComparisonService {
 
   /**
    * Calculate period totals from snapshots
+   * Filters to paid SKUs only when SKU list is provided
    */
-  private calculatePeriodTotals(snapshots: ILicenceSnapshot[]): {
+  private calculatePeriodTotals(snapshots: ILicenceSnapshot[], skus?: ILicenceSku[]): {
     totalUsers: number;
     totalAssigned: number;
     totalPurchased: number;
@@ -133,13 +136,28 @@ export class ComparisonService {
     dualCount: number;
     serviceCount: number;
   } {
+    var filteredSnapshots = snapshots;
+
+    if (skus && skus.length > 0) {
+      // Build set of paid SKU names
+      var paidSkuNames: string[] = [];
+      skus.forEach(function(s) {
+        if (!classifySkuWithPurchased(s.SkuPartNumber, s.Purchased, s.Assigned).isExcludedFromAggregates) {
+          paidSkuNames.push(s.Title);
+        }
+      });
+      filteredSnapshots = snapshots.filter(function(s) {
+        return paidSkuNames.indexOf(s.SkuName) >= 0;
+      });
+    }
+
     // Use the first snapshot's user counts (they should be consistent across SKUs)
     const firstSnap: ILicenceSnapshot | undefined = snapshots[0];
 
     return {
       totalUsers: firstSnap ? firstSnap.TotalUsers || 0 : 0,
-      totalAssigned: snapshots.reduce((sum, s) => sum + s.Assigned, 0),
-      totalPurchased: snapshots.reduce((sum, s) => sum + s.Purchased, 0),
+      totalAssigned: filteredSnapshots.reduce((sum, s) => sum + s.Assigned, 0),
+      totalPurchased: filteredSnapshots.reduce((sum, s) => sum + s.Purchased, 0),
       disabledCount: firstSnap ? firstSnap.DisabledCount || 0 : 0,
       inactiveCount: firstSnap ? firstSnap.InactiveCount || 0 : 0,
       dualCount: firstSnap ? firstSnap.DualCount || 0 : 0,

@@ -5,6 +5,7 @@ import {
   ILicenceSku,
   ILicenceUser
 } from '../models/ILicenceData';
+import { classifySkuWithPurchased } from '../utils/SkuClassifier';
 
 export interface IInsight {
   id: string;
@@ -96,8 +97,13 @@ export class InsightEngine {
   private analyzeUtilisation(skus: ILicenceSku[], kpi: IKpiSummary): IInsight[] {
     const insights: IInsight[] = [];
 
-    // Over-allocated SKUs
-    const overAllocated = skus.filter(s => s.Assigned > s.Purchased);
+    // Only analyse paid SKUs
+    const paidSkus = skus.filter(function(s) {
+      return !classifySkuWithPurchased(s.SkuPartNumber, s.Purchased, s.Assigned).isExcludedFromAggregates;
+    });
+
+    // Over-allocated SKUs (only paid, exclude Purchased=0 bundled SKUs)
+    const overAllocated = paidSkus.filter(s => s.Purchased > 0 && s.Assigned > s.Purchased);
     if (overAllocated.length > 0) {
       insights.push({
         id: 'over-allocated',
@@ -109,7 +115,7 @@ export class InsightEngine {
     }
 
     // Under-utilised SKUs (< 70%)
-    const underUtilised = skus.filter(s => s.UtilisationPct < 70 && s.Purchased >= 10);
+    const underUtilised = paidSkus.filter(s => s.UtilisationPct < 70 && s.Purchased >= 10);
     if (underUtilised.length > 0) {
       const totalWasted = underUtilised.reduce((sum, s) => sum + s.Available, 0);
       insights.push({

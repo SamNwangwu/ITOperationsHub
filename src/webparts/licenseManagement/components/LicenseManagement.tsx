@@ -189,7 +189,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       const alerts = this.alertService.generateAlerts(data, kpi, downgradeRecommendations);
 
       // V3: Generate month-over-month comparison
-      const monthComparison = this.comparisonService.generateMonthComparison(data.snapshots);
+      const monthComparison = this.comparisonService.generateMonthComparison(data.snapshots, data.skus);
 
       // Get ExtractDate from the first user or sku record
       const extractDateStr = data.users.length > 0
@@ -346,9 +346,13 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       undefined
     );
 
-    // Apply multi-select issue filters
+    // Apply multi-select issue filters (AND logic using compound flags)
     if (issueFilters.indexOf('all') < 0 && issueFilters.length > 0) {
-      filtered = filtered.filter(u => issueFilters.indexOf(u.IssueType as IssueFilterType) >= 0);
+      filtered = filtered.filter(u => {
+        var userFlags = this.dataService.getUserIssueFlags(u);
+        // User must match ALL selected filters
+        return issueFilters.every(function(f) { return userFlags.indexOf(f) >= 0; });
+      });
     }
 
     // Sort (only if a sort field is active)
@@ -563,7 +567,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
 
     const filterLabel = issueFilters.indexOf('all') >= 0
       ? 'All Users'
-      : issueFilters.join(', ');
+      : issueFilters.join(' + ');
 
     return (
       <div className={styles.pageContent}>
@@ -608,7 +612,7 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
         )}
 
         {/* Issue Category Cards - Multi-select */}
-        <div className={styles.issuesGrid} style={{ padding: '0 32px 24px' }}>
+        <div className={styles.issuesGrid} style={{ padding: '0 32px 12px' }}>
           {issueCategories.map(issue => (
             <IssueCard
               key={issue.type}
@@ -617,6 +621,9 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
               onClick={() => this.toggleIssueFilter(issue.type)}
             />
           ))}
+        </div>
+        <div style={{ padding: '0 32px 24px', fontSize: '12px', color: '#9CA3AF' }}>
+          Users may appear in multiple categories. Selecting multiple filters shows users matching all selected conditions.
         </div>
 
         {/* Users Table */}
@@ -708,9 +715,12 @@ export default class LicenseManagement extends React.Component<ILicenseManagemen
       }
     }
 
-    // Apply issue type filter (multi-select)
+    // Apply issue type filter (AND logic using compound flags)
     if (usersIssueFilters.indexOf('all') < 0 && usersIssueFilters.length > 0) {
-      allUsers = allUsers.filter(u => usersIssueFilters.indexOf(u.IssueType as IssueFilterType) >= 0);
+      allUsers = allUsers.filter(u => {
+        var userFlags = this.dataService.getUserIssueFlags(u);
+        return usersIssueFilters.every(function(f) { return userFlags.indexOf(f) >= 0; });
+      });
     }
 
     // Apply sorting (only if a sort field is active)

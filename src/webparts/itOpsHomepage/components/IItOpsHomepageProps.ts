@@ -32,6 +32,7 @@ export interface IItOpsHomepageProps {
   heroImage?: string;
   showStatusBadge: boolean;
   statusApiUrl?: string;
+  hubSiteUrl?: string;
   showArchitectureDiagrams: boolean;
   diagramsLibraryUrl?: string;
   platformCards: IPlatformCard[];

@@ -28,11 +28,7 @@ export default class ItOpsHomepage extends React.Component<IItOpsHomepageProps, 
 
   public componentDidMount(): void {
     this._loadDiagrams();
-    if (this.props.statusApiUrl) {
-      this._checkStatus();
-    } else {
-      this.setState({ isLoading: false });
-    }
+    this._checkStatus();
   }
 
   public componentDidUpdate(prevProps: IItOpsHomepageProps): void {
@@ -162,14 +158,74 @@ export default class ItOpsHomepage extends React.Component<IItOpsHomepageProps, 
   }
 
   private async _checkStatus(): Promise<void> {
-    // Placeholder for New Relic API integration
-    // In production, you'd call the API and parse the response
-    this.setState({ systemStatus: 'healthy', isLoading: false });
+    try {
+      var webUrl = this.props.context.pageContext.web.absoluteUrl;
+      var hubUrl = this.props.hubSiteUrl || webUrl;
+
+      // Map siteType to spoke name in ITOpsHealthStatus list
+      var spokeMap: Record<string, string> = {
+        'Hub': 'Hub',
+        'Infrastructure': 'Infrastructure',
+        'IAM': 'IAM',
+        'Platform': 'Platform Engineering',
+        'ServiceMgmt': 'Service Management',
+        'Security': 'Security',
+        'NOC': 'NOC',
+        'NetworkInfra': 'Infrastructure'
+      };
+
+      var spokeName = spokeMap[this.props.siteType] || 'Hub';
+
+      // For Hub: aggregate all spokes (worst status wins)
+      // For spokes: fetch own status only
+      var filter = this.props.siteType === 'Hub'
+        ? ''
+        : "$filter=Title eq '" + spokeName + "'";
+
+      var apiUrl = hubUrl + "/_api/web/lists/getbytitle('ITOpsHealthStatus')/items?" + filter + '&$orderby=Title';
+
+      var response: SPHttpClientResponse = await this.props.context.spHttpClient.get(
+        apiUrl,
+        SPHttpClient.configurations.v1
+      );
+
+      if (!response.ok) {
+        // List may not exist yet — default to healthy
+        this.setState({ systemStatus: 'healthy', isLoading: false });
+        return;
+      }
+
+      var data = await response.json();
+      var items: any[] = data.value || [];
+
+      if (items.length === 0) {
+        this.setState({ systemStatus: 'healthy', isLoading: false });
+        return;
+      }
+
+      if (this.props.siteType === 'Hub') {
+        // Aggregate: worst status wins
+        var hasDown = items.some(function(i: any) { return i.Status === 'down'; });
+        var hasDegraded = items.some(function(i: any) { return i.Status === 'degraded'; });
+        var status: 'healthy' | 'degraded' | 'down' = hasDown ? 'down' : hasDegraded ? 'degraded' : 'healthy';
+        this.setState({ systemStatus: status, isLoading: false });
+      } else {
+        var item = items[0];
+        this.setState({ systemStatus: item.Status || 'healthy', isLoading: false });
+      }
+    } catch (error) {
+      console.warn('Status check failed, defaulting to healthy:', error);
+      this.setState({ systemStatus: 'healthy', isLoading: false });
+    }
   }
 
   public render(): React.ReactElement<IItOpsHomepageProps> {
     const { heroTitle, heroSubtitle, heroBackground, heroImage, showStatusBadge, platformCards, quickLinks, showArchitectureDiagrams } = this.props;
     const { systemStatus, diagrams, isLoading } = this.state;
+
+    // Only show status badge on Hub, Infrastructure, and ServiceMgmt pages
+    var statusEligibleTypes = ['Hub', 'Infrastructure', 'ServiceMgmt'];
+    var shouldShowStatus = showStatusBadge && statusEligibleTypes.indexOf(this.props.siteType) >= 0;
 
     return (
       <div className={styles.itOpsHomepage}>
@@ -186,7 +242,7 @@ export default class ItOpsHomepage extends React.Component<IItOpsHomepageProps, 
             <h1 className={styles.heroTitle}>{heroTitle}</h1>
             <p className={styles.heroSubtitle}>{heroSubtitle}</p>
 
-            {showStatusBadge && (
+            {shouldShowStatus && (
               <div className={styles.statusBadge} data-status={systemStatus}>
                 <span className={styles.statusDot}></span>
                 <span className={styles.statusText}>

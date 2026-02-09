@@ -17,19 +17,11 @@ import {
   E5_EXCLUSIVE_FEATURES
 } from '../models/ILicenceData';
 import { getSkuFriendlyName } from '../utils/SkuClassifier';
+import { STANDARD_PRICING } from '../constants/Pricing';
 
 // Graph API base URL
 const GRAPH_BASE_URL = 'https://graph.microsoft.com/v1.0';
 const GRAPH_BETA_URL = 'https://graph.microsoft.com/beta';
-
-// Standard UK pricing for savings calculations
-const STANDARD_PRICING: Record<string, number> = {
-  'Microsoft 365 E5': 49.20,
-  'Microsoft 365 E3': 30.20,
-  'Office 365 E5': 32.00,
-  'Office 365 E3': 19.00,
-  'Microsoft 365 F3': 7.50,
-};
 
 export class UsageReportService {
   private context: WebPartContext;

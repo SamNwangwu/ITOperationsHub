@@ -162,16 +162,25 @@ export class SharePointDataService {
 
     const licenceNames = user.Licences.split(',').map(l => l.trim()).filter(l => l);
 
-    // Resolve cost for each licence
+    // Resolve cost for each licence, excluding free/viral SKUs
     const licenceCosts = licenceNames.map(licName => {
+      // Find the SKU record to check classification
+      const sku = skus.find(s => s.Title === licName || s.SkuPartNumber === licName);
+      if (sku) {
+        const classification = classifySkuWithPurchased(sku.SkuPartNumber, sku.Purchased, sku.Assigned);
+        if (classification.isExcludedFromAggregates) {
+          return 0; // Free/viral SKU — no savings from removing it
+        }
+      }
       const priceInfo = this.findPricingByLicenceName(pricing, skus, licName);
       return priceInfo ? priceInfo.MonthlyCostPerUser : 0;
     });
 
     if (user.IssueType === 'Dual-Licensed') {
-      // Keep the most expensive licence, save everything else
-      if (licenceCosts.length <= 1) return 0;
-      const sorted = [...licenceCosts].sort((a, b) => b - a);
+      // Filter to paid licences only — unresolvable ones should not distort savings
+      const paidLicenceCosts = licenceCosts.filter(function(c) { return c > 0; });
+      if (paidLicenceCosts.length <= 1) return 0; // Can't determine redundancy
+      const sorted = [...paidLicenceCosts].sort((a, b) => b - a);
       // Sum all except the highest-cost licence
       return sorted.slice(1).reduce((sum, cost) => sum + cost, 0);
     }
@@ -217,7 +226,7 @@ export class SharePointDataService {
 
     paidSkus.forEach(sku => {
       const priceInfo = this.findPricing(pricing, sku.Title, sku.SkuPartNumber);
-      if (priceInfo) {
+      if (priceInfo && priceInfo.MonthlyCostPerUser > 0) {
         monthlySpend += sku.Assigned * priceInfo.MonthlyCostPerUser;
       }
     });
@@ -260,10 +269,10 @@ export class SharePointDataService {
       }, 0);
     };
 
-    const disabledUsers = users.filter(u => u.IssueType === 'Disabled');
-    const dualUsers = users.filter(u => u.IssueType === 'Dual-Licensed');
-    const inactiveUsers = users.filter(u => u.IssueType === 'Inactive 90+');
-    const serviceUsers = users.filter(u => u.IssueType === 'Service Account');
+    const disabledUsers = users.filter(u => this.getUserIssueFlags(u).indexOf('Disabled') >= 0);
+    const dualUsers = users.filter(u => this.getUserIssueFlags(u).indexOf('Dual-Licensed') >= 0);
+    const inactiveUsers = users.filter(u => this.getUserIssueFlags(u).indexOf('Inactive 90+') >= 0);
+    const serviceUsers = users.filter(u => this.getUserIssueFlags(u).indexOf('Service Account') >= 0);
 
     return [
       {
@@ -326,6 +335,18 @@ export class SharePointDataService {
     });
 
     return trendData;
+  }
+
+  /**
+   * Get all applicable issue flags for a user (a user can match multiple conditions)
+   */
+  public getUserIssueFlags(user: ILicenceUser): string[] {
+    var flags: string[] = [];
+    if (!user.AccountEnabled) flags.push('Disabled');
+    if (user.HasE3 && user.HasE5) flags.push('Dual-Licensed');
+    if (user.DaysSinceSignIn >= 90 && user.AccountEnabled) flags.push('Inactive 90+');
+    if (user.IsServiceAccount) flags.push('Service Account');
+    return flags;
   }
 
   /**
